@@ -906,8 +906,7 @@ void Model::get_final_solution(Data &data)
     // calls python script to generate graph of the solution
     string command = "python3 ";
     string file_name = "script.py ";
-    string instance_path = "\"" + data.get_instance_path() + "\"";
-    command += (file_name + instance_path + " 0");
+    command += (file_name + data.get_instance_name() + " 0");
     system(command.c_str());
 }
 

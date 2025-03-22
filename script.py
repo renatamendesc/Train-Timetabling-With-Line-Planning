@@ -10,8 +10,7 @@ START_TIME = 18000
 color_train = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#800080', '#FFA500', '#008000', '#FFC0CB', '#FFD700', '#000000', '#FFFFFF', '#808080', '#FF4500']
 
 # get name of the instance
-instance = sys.argv[1].split("/")[1]
-instance = instance.split(".")[0]
+instance = sys.argv[1]
 
 file_name = "script-solution.txt"
 # cleaning possible extra lines in the file
@@ -94,7 +93,7 @@ ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
 file_graph = "solutions/graphs/" + instance + ".png"
 plt.savefig(file_graph, dpi=300, bbox_inches='tight')
-plt.show()
+# plt.show()
 
 plt.close()
 os.remove(file_name)
