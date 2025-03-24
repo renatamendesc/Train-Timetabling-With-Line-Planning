@@ -6,10 +6,13 @@
 
 class Combinations
 {
-
 public:
     unsigned long long int total_nb_combinations = 0;
-    unsigned long long int nb_trips_combinations = 0;
+
+    void init(Data &data);
+
+private:
+    unsigned long long int max_nb_trips_combinations = 0;
 
     int max_nb_trips;
     int nb_routes;
@@ -19,12 +22,11 @@ public:
     std::vector<std::vector<int>> all_combinations;
     std::vector<std::vector<int>> trips_combinations;
 
-    void init(Data &data);
-
-private:
-    void generate_trips_combinations();
+    void generate_trips_combinations(Data &data);
     void generate_all_combinations();
 
+    bool check_trips_feasibility (Data &data, std::vector <int> &current);
+    bool check_final_feasibility (Data &data, std::vector <int> &current);
 };
 
 #endif
