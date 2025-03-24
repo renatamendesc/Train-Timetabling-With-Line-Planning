@@ -27,6 +27,7 @@ private:
     int _nb_points;
     int _initial_point;
     int _nb_routes;
+    int _max_nb_trips;
     // one entry for each point
     std::vector<bool> _is_station;
     std::vector<bool> _is_crossing;
@@ -177,6 +178,11 @@ public:
     int get_train_max_trips(int train)
     {
         return _max_trips_per_train[train];
+    }
+
+    int get_max_nb_trips()
+    {
+        return _max_nb_trips;
     }
 
     int get_nb_intervals()

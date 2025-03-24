@@ -44,9 +44,12 @@ Data::Data(string instance_path)
     instance_file.ignore(100000, '#');
     instance_file.ignore(100000, '\n');
     _max_trips_per_train.assign(_nb_trains, 0);
+    _max_nb_trips = 0;
     for (int i = 0; i < _nb_trains; i++)
     {
         instance_file >> _max_trips_per_train[i];
+        if (_max_trips_per_train[i] > _max_nb_trips)
+            _max_nb_trips = _max_trips_per_train[i];
     }
 
     // read #_time_intervals
