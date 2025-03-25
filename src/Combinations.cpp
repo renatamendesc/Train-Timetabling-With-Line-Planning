@@ -7,49 +7,41 @@ void Combinations::init(Data &data)
     // calculate number of trips combinations
     nb_routes = data.get_nb_routes();                    
     max_nb_trips = data.get_max_nb_trips();
-    max_nb_trips_combinations = pow(nb_routes+1, max_nb_trips); // sums 1 to consider the possibility that the trip might not be made
-
+    max_nb_trips_combinations = pow(nb_routes+1, max_nb_trips); // sums 1 to the routes to consider the possibility that the trip might not be made
     generate_trips_combinations(data);
-    cout << endl;
-    for (int i = 0; i < trips_combinations.size(); i++)
-    {
-        cout << "(Trip) Combination " << i << ": " << endl;
-        for (int j = 0; j < trips_combinations[i].size(); j++)
-        {
-            cout << trips_combinations[i][j] << " " << endl;;
-        }
-        cout << endl;
-    }
 
     // calculate total number of possible combinations
     nb_trains = data.get_nb_trains();
     total_nb_combinations = pow(trips_combinations.size(), nb_trains); 
 
-    generate_all_combinations();
-    for (int i = 0; i < all_combinations.size(); i++)
-    {
-        cout << "Combination " << i << ": " << endl;
-        for (int j = 0; j < all_combinations[i].size(); j++)
-        {
-            cout << "Train " << j << ": ";
-            int idx_trip_comb = all_combinations[i][j];
-            for (int k = 0; k < trips_combinations[idx_trip_comb].size(); k++)
-            {
-                cout << trips_combinations[idx_trip_comb][k] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
+    generate_all_combinations(data);
+    // for (int i = 0; i < all_combinations.size(); i++)
+    // {
+    //     cout << "Combination " << i << ": " << endl;
+    //     for (int j = 0; j < all_combinations[i].size(); j++)
+    //     {
+    //         cout << "Train " << j << ": ";
+    //         int idx_trip_comb = all_combinations[i][j];
+    //         for (int k = 0; k < trips_combinations[idx_trip_comb].size(); k++)
+    //         {
+    //             cout << trips_combinations[idx_trip_comb][k] << " ";
+    //         }
+    //         cout << endl;
+    //     }
+    //     cout << endl;
+    // }
 }
 
-void Combinations::generate_all_combinations()
+void Combinations::generate_all_combinations(Data &data)
 {
     vector<int> current(nb_trains, 0);
     for (unsigned long long count = 0; count < total_nb_combinations; count++)
     {
-        // display current combination
-        all_combinations.push_back(current);
+        if (check_final_feasibility(data, current))
+        {
+            all_combinations.push_back(current);
+            cout << all_combinations.size() << " combination(s) were generated..." << endl;
+        }
 
         // go to next combination
         for (int i = nb_trains-1; i >= 0; i--)
@@ -61,9 +53,73 @@ void Combinations::generate_all_combinations()
     }
 }
 
-bool check_final_feasibility (Data &data, std::vector <int> &current)
+bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
 {
+    // for (int i = 0; i < current.size(); i++)
+    // {
+    //     cout << "Train " << i << ": ";
+    //     for (int j = 0; j < trips_combinations[current[i]].size(); j++)
+    //     {
+    //         cout << trips_combinations[current[i]][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
 
+    // verify whether number of trips is feasible
+    for (int i = 0; i < current.size(); i++)
+    {
+        int trips_completed = 0;
+        for (int j = 0; j < trips_combinations[current[i]].size(); j++)
+        {
+            if (trips_combinations[current[i]][j] != nb_routes)
+                trips_completed++;
+        }
+        if (trips_completed > data.get_train_max_trips(i))
+            return false;
+    }
+
+    // normalize combinations to verify whether it was already added
+    // (only changes the train that will complete the trips)
+    vector<int> normalized_combination = current;
+    sort(normalized_combination.begin(), normalized_combination.end());
+    auto result = unique_combinations.insert(normalized_combination);
+    if (!result.second)
+    {
+        return false; // combination already exists
+    }
+
+    // verify whether demands were met
+    // calculate sum of demands for the day
+    vector <int> demands_per_day (data.get_nb_vertices(), 0);
+    for (int i = 0; i < data.get_nb_vertices(); i++)
+    {
+        for (int j = 0; j < data.get_nb_intervals(); j++)
+            demands_per_day[i] += data.get_demands()[i][j];
+    }
+    vector<int> times_vertex_was_visited (data.get_nb_vertices(), 0);
+    for (int i = 0; i < current.size(); i++)                                // for each train
+    {
+        for (int j = 0; j < trips_combinations[current[i]].size(); j++)     // for each route completed by the train
+        {
+            if (trips_combinations[current[i]][j] != data.get_nb_routes())  // if trip is made
+            {
+                int route = trips_combinations[current[i]][j];
+                for (auto vertex : data.get_route_vertices(route))
+                { 
+                    times_vertex_was_visited[vertex]++;
+                }
+            }
+        }
+    }
+
+    // check if demands were met
+    for (int i = 0 ; i < data.get_nb_vertices(); i++)
+    {
+        if (times_vertex_was_visited[i] < demands_per_day[i]) return false;
+    }
+
+    return true;
 }
 
 void Combinations::generate_trips_combinations(Data &data)
