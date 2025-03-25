@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void Combinations::init(Data &data)
+Combinations::Combinations(Data &data)
 {
     // reset directory that stores solutions for the instance
     reset_directory(data);
