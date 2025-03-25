@@ -2,14 +2,22 @@
 
 using namespace std;
 
-void Model::init (Data &data)
+void Model::initialize (Data &data)
 {
-    // initialize variables
     env = IloEnv();
     model = IloModel(env);
     constraints = IloConstraintArray(env);
     obj = IloExpr(env);
+}
 
+void Model::reset (Data &data)
+{
+    env.end();
+    initialize(data);
+}
+
+void Model::run (Data &data)
+{
     // create decision variables
     add_variables(data);
 
@@ -23,7 +31,51 @@ void Model::init (Data &data)
     model.add(constraints);
 
     // extract solution from the model
-    extract_solution(data);
+    extract_solution(data, true);
+}
+
+int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains)
+{
+    // create decision variables
+    add_variables(data);
+
+    // create objective function
+    obj = z_; 
+    model.add(IloMinimize(env, obj));
+    constraints.add(z_ >= 0);
+
+    // create constraints
+    add_constraints(data);
+
+    // create routes constraints
+    for (int t = 0; t < routes_of_trains.size(); t++)
+    {
+        vector<int> current = routes_of_trains[t];
+        for (int i = 0; i < current.size(); i++)
+        {
+            if (i < data.get_train_max_trips(t))
+            {
+                current[i] != data.get_nb_routes();
+                if (current[i] != data.get_nb_routes()) 
+                {
+                    // variable is 1 if route is completed
+                    constraints.add(lambda_[t][i][current[i]] == 1);
+                }
+                else                                    
+                {
+                    // variable is zero if trip is not made
+                    for (int r = 0; r < data.get_nb_routes(); r++)
+                    {
+                        constraints.add(lambda_[t][i][r] == 0);
+                    }
+                }
+            }
+        }
+    }
+    model.add(constraints);
+
+    // extract solution from the model
+    return extract_solution(data, false);
 }
 
 void Model::add_variables (Data &data)
@@ -651,7 +703,7 @@ void Model::add_constraints (Data &data)
     }
 }
 
-int Model::extract_solution(Data &data)
+int Model::extract_solution(Data &data, bool is_final_solution)
 {
     IloCplex cplex(env);
     cplex.extract(model);
@@ -660,31 +712,67 @@ int Model::extract_solution(Data &data)
     // set parameters
     cplex.setParam(IloCplex::ClockType, 2);
     cplex.setParam(IloCplex::TiLim, 43200); // set time limit of 12 hours
-    // cplex.setParam(IloCplex::Threads, 1);
 
-    cout << endl << ">> Solving..." << endl;
-    clock_t start = clock();
-    cplex.solve();
-    clock_t end = clock();
-    sol.computational_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-
-    cout << cplex.getStatus() << endl;
-    if (cplex.getStatus() == IloCplex::Infeasible)
+    if (!is_final_solution)
     {
-        cerr << "Error: Instance is infeasible\n";
-        return 0;
+        cplex.setParam(IloCplex::Threads, 1);
+
+        // remove outputs
+        cplex.setOut(env.getNullStream());     
+        cplex.setWarning(env.getNullStream());  
+        cplex.setError(env.getNullStream());    
+
+        auto start = chrono::high_resolution_clock::now();
+        bool solved = cplex.solve();
+        auto end = chrono::high_resolution_clock::now();
+        
+        if (!solved)
+            return 0;
+
+        std::chrono::duration<double> time = end-start;
+        current_sol.computational_time = (time).count();
+        current_sol.obj_value = cplex.getObjValue();
+        get_value_of_variables(data, cplex, is_final_solution);
+        
+        if (current_sol.obj_value < best_sol.obj_value)
+        {
+            best_sol.obj_value = current_sol.obj_value;
+            best_sol.y_values = current_sol.y_values;
+            best_sol.y_bar_values = current_sol.y_bar_values;
+            best_sol.lambda_values = current_sol.lambda_values;
+        }
+    }
+    else
+    {
+        cout << endl << ">> Solving..." << endl;
+        auto start = chrono::high_resolution_clock::now();
+        cplex.solve();
+        auto end = chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time = end-start;
+        best_sol.computational_time = (time).count();
+
+        cout << cplex.getStatus() << endl;
+        if (cplex.getStatus() == IloCplex::Infeasible)
+        {
+            cerr << "Error: Instance is infeasible\n";
+            return 0;
+        }
+
+        best_sol.obj_value = cplex.getObjValue();
+        best_sol.gap_value = cplex.getMIPRelativeGap();
     }
 
-    sol.obj_value = cplex.getObjValue();
-    sol.gap_value = cplex.getMIPRelativeGap();
-
-    get_value_of_variables(data, cplex);
-    get_final_solution(data);
+    get_value_of_variables(data, cplex, is_final_solution);
+    get_solution(data, is_final_solution);
     return 1;
 }
 
-void Model::get_value_of_variables(Data &data, IloCplex &cplex)
+void Model::get_value_of_variables(Data &data, IloCplex &cplex, bool is_final_solution)
 {
+    VarValuesMatrix3d y_values;
+    VarValuesMatrix3d y_bar_values;
+    VarValuesMatrix3d lambda_values;
+
     vector<vector<int>> map_indexes_y, map_indexes_y_bar, map_indexes_lambda;
     IloNumVarArray y_array = IloNumVarArray(env);
     for (int t = 0; t < data.get_nb_trains(); t++)
@@ -753,31 +841,31 @@ void Model::get_value_of_variables(Data &data, IloCplex &cplex)
     // get y values
     IloNumArray y_values_array = IloNumArray(env, map_indexes_y.size());
     cplex.getValues(y_values_array, y_array);
-    sol.y_values = vector<vector<vector<int>>>(data.get_nb_trains(),
+    y_values = vector<vector<vector<int>>>(data.get_nb_trains(),
                                            vector<vector<int>>(max_nb_trips,
                                                                vector<int>(data.get_nb_vertices(), 0)));
     for (int i = 0; i < map_indexes_y.size(); i++)
-        sol.y_values[map_indexes_y[i][0]][map_indexes_y[i][1]][map_indexes_y[i][2]] += floor(y_values_array[i] + 1e-5);
+        y_values[map_indexes_y[i][0]][map_indexes_y[i][1]][map_indexes_y[i][2]] += floor(y_values_array[i] + 1e-5);
     y_values_array.end();
     y_array.end();
     // get y bar values
     IloNumArray y_bar_values_array = IloNumArray(env, map_indexes_y_bar.size());
     cplex.getValues(y_bar_values_array, y_bar_array);
-    sol.y_bar_values = vector<vector<vector<int>>>(data.get_nb_trains(),
+    y_bar_values = vector<vector<vector<int>>>(data.get_nb_trains(),
                                                vector<vector<int>>(max_nb_trips,
                                                                    vector<int>(data.get_nb_vertices(), 0)));
     for (int i = 0; i < map_indexes_y_bar.size(); i++)
-        sol.y_bar_values[map_indexes_y_bar[i][0]][map_indexes_y_bar[i][1]][map_indexes_y_bar[i][2]] += floor(y_bar_values_array[i] + 1e-5);
+        y_bar_values[map_indexes_y_bar[i][0]][map_indexes_y_bar[i][1]][map_indexes_y_bar[i][2]] += floor(y_bar_values_array[i] + 1e-5);
     y_bar_values_array.end();
     y_bar_array.end();
     // get lambda values
     IloNumArray lambda_values_array = IloNumArray(env, map_indexes_lambda.size());
     cplex.getValues(lambda_values_array, lambda_array);
-    sol.lambda_values = vector<vector<vector<int>>>(data.get_nb_trains(),
+    lambda_values = vector<vector<vector<int>>>(data.get_nb_trains(),
                                                 vector<vector<int>>(max_nb_trips,
                                                                     vector<int>(data.get_nb_routes(), 0)));
     for (int i = 0; i < map_indexes_lambda.size(); i++)
-        sol.lambda_values[map_indexes_lambda[i][0]][map_indexes_lambda[i][1]][map_indexes_lambda[i][2]] += floor(lambda_values_array[i] + 1e-5);
+        lambda_values[map_indexes_lambda[i][0]][map_indexes_lambda[i][1]][map_indexes_lambda[i][2]] += floor(lambda_values_array[i] + 1e-5);
     lambda_values_array.end();
     lambda_array.end();
 
@@ -810,56 +898,68 @@ void Model::get_value_of_variables(Data &data, IloCplex &cplex)
     //         }
     //     }
     // }
+
+    if (!is_final_solution)
+    {
+        current_sol.y_values = y_values;
+        current_sol.y_bar_values = y_bar_values;
+        current_sol.lambda_values = lambda_values;
+    }
+    else
+    {
+        best_sol.y_values = y_values;
+        best_sol.y_bar_values = y_bar_values;
+        best_sol.lambda_values = lambda_values;
+    }
 }
 
-void Model::get_final_solution(Data &data)
+void Model::get_solution (Data &data, bool is_final_solution)
 {   
-    cout << endl << ">> Printing some results..." << endl << fixed << setprecision(2);
-    cout << "    -> Solution value = " << sol.obj_value << " - " << convert_time(sol.obj_value) << endl;
-    cout << "    -> Total time = " << sol.computational_time << endl;
-    cout << "    -> Gap value = " << sol.gap_value << endl;
+    VarValuesMatrix3d y_values;
+    VarValuesMatrix3d y_bar_values;
+    VarValuesMatrix3d lambda_values;
 
-    for (int t = 0; t < data.get_nb_trains(); t++)
-    {
-        cout << "=============" << endl
-             << "Train " << t << endl
-             << "=============" << endl;
-        for (int i = 0; i < data.get_train_max_trips(t); i++)
-        {
-            for (int r = 0; r < data.get_nb_routes(); r++)
-            {
-                if (data.is_valid_route(t, i, r))
-                {
-                    if (sol.lambda_values[t][i][r] > 0)
-                    {
-                        cout << "> Trip " << i << endl;
-                        int departure, arrival;
+    int idx_sol = 0;
 
-                        for (auto arc : data.get_route_arcs(r))
-                        {
-                            departure = arc.out;
-                            arrival = arc.inc;
-
-                            cout << "   " << departure << "(time " << sol.y_values[t][i][departure] << " - " << convert_time(sol.y_values[t][i][departure]) << ")"
-                                 << "(time " << sol.y_bar_values[t][i][arrival] << " - " << convert_time(sol.y_bar_values[t][i][arrival])
-                                 << ") -> ";
-                        }
-                        cout << arrival << endl;
-                    }
-                }
-            }
-        }
-    }
-
-    // create files to register the solution given by the model
     ofstream solution_file, solution_script;
-    solution_file.open("solutions/timetables/" + data.get_instance_name() + ".txt", ios::out | ios::trunc); // file to register the timetable
-    solution_script.open("script-solution.txt", ios::out | ios::trunc);                                     // file to execute the python script, in order to generate the graphs of the timetable
+    if (!is_final_solution)
+    {
+        y_values = current_sol.y_values;
+        y_bar_values = current_sol.y_bar_values;
+        lambda_values = current_sol.lambda_values;
+        
+        // creates folder to save files about solution
+        string full_path =  "combinations/feasible-combinations/" + data.get_instance_name();
+        filesystem::create_directory(full_path);
 
-    solution_file << "-> Solution value = " << sol.obj_value << " - " << convert_time(sol.obj_value) << endl;
-    solution_file << "-> Total time = " << sol.computational_time << endl;
-    solution_file << "-> Gap value = " << sol.gap_value << endl
-                  << endl;
+        idx_sol++;
+        string full_path_sol = full_path + "/sol" + to_string(idx_sol);
+        while(!filesystem::create_directory(full_path_sol))
+        {
+            idx_sol++;
+            full_path_sol = full_path + "/sol" + to_string(idx_sol);
+        }
+
+        solution_file.open(full_path_sol + "/timetable.txt", ios::out | ios::trunc);                   // file to register the timetable obtained
+        solution_script.open(full_path_sol + "/script-solution.txt", ios::out | ios::trunc);           // file to execute the python script, in order to generate the graphs of the timetable
+        
+        solution_file << "-> Solution value = " << current_sol.obj_value << " - " << convert_time(current_sol.obj_value) << endl; 
+        solution_file << "-> Total time = " << current_sol.computational_time << endl;
+    }
+    else
+    {
+        y_values = best_sol.y_values;
+        y_bar_values = best_sol.y_bar_values;
+        lambda_values = best_sol.lambda_values;
+
+        // create files to register the solution given by the model
+        solution_file.open("solutions/timetables/" + data.get_instance_name() + ".txt", ios::out | ios::trunc); // file to register the timetable
+        solution_script.open("script-solution.txt", ios::out | ios::trunc);                                     // file to execute the python script, in order to generate the graphs of the timetable
+
+        solution_file << "-> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
+        solution_file << "-> Total time = " << best_sol.computational_time << endl;
+        solution_file << "-> Gap value = " << best_sol.gap_value << endl << endl;
+    }
 
     solution_script << "num_points " << data.get_nb_points() << endl;
     solution_script << "---" << endl;
@@ -875,7 +975,7 @@ void Model::get_final_solution(Data &data)
             {
                 if (data.is_valid_route(t, i, r))
                 {
-                    if (sol.lambda_values[t][i][r] > 0)
+                    if (lambda_values[t][i][r] > 0)
                     {
                         solution_file << "> Trip " << i << endl;
                         int departure, arrival;
@@ -884,12 +984,12 @@ void Model::get_final_solution(Data &data)
                             departure = arc.out;
                             arrival = arc.inc;
 
-                            solution_file << "   " << departure << "(time " << sol.y_values[t][i][departure] << " - " << convert_time(sol.y_values[t][i][departure]) << ")"
-                                            << "(time " <<  sol.y_bar_values[t][i][arrival] << " - " << convert_time(sol.y_bar_values[t][i][arrival])
+                            solution_file << "   " << departure << "(time " << y_values[t][i][departure] << " - " << convert_time(y_values[t][i][departure]) << ")"
+                                            << "(time " << y_bar_values[t][i][arrival] << " - " << convert_time(y_bar_values[t][i][arrival])
                                             << ") -> ";
 
-                            solution_script << t << "," << i << "," << data.get_vertex_point(departure) << ": " << sol.y_values[t][i][departure] << " -> ";
-                            solution_script << t << "," << i << "," << data.get_vertex_point(arrival) << ": " << (sol.y_values[t][i][departure] + data.get_distance(arc.idx)) << " // ";
+                            solution_script << t << "," << i << "," << data.get_vertex_point(departure) << ": " << y_values[t][i][departure] << " -> ";
+                            solution_script << t << "," << i << "," << data.get_vertex_point(arrival) << ": " << (y_values[t][i][departure] + data.get_distance(arc.idx)) << " // ";
                         }
                         solution_file << "   " << arrival << endl;
                     }
@@ -899,14 +999,60 @@ void Model::get_final_solution(Data &data)
         }
         solution_script << endl;
     }
-
     solution_file.close();
     solution_script.close();
 
+    // display solution on terminal if it's the final solution
+    if (is_final_solution)
+    {
+        cout << endl << ">> Printing some results..." << endl << fixed << setprecision(2);
+        cout << "    -> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
+        cout << "    -> Total time = " << best_sol.computational_time << endl;
+        cout << "    -> Gap value = " << best_sol.gap_value << endl << endl;;
+
+        for (int t = 0; t < data.get_nb_trains(); t++)
+        {
+            cout << "=============" << endl
+                 << "Train " << t << endl
+                 << "=============" << endl;
+            for (int i = 0; i < data.get_train_max_trips(t); i++)
+            {
+                for (int r = 0; r < data.get_nb_routes(); r++)
+                {
+                    if (data.is_valid_route(t, i, r))
+                    {
+                        if (lambda_values[t][i][r] > 0)
+                        {
+                            cout << "> Trip " << i << endl;
+                            int departure, arrival;
+    
+                            for (auto arc : data.get_route_arcs(r))
+                            {
+                                departure = arc.out;
+                                arrival = arc.inc;
+    
+                                cout << "   " << departure << "(time " << y_values[t][i][departure] << " - " << convert_time(y_values[t][i][departure]) << ")"
+                                     << "(time " << y_bar_values[t][i][arrival] << " - " << convert_time(y_bar_values[t][i][arrival])
+                                     << ") -> ";
+                            }
+                            cout << arrival << endl;
+                        }
+                    }
+                }
+            }
+        }
+
+        get_graph(data, idx_sol);
+    }
+}
+
+void Model::get_graph (Data &data, int idx_sol)
+{
     // calls python script to generate graph of the solution
     string command = "python3 ";
     string file_name = "script.py ";
-    command += (file_name + data.get_instance_name() + " 0");
+    string instance_name = "\"" + data.get_instance_name() + "\"";
+    command += (file_name + instance_name + " " + to_string(idx_sol));
     system(command.c_str());
 }
 

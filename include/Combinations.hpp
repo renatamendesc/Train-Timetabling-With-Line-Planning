@@ -2,6 +2,7 @@
 #define COMB_HPP
 
 #include "Data.hpp"
+#include "Model.hpp"
 #include <cmath>
 #include <algorithm>
 #include <set>
@@ -10,6 +11,7 @@ class Combinations
 {
 public:
     unsigned long long int total_nb_combinations = 0;
+    unsigned long long int nb_feasible_combinations = 0;
 
     void init(Data &data);
 
@@ -26,8 +28,10 @@ private:
     std::vector<std::vector<int>> all_combinations;
     std::vector<std::vector<int>> trips_combinations;
 
+    void reset_directory(Data &data);
+
     void generate_trips_combinations(Data &data);
-    void generate_all_combinations(Data &data);
+    void generate_all_combinations(Data &data, Model &model);
 
     bool check_trips_feasibility (Data &data, std::vector <int> &current);
     bool check_final_feasibility (Data &data, std::vector <int> &current);

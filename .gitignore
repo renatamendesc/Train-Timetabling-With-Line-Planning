@@ -41,5 +41,8 @@ cbtu
 # Folder with solutions
 solutions/
 
+# Folder with combinations
+combinations/
+
 # File to generate graphs
 script-solution.txt

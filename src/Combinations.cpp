@@ -4,17 +4,27 @@ using namespace std;
 
 void Combinations::init(Data &data)
 {
-    // calculate number of trips combinations
-    nb_routes = data.get_nb_routes();                    
+    // reset directory that stores solutions for the instance
+    reset_directory(data);
+
+    // create object of the model
+    Model model;
+    model.initialize(data);
+
+    // start counting time
+    auto start = chrono::high_resolution_clock::now();
+
+    // generate trips combinations
+    nb_routes = data.get_nb_routes();                                  // calculate number of trips combinations           
     max_nb_trips = data.get_max_nb_trips();
-    max_nb_trips_combinations = pow(nb_routes+1, max_nb_trips); // sums 1 to the routes to consider the possibility that the trip might not be made
+    max_nb_trips_combinations = pow(nb_routes+1, max_nb_trips);        // sums 1 to the routes to consider the possibility that the trip might not be made
     generate_trips_combinations(data);
 
-    // calculate total number of possible combinations
-    nb_trains = data.get_nb_trains();
-    total_nb_combinations = pow(trips_combinations.size(), nb_trains); 
+    // generate all combinatinos
+    nb_trains = data.get_nb_trains();                                  // calculate total number of possible combinations
+    total_nb_combinations = pow(trips_combinations.size(), nb_trains);
+    generate_all_combinations(data, model);
 
-    generate_all_combinations(data);
     // for (int i = 0; i < all_combinations.size(); i++)
     // {
     //     cout << "Combination " << i << ": " << endl;
@@ -30,9 +40,29 @@ void Combinations::init(Data &data)
     //     }
     //     cout << endl;
     // }
+
+    // finish counting time
+    auto end = chrono::high_resolution_clock::now();
+    std::chrono::duration<double> time = end-start;
+    model.best_sol.computational_time = (time).count();
+
+    // get optimal solution
+    model.get_solution(data, true);
+    cout << endl << nb_feasible_combinations << "/" << total_nb_combinations << " were feasible combination(s) (" << std::fixed << std::setprecision(5) << (double(nb_feasible_combinations) / total_nb_combinations) * 100 << "%)" << endl;
 }
 
-void Combinations::generate_all_combinations(Data &data)
+void Combinations::reset_directory(Data &data)
+{
+    // reseting past feasible solutions files for the instance
+    std::string full_path =  "combinations/feasible-combinations/" + data.get_instance_name();
+    if (std::filesystem::exists(full_path)) {
+        for (const auto& entry : std::filesystem::directory_iterator(full_path)) {
+            std::filesystem::remove_all(entry.path());
+        }
+    }
+}
+
+void Combinations::generate_all_combinations(Data &data, Model &model)
 {
     vector<int> current(nb_trains, 0);
     for (unsigned long long count = 0; count < total_nb_combinations; count++)
@@ -40,8 +70,23 @@ void Combinations::generate_all_combinations(Data &data)
         if (check_final_feasibility(data, current))
         {
             all_combinations.push_back(current);
-            cout << all_combinations.size() << " combination(s) were generated..." << endl;
+
+            // create vector that stores explicitly the current combination
+            vector<vector<int>> routes_of_trains;
+            for (int i = 0; i < current.size(); i++)
+            {
+                routes_of_trains.push_back(trips_combinations[current[i]]);
+            }
+
+            // reset the model and executes it with routes constraints
+            model.reset(data);
+            bool feasible = model.run_with_routes_constraints(data, routes_of_trains);
+            if (feasible)
+            {
+                nb_feasible_combinations++;
+            }
         }
+        cout << count << "/" << total_nb_combinations << " combination(s) tested!" << endl;
 
         // go to next combination
         for (int i = nb_trains-1; i >= 0; i--)
@@ -90,7 +135,6 @@ bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
     }
 
     // verify whether demands were met
-    // calculate sum of demands for the day
     vector <int> demands_per_day (data.get_nb_vertices(), 0);
     for (int i = 0; i < data.get_nb_vertices(); i++)
     {
@@ -112,8 +156,6 @@ bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
             }
         }
     }
-
-    // check if demands were met
     for (int i = 0 ; i < data.get_nb_vertices(); i++)
     {
         if (times_vertex_was_visited[i] < demands_per_day[i]) return false;
@@ -128,8 +170,10 @@ void Combinations::generate_trips_combinations(Data &data)
     for (unsigned long long count = 0; count < max_nb_trips_combinations; count++)
     {
         // verify feasibility of the current combination before adding to the vector
-        if (check_trips_feasibility(data, current)) 
+        if (check_trips_feasibility(data, current))
+        {
             trips_combinations.push_back(current);
+        }
 
         // go to next combination
         for (int i = max_nb_trips-1; i >= 0; i--)
@@ -143,7 +187,8 @@ void Combinations::generate_trips_combinations(Data &data)
 
 bool Combinations::check_trips_feasibility (Data &data, vector <int> &current)
 {
-    // verifies whether first route starts at the initial depot
+
+    // verify whether first route starts at the initial depot
     if (current[0] != nb_routes)
     {
         if (!data.is_valid_route(0, 0, current[0])) return false;

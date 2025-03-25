@@ -12,6 +12,9 @@ color_train = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',
 # get name of the instance
 instance = sys.argv[1]
 
+# get index of the solution
+idx_sol = sys.argv[2]
+
 file_name = "script-solution.txt"
 # cleaning possible extra lines in the file
 with open(file_name, "r") as file:
@@ -90,10 +93,15 @@ ax = plt.gca()
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
-
-file_graph = "solutions/graphs/" + instance + ".png"
-plt.savefig(file_graph, dpi=300, bbox_inches='tight')
-# plt.show()
+if idx_sol == "0":
+    # is final (optimal) solution
+    file_graph = "solutions/graphs/" + instance + ".png"
+    plt.savefig(file_graph, dpi=300, bbox_inches='tight')
+    plt.show()
+else:
+    # is partial solution
+    file_graph = "combinations/feasible-combinations/" + instance + "/sol" + str(idx_sol) + "/graph.png"
+    plt.savefig(file_graph, dpi=300, bbox_inches='tight')
 
 plt.close()
 os.remove(file_name)
