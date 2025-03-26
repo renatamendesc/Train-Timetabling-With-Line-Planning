@@ -25,6 +25,7 @@ Combinations::Combinations(Data &data)
     total_nb_combinations = pow(trips_combinations.size(), nb_trains);
     generate_all_combinations(data, model);
 
+    // cout << endl;
     // for (int i = 0; i < all_combinations.size(); i++)
     // {
     //     cout << "Combination " << i << ": " << endl;
@@ -38,7 +39,6 @@ Combinations::Combinations(Data &data)
     //         }
     //         cout << endl;
     //     }
-    //     cout << endl;
     // }
 
     // finish counting time
@@ -69,6 +69,7 @@ void Combinations::generate_all_combinations(Data &data, Model &model)
     {
         if (check_final_feasibility(data, current))
         {
+            cout << "Válida" << endl << endl;
             all_combinations.push_back(current);
 
             // create vector that stores explicitly the current combination
@@ -100,16 +101,16 @@ void Combinations::generate_all_combinations(Data &data, Model &model)
 
 bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
 {
-    // for (int i = 0; i < current.size(); i++)
-    // {
-    //     cout << "Train " << i << ": ";
-    //     for (int j = 0; j < trips_combinations[current[i]].size(); j++)
-    //     {
-    //         cout << trips_combinations[current[i]][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-    // cout << endl;
+    for (int i = 0; i < current.size(); i++)
+    {
+        cout << "Train " << i << ": ";
+        for (int j = 0; j < trips_combinations[current[i]].size(); j++)
+        {
+            cout << trips_combinations[current[i]][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
 
     // verify whether number of trips is feasible
     for (int i = 0; i < current.size(); i++)
@@ -170,9 +171,13 @@ void Combinations::generate_trips_combinations(Data &data)
     for (unsigned long long count = 0; count < max_nb_trips_combinations; count++)
     {
         // verify feasibility of the current combination before adding to the vector
-        if (check_trips_feasibility(data, current))
+        if (check_trips_feasibility(data, current) && prohibited_combinations.find(current) == prohibited_combinations.end())
         {
             trips_combinations.push_back(current);
+        }
+        else
+        {
+            add_to_prohibited_set(current);
         }
 
         // go to next combination
@@ -218,6 +223,15 @@ bool Combinations::check_trips_feasibility (Data &data, vector <int> &current)
     return flag; 
 }
 
+void Combinations::add_to_prohibited_set(vector <int> invalid_combination)
+{
+    prohibited_combinations.insert(invalid_combination);
+    for (int i = invalid_combination.size()-1; i >= 0; i--)
+    {
+        invalid_combination[i] == nb_routes;
+        prohibited_combinations.insert(invalid_combination);
+    }
+}
 
 
 
