@@ -68,6 +68,9 @@ private:
     // alpha - headway time
     int _alpha;
 
+    // function to check whether instance is consistent
+    bool validate_instance();
+
 public:
     Data(std::string instance_path);
 
