@@ -715,8 +715,6 @@ int Model::extract_solution(Data &data, bool is_final_solution)
 
     if (!is_final_solution)
     {
-        cplex.setParam(IloCplex::Threads, 1);
-
         // remove outputs
         cplex.setOut(env.getNullStream());     
         cplex.setWarning(env.getNullStream());  
@@ -732,11 +730,13 @@ int Model::extract_solution(Data &data, bool is_final_solution)
         std::chrono::duration<double> time = end-start;
         current_sol.computational_time = (time).count();
         current_sol.obj_value = cplex.getObjValue();
+        current_sol.gap_value = cplex.getMIPRelativeGap();
         get_value_of_variables(data, cplex, is_final_solution);
         
         if (current_sol.obj_value < best_sol.obj_value)
         {
             best_sol.obj_value = current_sol.obj_value;
+            best_sol.gap_value = current_sol.gap_value;
             best_sol.y_values = current_sol.y_values;
             best_sol.y_bar_values = current_sol.y_bar_values;
             best_sol.lambda_values = current_sol.lambda_values;

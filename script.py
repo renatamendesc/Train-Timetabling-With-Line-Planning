@@ -97,7 +97,7 @@ if idx_sol == "0":
     # is final (optimal) solution
     file_graph = "solutions/graphs/" + instance + ".png"
     plt.savefig(file_graph, dpi=300, bbox_inches='tight')
-    plt.show()
+    # plt.show()
 else:
     # is partial solution
     file_graph = "combinations/feasible-combinations/" + instance + "/sol" + str(idx_sol) + "/graph.png"
