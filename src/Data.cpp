@@ -140,6 +140,10 @@ Data::Data(string instance_path)
     instance_file.ignore(100000, '\n');
     instance_file >> _initial_point;
 
+    // verify whether instance is consistent
+    if (!validate_instance())
+        exit(0);
+
     // read routes
     cout << "   > Reading routes..." << endl;
     instance_file.ignore(100000, '#');
@@ -505,6 +509,29 @@ void Data::assign_arcs()
         }
         _route_arcs.push_back(route_arcs);
     }
+}
+
+bool Data::validate_instance()
+{
+    for (int i = 0; i < _nb_points; i++)
+    {
+        // check if all depots also are stations and crossings
+        if ((_is_depot[i]) && !(_is_station[i] && _is_crossing[i]))
+        {
+            cout << "Error: Instance is inconsistent!" << endl;
+            cout << "\t>> All depots must be also classified as stations and crossings" << endl;
+            return false;
+        }    
+        // check if initial point is a depot
+        if ((_nb_points == _initial_point) && !(_is_depot[i]))
+        {
+            cout << "Error: Instance is inconsistent!" << endl;
+            cout << "\t>> The initial point must be a depot" << endl;
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void Data::print_data()
