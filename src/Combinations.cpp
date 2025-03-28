@@ -67,24 +67,35 @@ void Combinations::generate_all_combinations(Data &data, Model &model)
     vector<int> current(nb_trains, 0);
     for (unsigned long long count = 0; count < total_nb_combinations; count++)
     {
-        if (check_final_feasibility(data, current))
+        // create vector that stores explicitly the current combination
+        vector<vector<int>> routes_of_trains;
+        for (int i = 0; i < current.size(); i++)
         {
-            cout << "Válida" << endl << endl;
-            all_combinations.push_back(current);
+            routes_of_trains.push_back(trips_combinations[current[i]]);
+        }
 
-            // create vector that stores explicitly the current combination
-            vector<vector<int>> routes_of_trains;
-            for (int i = 0; i < current.size(); i++)
+        // if combination is not prohibited
+        if (!prohibited_combinations_full.count(routes_of_trains))
+        {
+            // check if its feasible
+            if (check_final_feasibility(data, current))
             {
-                routes_of_trains.push_back(trips_combinations[current[i]]);
+                all_combinations.push_back(current);
+
+                model.reset(data);
+                bool feasible = model.run_with_routes_constraints(data, routes_of_trains);
+                if (feasible)
+                {
+                    nb_feasible_combinations++;
+                }
+                else
+                {
+                    add_to_prohibited_set_full(routes_of_trains);
+                }
             }
-
-            // reset the model and executes it with routes constraints
-            model.reset(data);
-            bool feasible = model.run_with_routes_constraints(data, routes_of_trains);
-            if (feasible)
+            else
             {
-                nb_feasible_combinations++;
+                add_to_prohibited_set_full(routes_of_trains);
             }
         }
         cout << count << "/" << total_nb_combinations << " combination(s) tested!" << endl;
@@ -101,17 +112,6 @@ void Combinations::generate_all_combinations(Data &data, Model &model)
 
 bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
 {
-    for (int i = 0; i < current.size(); i++)
-    {
-        cout << "Train " << i << ": ";
-        for (int j = 0; j < trips_combinations[current[i]].size(); j++)
-        {
-            cout << trips_combinations[current[i]][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-
     // verify whether number of trips is feasible
     for (int i = 0; i < current.size(); i++)
     {
@@ -171,13 +171,13 @@ void Combinations::generate_trips_combinations(Data &data)
     for (unsigned long long count = 0; count < max_nb_trips_combinations; count++)
     {
         // verify feasibility of the current combination before adding to the vector
-        if (check_trips_feasibility(data, current) && prohibited_combinations.find(current) == prohibited_combinations.end())
+        if (check_trips_feasibility(data, current) && prohibited_combinations_trips.find(current) == prohibited_combinations_trips.end())
         {
             trips_combinations.push_back(current);
         }
         else
         {
-            add_to_prohibited_set(current);
+            add_to_prohibited_set_trips(current);
         }
 
         // go to next combination
@@ -223,13 +223,37 @@ bool Combinations::check_trips_feasibility (Data &data, vector <int> &current)
     return flag; 
 }
 
-void Combinations::add_to_prohibited_set(vector <int> invalid_combination)
+void Combinations::add_to_prohibited_set_full(vector<vector<int>> &invalid_combination)
 {
-    prohibited_combinations.insert(invalid_combination);
+    // calculate number of subvectores
+    int total_subvectors = pow(2, max_nb_trips * nb_trains);
+
+    // create all combinations
+    for (int mask = 0; mask < total_subvectors; mask++)
+    {
+        vector<vector<int>> modified_vectors = invalid_combination;
+        int index = 0;
+        for (int i = 0; i < invalid_combination.size(); ++i)
+        {
+            for (int j = 0; j < invalid_combination[i].size(); ++j)
+            {
+                if ((mask & (1 << index)) == 0) {
+                    modified_vectors[i][j] = nb_routes;
+                }
+                index++;
+            }
+        }
+        prohibited_combinations_full.insert(modified_vectors);
+    }
+}
+
+void Combinations::add_to_prohibited_set_trips(vector <int> invalid_combination)
+{
+    prohibited_combinations_trips.insert(invalid_combination);
     for (int i = invalid_combination.size()-1; i >= 0; i--)
     {
         invalid_combination[i] == nb_routes;
-        prohibited_combinations.insert(invalid_combination);
+        prohibited_combinations_trips.insert(invalid_combination);
     }
 }
 

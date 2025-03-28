@@ -23,7 +23,8 @@ private:
 
     int nb_trains;
 
-    std::set<std::vector<int>> prohibited_combinations;
+    std::set<std::vector<std::vector<int>>> prohibited_combinations_full;
+    std::set<std::vector<int>> prohibited_combinations_trips;
     std::set<std::vector<int>> unique_combinations;
 
     std::vector<std::vector<int>> all_combinations;
@@ -37,7 +38,8 @@ private:
     bool check_trips_feasibility (Data &data, std::vector <int> &current);
     bool check_final_feasibility (Data &data, std::vector <int> &current);
 
-    void add_to_prohibited_set(std::vector <int> invalid_combination);
+    void add_to_prohibited_set_full(std::vector <std::vector<int>> &invalid_combination);
+    void add_to_prohibited_set_trips(std::vector <int> invalid_combination);
 };
 
 #endif
