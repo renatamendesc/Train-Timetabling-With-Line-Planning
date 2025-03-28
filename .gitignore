@@ -39,7 +39,10 @@ cbtu
 .vscode/
 
 # Folder with solutions
-solutions/
+# solutions/
+
+# Folder with combinations
+combinations/
 
 # File to generate graphs
 script-solution.txt
