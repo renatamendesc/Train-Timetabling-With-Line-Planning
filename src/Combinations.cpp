@@ -7,10 +7,6 @@ Combinations::Combinations(Data &data)
     // reset directory that stores solutions for the instance
     reset_directory(data);
 
-    // create object of the model
-    Model model;
-    model.initialize(data);
-
     // start counting time
     auto start = chrono::high_resolution_clock::now();
 
@@ -23,7 +19,26 @@ Combinations::Combinations(Data &data)
     // generate all combinatinos
     nb_trains = data.get_nb_trains();                                  // calculate total number of possible combinations
     total_nb_combinations = pow(trips_combinations.size(), nb_trains);
-    generate_all_combinations(data, model);
+
+    // create threads that will generate combinations
+    vector<thread> threads;
+    nb_threads = 4;
+    unsigned long long interval = total_nb_combinations / nb_threads;
+    for (int i = 0; i < nb_threads; i++)
+    {
+        unsigned long long start = i * interval;
+        unsigned long long end;
+        if (i == nb_threads-1)
+            end = total_nb_combinations;
+        else
+            end = (i + 1) * interval;
+            threads.emplace_back(&Combinations::generate_all_combinations, this, std::ref(data), start, end, i);
+    }
+    // wait for all threads to finish
+    for (auto& t : threads)
+    {
+        t.join();
+    }
 
     // cout << endl;
     // for (int i = 0; i < all_combinations.size(); i++)
@@ -44,33 +59,45 @@ Combinations::Combinations(Data &data)
     // finish counting time
     auto end = chrono::high_resolution_clock::now();
     std::chrono::duration<double> time = end-start;
-    model.best_sol.computational_time = (time).count();
+    best_thread.best_sol.computational_time = (time).count();
 
     // get optimal solution
-    model.get_solution(data, true);
+    best_thread.get_solution(data, true);
     cout << endl << nb_feasible_combinations << "/" << total_nb_combinations << " were feasible combination(s) (" << std::fixed << std::setprecision(5) << (double(nb_feasible_combinations) / total_nb_combinations) * 100 << "%)" << endl;
 }
 
 void Combinations::reset_directory(Data &data)
 {
     // reseting past feasible solutions files for the instance
-    std::string full_path =  "combinations/feasible-combinations/" + data.get_instance_name();
-    if (std::filesystem::exists(full_path)) {
-        for (const auto& entry : std::filesystem::directory_iterator(full_path)) {
-            std::filesystem::remove_all(entry.path());
+    string full_path =  "combinations/feasible-combinations/" + data.get_instance_name();
+    if (filesystem::exists(full_path)) {
+        for (const auto& entry : filesystem::directory_iterator(full_path)) {
+            filesystem::remove_all(entry.path());
         }
     }
 }
 
-void Combinations::generate_all_combinations(Data &data, Model &model)
+void Combinations::generate_all_combinations(Data &data, unsigned long long int start, unsigned long long int end, int thread_id)
 {
+    // create object of the model for each thread
+    Model model_thread;
+    model_thread.initialize(data);
+
+    // initialize combination from start
     vector<int> current(nb_trains, 0);
-    for (unsigned long long count = 0; count < total_nb_combinations; count++)
+    unsigned long long aux = start;
+    for (int i = nb_trains-1; i >= 0; i--)
+    {
+        current[i] = aux % trips_combinations.size();
+        aux /= trips_combinations.size();
+    }
+
+    // create combinations on the interval
+    for (unsigned long long count = start; count < end; count++)
     {
         if (check_final_feasibility(data, current))
         {
-            cout << "Válida" << endl << endl;
-            all_combinations.push_back(current);
+            // all_combinations.push_back(current);
 
             // create vector that stores explicitly the current combination
             vector<vector<int>> routes_of_trains;
@@ -80,14 +107,16 @@ void Combinations::generate_all_combinations(Data &data, Model &model)
             }
 
             // reset the model and executes it with routes constraints
-            model.reset(data);
-            bool feasible = model.run_with_routes_constraints(data, routes_of_trains);
+            model_thread.reset(data);
+            bool feasible = model_thread.run_with_routes_constraints(data, routes_of_trains);
             if (feasible)
             {
+                mtx.lock();
                 nb_feasible_combinations++;
+                mtx.unlock();
             }
         }
-        cout << count << "/" << total_nb_combinations << " combination(s) tested!" << endl;
+        cout << count-start << "/" << end-start << " combination(s) tested! (Thread " << thread_id << ")" << endl;
 
         // go to next combination
         for (int i = nb_trains-1; i >= 0; i--)
@@ -97,20 +126,27 @@ void Combinations::generate_all_combinations(Data &data, Model &model)
             current[i] = 0;
         }
     }
+
+    mtx.lock();
+    if (model_thread.best_sol.obj_value < best_thread.best_sol.obj_value)
+    {
+        best_thread = model_thread;
+    }
+    mtx.unlock();
 }
 
 bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
 {
-    for (int i = 0; i < current.size(); i++)
-    {
-        cout << "Train " << i << ": ";
-        for (int j = 0; j < trips_combinations[current[i]].size(); j++)
-        {
-            cout << trips_combinations[current[i]][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
+    // for (int i = 0; i < current.size(); i++)
+    // {
+    //     cout << "Train " << i << ": ";
+    //     for (int j = 0; j < trips_combinations[current[i]].size(); j++)
+    //     {
+    //         cout << trips_combinations[current[i]][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
 
     // verify whether number of trips is feasible
     for (int i = 0; i < current.size(); i++)
