@@ -30,7 +30,7 @@
 *.exe
 *.out
 *.app
-cbtu
+# cbtu
 
 # Files .lp
 *.lp
