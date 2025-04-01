@@ -30,10 +30,11 @@
 *.exe
 *.out
 *.app
-cbtu
+# cbtu
 
 # Files .lp
 *.lp
+cbtu.lp
 
 # Vscode settings
 .vscode/
