@@ -69,7 +69,6 @@ void Combinations::generate_all_combinations(Data &data, Model &model)
     {
         if (check_final_feasibility(data, current))
         {
-            cout << "Válida" << endl << endl;
             all_combinations.push_back(current);
 
             // create vector that stores explicitly the current combination
@@ -101,16 +100,16 @@ void Combinations::generate_all_combinations(Data &data, Model &model)
 
 bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
 {
-    for (int i = 0; i < current.size(); i++)
-    {
-        cout << "Train " << i << ": ";
-        for (int j = 0; j < trips_combinations[current[i]].size(); j++)
-        {
-            cout << trips_combinations[current[i]][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
+    // for (int i = 0; i < current.size(); i++)
+    // {
+    //     cout << "Train " << i << ": ";
+    //     for (int j = 0; j < trips_combinations[current[i]].size(); j++)
+    //     {
+    //         cout << trips_combinations[current[i]][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
 
     // verify whether number of trips is feasible
     for (int i = 0; i < current.size(); i++)
