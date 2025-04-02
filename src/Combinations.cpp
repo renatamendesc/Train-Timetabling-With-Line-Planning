@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Combinations::Combinations(Data &data)
+Combinations::Combinations(Data &data, int t)
 {
     // reset directory that stores solutions for the instance
     reset_directory(data);
@@ -22,7 +22,7 @@ Combinations::Combinations(Data &data)
 
     // create threads that will generate combinations
     vector<thread> threads;
-    nb_threads = 4;
+    nb_threads = t;
     unsigned long long interval = total_nb_combinations / nb_threads;
     for (int i = 0; i < nb_threads; i++)
     {
