@@ -20,25 +20,53 @@ Combinations::Combinations(Data &data, int t)
     nb_trains = data.get_nb_trains();                                  // calculate total number of possible combinations
     total_nb_combinations = pow(trips_combinations.size(), nb_trains);
 
-    // create threads that will generate combinations
-    vector<thread> threads;
+    // initialize threads
     nb_threads = t;
-    unsigned long long interval = total_nb_combinations / nb_threads;
+    vector <pthread_t> threads;
+    sem_init(&sem_jobs, 0, 0);          // initialize semaphore with 0
+
+    // create chunks
+    unsigned long long chunk_size = total_nb_combinations / nb_threads;
+    for (int i = 0; i < total_nb_combinations; i += chunk_size)
+    {
+        int end = std::min(i + chunk_size, total_nb_combinations);
+        mtx.lock();
+        queue_chunks.push({i, end});
+        mtx.unlock();
+        sem_post(&sem_jobs); // increment semaphore for each job
+    }
+
+    // create threads
     for (int i = 0; i < nb_threads; i++)
     {
-        unsigned long long start = i * interval;
-        unsigned long long end;
-        if (i == nb_threads-1)
-            end = total_nb_combinations;
-        else
-            end = (i + 1) * interval;
-            threads.emplace_back(&Combinations::generate_all_combinations, this, std::ref(data), start, end, i);
+        threads.emplace_back(&Combinations::worker, this, std::ref(data), i);
     }
+
     // wait for all threads to finish
     for (auto& t : threads)
     {
         t.join();
     }
+
+    // // create threads that will generate combinations
+    // vector<thread> threads;
+    // nb_threads = t;
+    // unsigned long long interval = total_nb_combinations / nb_threads;
+    // for (int i = 0; i < nb_threads; i++)
+    // {
+    //     unsigned long long start = i * interval;
+    //     unsigned long long end;
+    //     if (i == nb_threads-1)
+    //         end = total_nb_combinations;
+    //     else
+    //         end = (i + 1) * interval;
+    //         threads.emplace_back(&Combinations::generate_all_combinations, this, std::ref(data), start, end, i);
+    // }
+    // // wait for all threads to finish
+    // for (auto& t : threads)
+    // {
+    //     t.join();
+    // }
 
     // cout << endl;
     // for (int i = 0; i < all_combinations.size(); i++)
@@ -74,6 +102,25 @@ void Combinations::reset_directory(Data &data)
         for (const auto& entry : filesystem::directory_iterator(full_path)) {
             filesystem::remove_all(entry.path());
         }
+    }
+}
+
+void Combinations::worker (Data &data, int thread_id)
+{
+    while (true)
+    {
+        sem_wait(&sem_jobs);     // wait for a job
+
+        mtx.lock();
+        if (queue_chunks.empty()) { 
+            mtx.unlock();
+            break;
+        }
+        auto [start, end] = queue_chunks.front();
+        queue_chunks.pop();
+        mtx.unlock();
+
+        generate_all_combinations(data, start, end, thread_id);
     }
 }
 

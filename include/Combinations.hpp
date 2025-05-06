@@ -6,7 +6,9 @@
 #include <cmath>
 #include <algorithm>
 #include <set>
+#include <queue>
 #include <thread>
+#include <semaphore.h>
 #include <mutex>
 
 class Combinations
@@ -31,7 +33,11 @@ private:
     std::vector<std::vector<int>> all_combinations;
     std::vector<std::vector<int>> trips_combinations;
 
+    std::queue<std::pair<int, int>> queue_chunks;
+
     void reset_directory(Data &data);
+
+    void worker (Data &data, int thread_id);
 
     void generate_trips_combinations(Data &data);
     void generate_all_combinations(Data &data, unsigned long long int start, unsigned long long int end, int thread_id);
@@ -41,9 +47,10 @@ private:
 
     void add_to_prohibited_set(std::vector <int> invalid_combination);
 
+    int nb_threads;
     Model best_thread;
     std::mutex mtx;
-    int nb_threads;
+    sem_t sem_jobs;
 };
 
 #endif
