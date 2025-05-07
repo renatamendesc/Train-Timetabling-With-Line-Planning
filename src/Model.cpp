@@ -706,18 +706,20 @@ void Model::add_constraints (Data &data)
 int Model::extract_solution(Data &data, bool is_final_solution)
 {
     IloCplex cplex(env);
-    cplex.extract(model);
-    cplex.exportModel("cbtu.lp");
 
     // set parameters
     cplex.setParam(IloCplex::ClockType, 2);
     cplex.setParam(IloCplex::TiLim, 43200); // set time limit of 12 hours
+    cplex.setWarning(env.getNullStream());  // silence warnings
+
+    // extract model and .lp file
+    cplex.extract(model);
+    cplex.exportModel("cbtu.lp");
 
     if (!is_final_solution)
     {
         // remove outputs
         cplex.setOut(env.getNullStream());     
-        cplex.setWarning(env.getNullStream());  
         cplex.setError(env.getNullStream());    
 
         auto start = chrono::high_resolution_clock::now();

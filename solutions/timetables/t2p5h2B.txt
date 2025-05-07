@@ -1,6 +1,6 @@
 -> Solution value = 14040 - 03:54:00
--> Total time = 0.101043
--> Gap value = 6.93374e-310
+-> Total time = 0.10592
+-> Gap value = 0
 
 =============
 Train 0

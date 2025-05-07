@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Combinations::Combinations(Data &data, int t)
+Combinations::Combinations(Data &data, int t, string type_scheduling)
 {
     // reset directory that stores solutions for the instance
     reset_directory(data);
@@ -21,12 +21,26 @@ Combinations::Combinations(Data &data, int t)
     total_nb_combinations = pow(trips_combinations.size(), nb_trains);
 
     // initialize threads
-    nb_threads = t;
+    if (total_nb_combinations < t) // make sure number of threads is consistent
+        nb_threads = total_nb_combinations;
+    else
+        nb_threads = t;
     vector <thread> threads;
-    sem_init(&sem_jobs, 0, 0);  // initialize semaphore with 0
+    sem_init(&sem_jobs, 0, 0);              // initialize semaphore with 0
 
     // create chunks
-    unsigned long long chunk_size = total_nb_combinations / nb_threads;
+    unsigned long long chunk_size;
+    // if (total_nb_combinations < /*define number*/)
+    if (type_scheduling == "-s")
+    {
+        chunk_size = total_nb_combinations / nb_threads; // equivalent to static
+    }
+    else
+    {
+        chunk_size = total_nb_combinations / 1000;       // equivalent to dynamic
+        if (total_nb_combinations / 1000 < 1)
+            chunk_size = total_nb_combinations / nb_threads;
+    }
     for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
     {
         int end = std::min(i + chunk_size, total_nb_combinations);
@@ -52,6 +66,7 @@ Combinations::Combinations(Data &data, int t)
     {
         t.join();
     }
+    cout << "All combination(s) tested!" << endl;
 
     // cout << endl;
     // for (int i = 0; i < all_combinations.size(); i++)
@@ -157,7 +172,7 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
      
         if (counter_solved % aux_progress == 0)
             cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
-            // cout << count-start << "/" << end-start << " combination(s) tested! (Thread " << thread_id << ")" << endl;
+        // cout << count-start << "/" << end-start << " combination(s) tested! (Thread " << thread_id << ")" << endl;
 
         // go to next combination
         for (int i = nb_trains-1; i >= 0; i--)

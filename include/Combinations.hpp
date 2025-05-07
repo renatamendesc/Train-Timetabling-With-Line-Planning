@@ -17,7 +17,7 @@ public:
     unsigned long long int total_nb_combinations = 0;
     unsigned long long int nb_feasible_combinations = 0;
 
-    Combinations(Data &data, int t);
+    Combinations(Data &data, int t, std::string type_scheduling);
 
 private:
     unsigned long long int max_nb_trips_combinations = 0;

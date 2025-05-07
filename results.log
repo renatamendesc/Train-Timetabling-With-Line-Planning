@@ -1,0 +1,73 @@
+Results generated on qua 07 mai 2025 11:32:13 -03
+Number of threads: 2
+Ignore '-real.txt' instances: false
+-------------------------------------------
+t1p5h1A.txt:
+- static: -> Total time: 0.03
+- dynamic: -> Total time: 0.02
+
+t1p5h1B.txt:
+- static: -> Total time: 0.03
+- dynamic: -> Total time: 0.04
+
+t1p5h2A.txt:
+- static: -> Total time: 0.03
+- dynamic: -> Total time: 0.03
+
+t1p5h2B.txt:
+- static: -> Total time: 0.04
+- dynamic: -> Total time: 0.03
+
+t1p6h1.txt:
+- static: -> Total time: 0.04
+- dynamic: -> Total time: 0.04
+
+t1p6h2.txt:
+- static: -> Total time: 0.34
+- dynamic: -> Total time: 0.34
+
+t2p5h1A.txt:
+- static: -> Total time: 0.23
+- dynamic: -> Total time: 0.23
+
+t2p5h1B.txt:
+- static: -> Total time: 0.04
+- dynamic: -> Total time: 0.04
+
+t2p5h1C.txt:
+- static: -> Total time: 0.04
+- dynamic: -> Total time: 0.04
+
+t2p5h1D.txt:
+- static: -> Total time: 0.04
+- dynamic: -> Total time: 0.04
+
+t2p5h1E.txt:
+- static: -> Total time: 0.04
+- dynamic: -> Total time: 0.04
+
+t2p5h1F.txt:
+- static: -> Total time: 0.53
+- dynamic: -> Total time: 0.40
+
+t2p5h1G.txt:
+- static: -> Total time: 34.39
+- dynamic: -> Total time: 24.81
+
+t2p5h1H.txt:
+- static: -> Total time: 4.00
+- dynamic: -> Total time: 2.76
+
+t2p5h2A.txt:
+- static: -> Total time: 0.66
+- dynamic: -> Total time: 1.59
+
+t2p5h2B.txt:
+- static: -> Total time: 0.11
+- dynamic: -> Total time: 0.11
+
+t2p5h3A.txt:
+- static: -> Total time: 4.21
+- dynamic: -> Total time: 4.58
+
+t2p6h1.txt:
