@@ -60,14 +60,20 @@ for INSTANCE in "$INSTANCES_FOLDER"/*.txt; do
         echo "$INSTANCE_NAME:" >> "$LOG_FILE"
 
         # static
-        OUTPUT_STATIC="$($EXECUTABLE "$INSTANCE" "$NB_THREADS" -s)"
-        TIME_STATIC=$(awk -F'= ' '/-> Total time =/ {print $2}' <<< "$OUTPUT_STATIC")
+        OUTPUT_STATIC_TEMP=$(mktemp)
+        $EXECUTABLE "$INSTANCE" "$NB_THREADS" -s > "$OUTPUT_STATIC_TEMP"
+        grep -E '^[0-9]+% done|All combination\(s\) tested!' "$OUTPUT_STATIC_TEMP"  # print only progress to terminal
+        TIME_STATIC=$(awk -F'= ' '/-> Total time =/ {print $2}' "$OUTPUT_STATIC_TEMP")
         echo "- static: -> Total time: $TIME_STATIC" >> "$LOG_FILE"
+        rm "$OUTPUT_STATIC_TEMP"
 
         # dynamic
-        OUTPUT_DYNAMIC="$($EXECUTABLE "$INSTANCE" "$NB_THREADS" -d)"
-        TIME_DYNAMIC=$(awk -F'= ' '/-> Total time =/ {print $2}' <<< "$OUTPUT_DYNAMIC")
+        OUTPUT_DYNAMIC_TEMP=$(mktemp)
+        $EXECUTABLE "$INSTANCE" "$NB_THREADS" -d > "$OUTPUT_DYNAMIC_TEMP"
+        grep -E '^[0-9]+% done|All combination\(s\) tested!' "$OUTPUT_DYNAMIC_TEMP"  # print only progress to terminal
+        TIME_DYNAMIC=$(awk -F'= ' '/-> Total time =/ {print $2}' "$OUTPUT_DYNAMIC_TEMP")
         echo "- dynamic: -> Total time: $TIME_DYNAMIC" >> "$LOG_FILE"
+        rm "$OUTPUT_DYNAMIC_TEMP"
 
         echo "" >> "$LOG_FILE"
     fi
