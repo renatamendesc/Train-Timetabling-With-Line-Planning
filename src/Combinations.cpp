@@ -22,19 +22,24 @@ Combinations::Combinations(Data &data, int t)
 
     // initialize threads
     nb_threads = t;
-    vector <pthread_t> threads;
-    sem_init(&sem_jobs, 0, 0);          // initialize semaphore with 0
+    vector <thread> threads;
+    sem_init(&sem_jobs, 0, 0);  // initialize semaphore with 0
 
     // create chunks
     unsigned long long chunk_size = total_nb_combinations / nb_threads;
-    for (int i = 0; i < total_nb_combinations; i += chunk_size)
+    for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
     {
         int end = std::min(i + chunk_size, total_nb_combinations);
         mtx.lock();
         queue_chunks.push({i, end});
         mtx.unlock();
-        sem_post(&sem_jobs); // increment semaphore for each job
+        sem_post(&sem_jobs);    // increment semaphore for each job
     }
+
+    // variable to assist in displaying progress
+    aux_progress = ceil(0.1 * total_nb_combinations);
+    if (aux_progress == 0)
+        aux_progress = 1;
 
     // create threads
     for (int i = 0; i < nb_threads; i++)
@@ -47,26 +52,6 @@ Combinations::Combinations(Data &data, int t)
     {
         t.join();
     }
-
-    // // create threads that will generate combinations
-    // vector<thread> threads;
-    // nb_threads = t;
-    // unsigned long long interval = total_nb_combinations / nb_threads;
-    // for (int i = 0; i < nb_threads; i++)
-    // {
-    //     unsigned long long start = i * interval;
-    //     unsigned long long end;
-    //     if (i == nb_threads-1)
-    //         end = total_nb_combinations;
-    //     else
-    //         end = (i + 1) * interval;
-    //         threads.emplace_back(&Combinations::generate_all_combinations, this, std::ref(data), start, end, i);
-    // }
-    // // wait for all threads to finish
-    // for (auto& t : threads)
-    // {
-    //     t.join();
-    // }
 
     // cout << endl;
     // for (int i = 0; i < all_combinations.size(); i++)
@@ -98,8 +83,10 @@ void Combinations::reset_directory(Data &data)
 {
     // reseting past feasible solutions files for the instance
     string full_path =  "combinations/feasible-combinations/" + data.get_instance_name();
-    if (filesystem::exists(full_path)) {
-        for (const auto& entry : filesystem::directory_iterator(full_path)) {
+    if (filesystem::exists(full_path))
+    {
+        for (const auto& entry : filesystem::directory_iterator(full_path))
+        {
             filesystem::remove_all(entry.path());
         }
     }
@@ -108,14 +95,14 @@ void Combinations::reset_directory(Data &data)
 void Combinations::worker (Data &data, int thread_id)
 {
     while (true)
-    {
-        sem_wait(&sem_jobs);     // wait for a job
-
+    {    
         mtx.lock();
-        if (queue_chunks.empty()) { 
+        if (queue_chunks.empty())
+        { 
             mtx.unlock();
             break;
         }
+        sem_wait(&sem_jobs); // wait for a job
         auto [start, end] = queue_chunks.front();
         queue_chunks.pop();
         mtx.unlock();
@@ -163,7 +150,14 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
                 mtx.unlock();
             }
         }
-        cout << count-start << "/" << end-start << " combination(s) tested! (Thread " << thread_id << ")" << endl;
+        mtx.lock();
+        counter_solved++;
+        mtx.unlock();
+
+     
+        if (counter_solved % aux_progress == 0)
+            cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
+            // cout << count-start << "/" << end-start << " combination(s) tested! (Thread " << thread_id << ")" << endl;
 
         // go to next combination
         for (int i = nb_trains-1; i >= 0; i--)

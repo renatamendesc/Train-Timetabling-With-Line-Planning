@@ -8,8 +8,8 @@
 #include <set>
 #include <queue>
 #include <thread>
-#include <semaphore.h>
 #include <mutex>
+#include <semaphore.h>
 
 class Combinations
 {
@@ -30,8 +30,8 @@ private:
     std::set<std::vector<int>> prohibited_combinations;
     std::set<std::vector<int>> unique_combinations;
 
-    std::vector<std::vector<int>> all_combinations;
     std::vector<std::vector<int>> trips_combinations;
+    // std::vector<std::vector<int>> all_combinations;
 
     std::queue<std::pair<int, int>> queue_chunks;
 
@@ -51,6 +51,9 @@ private:
     Model best_thread;
     std::mutex mtx;
     sem_t sem_jobs;
+
+    int aux_progress;
+    int counter_solved = 0;
 };
 
 #endif
