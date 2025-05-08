@@ -48,6 +48,9 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
         queue_chunks.push({i, end});
         mtx.unlock();
         sem_post(&sem_jobs);    // increment semaphore for each job
+        int val;
+        if (sem_getvalue(&sem_jobs, &val) == 0)
+            std::cout << "Valor atual do semáforo: " << val << std::endl;
     }
 
     // variable to assist in displaying progress
@@ -55,6 +58,7 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
     if (aux_progress == 0)
         aux_progress = 1;
 
+    cout << "Starting to create combinations..." << endl;
     // create threads
     for (int i = 0; i < nb_threads; i++)
     {
@@ -122,6 +126,7 @@ void Combinations::worker (Data &data, int thread_id)
         queue_chunks.pop();
         mtx.unlock();
 
+        cout << "Thread " << thread_id << " vai executar chunk..." << endl;
         generate_all_combinations(data, start, end, thread_id);
     }
 }
