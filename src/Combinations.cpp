@@ -221,7 +221,9 @@ bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
     // (only changes the train that will complete the trips)
     vector<int> normalized_combination = current;
     sort(normalized_combination.begin(), normalized_combination.end());
+    mtx.lock();
     auto result = unique_combinations.insert(normalized_combination);
+    mtx.unlock();
     if (!result.second)
     {
         return false; // combination already exists
