@@ -21,12 +21,11 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
     total_nb_combinations = pow(trips_combinations.size(), nb_trains);
 
     // initialize threads
-    if (total_nb_combinations < t) // make sure number of threads is consistent
-        nb_threads = total_nb_combinations;
+    vector <thread> threads;
+    if (total_nb_combinations < t) 
+        nb_threads = total_nb_combinations; // make sure number of threads is consistent
     else
         nb_threads = t;
-    vector <thread> threads;
-    // sem_init(&sem_jobs, 0, 12);              // initialize semaphore with 0
 
     // create chunks
     unsigned long long chunk_size;
@@ -37,8 +36,8 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
     }
     else
     {
-        chunk_size = total_nb_combinations / 1000;       // equivalent to dynamic
-        if (total_nb_combinations / 1000 < 1)
+        chunk_size = total_nb_combinations * 0.1; // / 1000;       // equivalent to dynamic
+        if (total_nb_combinations * 0.1 < 1)
             chunk_size = total_nb_combinations / nb_threads;
     }
     // cout << "Chunk size: " << chunk_size << endl;
@@ -47,12 +46,7 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
     for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
     {
         int end = std::min(i + chunk_size, total_nb_combinations);
-        // cout << "{" << i << "," << end << "}" << endl;
         queue_chunks.push({i, end});
-        // sem_post(&sem_jobs);          // increment semaphore for each job
-        // int val;
-        // if (sem_getvalue(&sem_jobs, &val) == 0)
-        //     std::cout << "Valor atual do semáforo: " << val << std::endl;
     }
 
     // variable to assist in displaying progress
@@ -60,7 +54,7 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
     if (aux_progress == 0)
         aux_progress = 1;
 
-    cout << "Starting to test combinations..." << endl;
+    cout << "Starting to test combinations... - Total number of combinations = " << total_nb_combinations << endl;
     // create threads
     for (int i = 0; i < nb_threads; i++)
     {
@@ -117,21 +111,18 @@ void Combinations::worker (Data &data, int thread_id)
 {
     while (true)
     {   
-        // continue;
         mtx.lock();
         if (queue_chunks.empty())
         { 
             mtx.unlock();
             break;
         }
-         // wait for a job
+        // wait for a job
         auto [start, end] = queue_chunks.front();
         queue_chunks.pop();
         mtx.unlock();
-        // sem_wait(&sem_jobs);
-        // cout << "Thread " << thread_id << " vai executar chunk..." << endl;
+
         generate_all_combinations(data, start, end, thread_id);
-        // sem_post(&sem_jobs);
     }
 }
 

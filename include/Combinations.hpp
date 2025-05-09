@@ -50,8 +50,7 @@ private:
     int nb_threads;
     Model best_thread;
     std::mutex mtx;
-    sem_t sem_jobs;
-
+    
     int aux_progress;
     int counter_solved = 0;
 };
