@@ -41,9 +41,9 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
         if (total_nb_combinations / 1000 < 1)
             chunk_size = total_nb_combinations / nb_threads;
     }
-    cout << "Chunk size: " << chunk_size << endl;
-    cout << "Number of jobs: " << total_nb_combinations / chunk_size << endl;
-    cout << "Threads: " << nb_threads << endl;
+    // cout << "Chunk size: " << chunk_size << endl;
+    // cout << "Number of jobs: " << total_nb_combinations / chunk_size << endl;
+    // cout << "Threads: " << nb_threads << endl;
     for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
     {
         int end = std::min(i + chunk_size, total_nb_combinations);
@@ -60,7 +60,7 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
     if (aux_progress == 0)
         aux_progress = 1;
 
-    cout << "Starting to create combinations..." << endl;
+    cout << "Starting to test combinations..." << endl;
     // create threads
     for (int i = 0; i < nb_threads; i++)
     {
@@ -118,7 +118,6 @@ void Combinations::worker (Data &data, int thread_id)
     while (true)
     {   
         // continue;
-        cout << "Procurando work... Thread " << thread_id << endl;
         mtx.lock();
         if (queue_chunks.empty())
         { 
