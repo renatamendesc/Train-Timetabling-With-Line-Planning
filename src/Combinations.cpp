@@ -41,13 +41,15 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
         if (total_nb_combinations / 1000 < 1)
             chunk_size = total_nb_combinations / nb_threads;
     }
+    cout << "Chunk size: " << chunk_size << endl;
+    cout << "Number of jobs: " << total_nb_combinations / chunk_size << endl;
+    cout << "Threads: " << nb_threads << endl;
     for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
     {
         int end = std::min(i + chunk_size, total_nb_combinations);
-        mtx.lock();
+        // cout << "{" << i << "," << end << "}" << endl;
         queue_chunks.push({i, end});
-        mtx.unlock();
-        sem_post(&sem_jobs);    // increment semaphore for each job
+        sem_post(&sem_jobs);          // increment semaphore for each job
         // int val;
         // if (sem_getvalue(&sem_jobs, &val) == 0)
         //     std::cout << "Valor atual do semáforo: " << val << std::endl;
