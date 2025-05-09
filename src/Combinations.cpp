@@ -26,7 +26,7 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
     else
         nb_threads = t;
     vector <thread> threads;
-    sem_init(&sem_jobs, 0, 0);              // initialize semaphore with 0
+    // sem_init(&sem_jobs, 0, 12);              // initialize semaphore with 0
 
     // create chunks
     unsigned long long chunk_size;
@@ -49,7 +49,7 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
         int end = std::min(i + chunk_size, total_nb_combinations);
         // cout << "{" << i << "," << end << "}" << endl;
         queue_chunks.push({i, end});
-        sem_post(&sem_jobs);          // increment semaphore for each job
+        // sem_post(&sem_jobs);          // increment semaphore for each job
         // int val;
         // if (sem_getvalue(&sem_jobs, &val) == 0)
         //     std::cout << "Valor atual do semáforo: " << val << std::endl;
@@ -117,20 +117,22 @@ void Combinations::worker (Data &data, int thread_id)
 {
     while (true)
     {   
-        cout << "Procurando work..." << endl;
+        // continue;
+        cout << "Procurando work... Thread " << thread_id << endl;
         mtx.lock();
         if (queue_chunks.empty())
         { 
             mtx.unlock();
             break;
         }
-        sem_wait(&sem_jobs); // wait for a job
+         // wait for a job
         auto [start, end] = queue_chunks.front();
         queue_chunks.pop();
         mtx.unlock();
-
+        // sem_wait(&sem_jobs);
         // cout << "Thread " << thread_id << " vai executar chunk..." << endl;
         generate_all_combinations(data, start, end, thread_id);
+        // sem_post(&sem_jobs);
     }
 }
 

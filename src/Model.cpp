@@ -711,6 +711,8 @@ int Model::extract_solution(Data &data, bool is_final_solution)
     cplex.setParam(IloCplex::ClockType, 2);
     cplex.setParam(IloCplex::TiLim, 43200); // set time limit of 12 hours
     cplex.setWarning(env.getNullStream());  // silence warnings
+    cplex.setParam(IloCplex::Threads, 1);
+    cplex.setParam(IloCplex::ParallelMode, 0);
 
     // extract model and .lp file
     cplex.extract(model);
