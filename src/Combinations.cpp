@@ -116,7 +116,8 @@ void Combinations::reset_directory(Data &data)
 void Combinations::worker (Data &data, int thread_id)
 {
     while (true)
-    {    
+    {   
+        cout << "Procurando work..." << endl;
         mtx.lock();
         if (queue_chunks.empty())
         { 
