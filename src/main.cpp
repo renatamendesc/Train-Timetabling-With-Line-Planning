@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     Data data(argv[1]);
     data.print_data();
 
-    Combinations comb (data);
+    Combinations comb (data, std::stoi(argv[2]), argv[3]);
 
     // Model model;
     // model.initialize(data);
