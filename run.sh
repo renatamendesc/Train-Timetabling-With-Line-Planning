@@ -17,7 +17,7 @@ fi
 NB_THREADS=$1
 shift
 
-LOG_FILE="results-${NB_THREADS}.log"
+LOG_FILE="results/results-${NB_THREADS}.log"
 
 # parse additional flags
 for arg in "$@"; do
