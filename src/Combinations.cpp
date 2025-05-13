@@ -13,11 +13,21 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
     // generate trips combinations
     nb_routes = data.get_nb_routes();                                  // calculate number of trips combinations           
     max_nb_trips = data.get_max_nb_trips();
+    if (verify_overflow(nb_routes+1, max_nb_trips))
+    {
+        cout << endl << ">> Too many combinations. Instance can't be solved!" << endl;
+        return;
+    }
     max_nb_trips_combinations = pow(nb_routes+1, max_nb_trips);        // sums 1 to the routes to consider the possibility that the trip might not be made
     generate_trips_combinations(data);
 
     // generate all combinatinos
     nb_trains = data.get_nb_trains();                                  // calculate total number of possible combinations
+    if (verify_overflow(trips_combinations.size(), nb_trains))
+    {
+        cout << endl << ">> Too many combinations. Instance can't be solved!" << endl;
+        return;
+    }
     total_nb_combinations = pow(trips_combinations.size(), nb_trains);
 
     // initialize threads
@@ -327,7 +337,17 @@ void Combinations::add_to_prohibited_set(vector <int> invalid_combination)
     }
 }
 
-
+bool Combinations::verify_overflow(unsigned long long base, unsigned long long exp)
+{
+    unsigned long long result = 1;
+    for (unsigned long long i = 0; i < exp; i++)
+    {
+        if (result > ULLONG_MAX / base)
+            return true;
+        result *= base;
+    }
+    return false;
+}
 
 
 

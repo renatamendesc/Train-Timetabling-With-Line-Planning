@@ -36,7 +36,8 @@ private:
     std::queue<std::pair<int, int>> queue_chunks;
 
     void reset_directory(Data &data);
-
+    bool verify_overflow(unsigned long long base, unsigned long long exp);
+    
     void worker (Data &data, int thread_id);
 
     void generate_trips_combinations(Data &data);
