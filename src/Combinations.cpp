@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Combinations::Combinations(Data &data, int t)
+Combinations::Combinations(Data &data, int t, string type_scheduling)
 {
     // reset directory that stores solutions for the instance
     reset_directory(data);
@@ -20,25 +20,53 @@ Combinations::Combinations(Data &data, int t)
     nb_trains = data.get_nb_trains();                                  // calculate total number of possible combinations
     total_nb_combinations = pow(trips_combinations.size(), nb_trains);
 
-    // create threads that will generate combinations
-    vector<thread> threads;
-    nb_threads = t;
-    unsigned long long interval = total_nb_combinations / nb_threads;
+    // initialize threads
+    vector <thread> threads;
+    if (total_nb_combinations < t) 
+        nb_threads = total_nb_combinations; // make sure number of threads is consistent
+    else
+        nb_threads = t;
+
+    // create chunks
+    unsigned long long chunk_size;
+    // if (total_nb_combinations < /*define number*/)
+    if (type_scheduling == "-s")
+    {
+        chunk_size = total_nb_combinations / nb_threads; // equivalent to static
+    }
+    else
+    {
+        chunk_size = total_nb_combinations * 0.1; // / 1000;       // equivalent to dynamic
+        if (total_nb_combinations * 0.1 < 1)
+            chunk_size = total_nb_combinations / nb_threads;
+    }
+    // cout << "Chunk size: " << chunk_size << endl;
+    // cout << "Number of jobs: " << total_nb_combinations / chunk_size << endl;
+    // cout << "Threads: " << nb_threads << endl;
+    for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
+    {
+        int end = std::min(i + chunk_size, total_nb_combinations);
+        queue_chunks.push({i, end});
+    }
+
+    // variable to assist in displaying progress
+    aux_progress = ceil(0.1 * total_nb_combinations);
+    if (aux_progress == 0)
+        aux_progress = 1;
+
+    cout << "Starting to test combinations... - Total number of combinations = " << total_nb_combinations << endl;
+    // create threads
     for (int i = 0; i < nb_threads; i++)
     {
-        unsigned long long start = i * interval;
-        unsigned long long end;
-        if (i == nb_threads-1)
-            end = total_nb_combinations;
-        else
-            end = (i + 1) * interval;
-            threads.emplace_back(&Combinations::generate_all_combinations, this, std::ref(data), start, end, i);
+        threads.emplace_back(&Combinations::worker, this, std::ref(data), i);
     }
+
     // wait for all threads to finish
     for (auto& t : threads)
     {
         t.join();
     }
+    cout << "All combination(s) tested!" << endl;
 
     // cout << endl;
     // for (int i = 0; i < all_combinations.size(); i++)
@@ -70,10 +98,31 @@ void Combinations::reset_directory(Data &data)
 {
     // reseting past feasible solutions files for the instance
     string full_path =  "combinations/feasible-combinations/" + data.get_instance_name();
-    if (filesystem::exists(full_path)) {
-        for (const auto& entry : filesystem::directory_iterator(full_path)) {
+    if (filesystem::exists(full_path))
+    {
+        for (const auto& entry : filesystem::directory_iterator(full_path))
+        {
             filesystem::remove_all(entry.path());
         }
+    }
+}
+
+void Combinations::worker (Data &data, int thread_id)
+{
+    while (true)
+    {   
+        mtx.lock();
+        if (queue_chunks.empty())
+        { 
+            mtx.unlock();
+            break;
+        }
+        // wait for a job
+        auto [start, end] = queue_chunks.front();
+        queue_chunks.pop();
+        mtx.unlock();
+
+        generate_all_combinations(data, start, end, thread_id);
     }
 }
 
@@ -116,7 +165,14 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
                 mtx.unlock();
             }
         }
-        cout << count-start << "/" << end-start << " combination(s) tested! (Thread " << thread_id << ")" << endl;
+        mtx.lock();
+        counter_solved++;
+        mtx.unlock();
+
+     
+        if (counter_solved % aux_progress == 0)
+            cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
+        // cout << count-start << "/" << end-start << " combination(s) tested! (Thread " << thread_id << ")" << endl;
 
         // go to next combination
         for (int i = nb_trains-1; i >= 0; i--)
@@ -165,7 +221,9 @@ bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
     // (only changes the train that will complete the trips)
     vector<int> normalized_combination = current;
     sort(normalized_combination.begin(), normalized_combination.end());
+    mtx.lock();
     auto result = unique_combinations.insert(normalized_combination);
+    mtx.unlock();
     if (!result.second)
     {
         return false; // combination already exists
