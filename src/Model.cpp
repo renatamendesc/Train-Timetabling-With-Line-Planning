@@ -701,6 +701,14 @@ void Model::add_constraints (Data &data)
             }
         }
     }
+
+    constraints.add(lambda_[0][0][2] == 1);
+    constraints.add(lambda_[0][1][0] == 1);
+    constraints.add(lambda_[1][0][3] == 1);
+    constraints.add(lambda_[1][1][2] == 1);
+    constraints.add(lambda_[2][0][3] == 1);
+    constraints.add(lambda_[2][1][2] == 1);
+
 }
 
 int Model::extract_solution(Data &data, bool is_final_solution)
