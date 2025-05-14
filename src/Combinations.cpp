@@ -84,6 +84,10 @@ void Combinations::generate_all_combinations(Data &data, Model &model)
 
                 model.reset(data);
                 bool feasible = model.run_with_routes_constraints(data, routes_of_trains);
+
+                if (trips_combinations[current[0]][0] == 2 && trips_combinations[current[0]][1] == 0 && trips_combinations[current[1]][0] == 3 && trips_combinations[current[1]][1] == 2 && trips_combinations[current[2]][0] == 3 && trips_combinations[current[2]][1] == 2)
+                    cout << "feasible? " << feasible << endl;
+
                 if (feasible)
                 {
                     nb_feasible_combinations++;
@@ -125,15 +129,23 @@ bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
             return false;
     }
 
+    if (trips_combinations[current[0]][0] == 2 && trips_combinations[current[0]][1] == 0 && trips_combinations[current[1]][0] == 3 && trips_combinations[current[1]][1] == 2 && trips_combinations[current[2]][0] == 3 && trips_combinations[current[2]][1] == 2)
+        cout << "numero de trips é viavel" << endl;
+
     // normalize combinations to verify whether it was already added
     // (only changes the train that will complete the trips)
     vector<int> normalized_combination = current;
     sort(normalized_combination.begin(), normalized_combination.end());
     auto result = unique_combinations.insert(normalized_combination);
-    if (!result.second)
-    {
-        return false; // combination already exists
-    }
+    // if (!result.second)
+    // {
+    //     cout << "combinação ja foi adicionada" << endl;
+    //     return false; // combination already exists
+    // }
+
+    if (trips_combinations[current[0]][0] == 2 && trips_combinations[current[0]][1] == 0 && trips_combinations[current[1]][0] == 3 && trips_combinations[current[1]][1] == 2 && trips_combinations[current[2]][0] == 3 && trips_combinations[current[2]][1] == 2)
+        cout << "combinação ainda não foi adicionada" << endl;
+
 
     // verify whether demands were met
     vector <int> demands_per_day (data.get_nb_vertices(), 0);
@@ -161,6 +173,9 @@ bool Combinations::check_final_feasibility (Data &data, vector <int> &current)
     {
         if (times_vertex_was_visited[i] < demands_per_day[i]) return false;
     }
+
+    if (trips_combinations[current[0]][0] == 2 && trips_combinations[current[0]][1] == 0 && trips_combinations[current[1]][0] == 3 && trips_combinations[current[1]][1] == 2 && trips_combinations[current[2]][0] == 3 && trips_combinations[current[2]][1] == 2)
+        cout << "demanda é cumprida" << endl;
 
     return true;
 }
@@ -242,6 +257,33 @@ void Combinations::add_to_prohibited_set_full(vector<vector<int>> &invalid_combi
                 }
                 index++;
             }
+        }
+
+        if (modified_vectors[0][0] == 2 && modified_vectors[0][1] == 0 && modified_vectors[1][0] == 3 && modified_vectors[1][1] == 4 && modified_vectors[2][0] == 3 && modified_vectors[2][1] == 4)
+        {
+            cout << endl;
+            cout << "Proibida: " << endl;
+            for (int i = 0; i < modified_vectors.size(); i++)
+            {
+                cout << "Trem " << i << ":";
+                for (int j = 0; j < modified_vectors[i].size(); j++)
+                {
+                    cout << modified_vectors[i][j] << " ";
+                }
+                cout << endl;
+            }   
+            
+            cout << endl;
+            cout << "Combinação pai:" << endl;
+            for (int i = 0; i < invalid_combination.size(); i++)
+            {
+                cout << "Trem " << i << ":";
+                for (int j = 0; j < invalid_combination[i].size(); j++)
+                {
+                    cout << invalid_combination[i][j] << " ";
+                }
+                cout << endl;
+            } 
         }
         prohibited_combinations_full.insert(modified_vectors);
     }

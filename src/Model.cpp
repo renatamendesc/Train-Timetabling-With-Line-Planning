@@ -1042,7 +1042,7 @@ void Model::get_solution (Data &data, bool is_final_solution)
             }
         }
 
-        get_graph(data, idx_sol);
+        // get_graph(data, idx_sol);
     }
 }
 
