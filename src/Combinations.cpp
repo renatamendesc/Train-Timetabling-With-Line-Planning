@@ -48,63 +48,54 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
         total_nb_combinations *= trips_combinations[i].size(); 
     }
 
-   // initialize threads
-   vector <thread> threads;
-   if (total_nb_combinations < t) 
-       nb_threads = total_nb_combinations; // make sure number of threads is consistent
-   else
-       nb_threads = t;
+    // initialize threads
+    vector <thread> threads;
+    if (total_nb_combinations < t) 
+        nb_threads = total_nb_combinations; // make sure number of threads is consistent
+    else
+        nb_threads = t;
 
-   // create chunks
-   unsigned long long chunk_size;
-   // if (total_nb_combinations < /*define number*/)
-   if (type_scheduling == "-s")
-   {
-       chunk_size = total_nb_combinations / nb_threads; // equivalent to static
-   }
-   else
-   {
-       chunk_size = total_nb_combinations * 0.1; // / 1000;       // equivalent to dynamic
-       if (total_nb_combinations * 0.1 < 1)
-           chunk_size = total_nb_combinations / nb_threads;
-   }
-   // cout << "Chunk size: " << chunk_size << endl;
-   // cout << "Number of jobs: " << total_nb_combinations / chunk_size << endl;
-   // cout << "Threads: " << nb_threads << endl;
-   for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
-   {
-       int end = std::min(i + chunk_size, total_nb_combinations);
-       queue_chunks.push({i, end});
-   }
+    // create chunks
+    unsigned long long chunk_size;
+    // if (total_nb_combinations < /*define number*/)
+    if (type_scheduling == "-s")
+    {
+        chunk_size = total_nb_combinations / nb_threads; // equivalent to static
+    }
+    else
+    {
+        chunk_size = total_nb_combinations * 0.1; // / 1000;       // equivalent to dynamic
+        if (total_nb_combinations * 0.1 < 1)
+            chunk_size = total_nb_combinations / nb_threads;
+    }
+    // cout << "Chunk size: " << chunk_size << endl;
+    // cout << "Number of jobs: " << total_nb_combinations / chunk_size << endl;
+    // cout << "Threads: " << nb_threads << endl;
+    for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
+    {
+        int end = std::min(i + chunk_size, total_nb_combinations);
+        queue_chunks.push({i, end});
+    }
 
-   // variable to assist in displaying progress
-   aux_progress = ceil(0.1 * total_nb_combinations);
-   if (aux_progress == 0)
-       aux_progress = 1;
+    // variable to assist in displaying progress
+    aux_progress = ceil(0.1 * total_nb_combinations);
+    if (aux_progress == 0)
+        aux_progress = 1;
 
-   cout << "Starting to test combinations... - Total number of combinations = " << total_nb_combinations << endl;
-   // create threads
-   for (int i = 0; i < nb_threads; i++)
-   {
-       threads.emplace_back(&Combinations::worker, this, std::ref(data), i);
-   }
+    cout << "Starting to test combinations... - Total number of combinations = " << total_nb_combinations << endl;
+    
+    // create threads
+    for (int i = 0; i < nb_threads; i++)
+    {
+        threads.emplace_back(&Combinations::worker, this, std::ref(data), i);
+    }
 
-
-    // cout << endl;
-    // for (int i = 0; i < all_combinations.size(); i++)
-    // {
-    //     cout << "Combination " << i << ": " << endl;
-    //     for (int j = 0; j < all_combinations[i].size(); j++)
-    //     {
-    //         cout << "Train " << j << ": ";
-    //         int idx_trip_comb = all_combinations[i][j];
-    //         for (int k = 0; k < trips_combinations[idx_trip_comb].size(); k++)
-    //         {
-    //             cout << trips_combinations[idx_trip_comb][k] << " ";
-    //         }
-    //         cout << endl;
-    //     }
-    // }
+    // wait for all threads to finish
+    for (auto& t : threads)
+    {
+        t.join();
+    }
+    cout << "All combination(s) tested!" << endl;
 
     // finish counting time
     auto end = chrono::high_resolution_clock::now();
@@ -169,12 +160,23 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
             current.push_back(trips_combinations[k][indices[k]]);
         }
 
+        // for (int i = 0; i < current.size(); i++)
+        // {
+        //     cout << "Trem " << i << ": ";
+        //     for (int j = 0; j < current[i].size(); j++)
+        //     {
+        //         cout << current[i][j] << " ";
+        //     }
+        //     cout << endl;
+        // }
+
         // check if its feasible
         if (check_final_feasibility(data, current))
-        {
+        {     
             // reset the model and executes it with routes constraints
             model_thread.reset(data);
-            bool feasible = model_thread.run_with_routes_constraints(data, routes_of_trains);
+            bool feasible = model_thread.run_with_routes_constraints(data, current);
+
             if (feasible)
             {
                 mtx.lock();
@@ -190,14 +192,6 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
         if (counter_solved % aux_progress == 0)
             cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
         // cout << count-start << "/" << end-start << " combination(s) tested! (Thread " << thread_id << ")" << endl;
-
-        // go to next combination
-        for (int i = nb_trains-1; i >= 0; i--)
-        {
-            if (++current[i] < trips_combinations.size())
-                break;
-            current[i] = 0;
-        }
     }
 
     mtx.lock();
@@ -210,18 +204,6 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
 
 bool Combinations::check_final_feasibility (Data &data, vector<vector<int>> &current)
 {
-
-    // cout << current.size() << endl;
-    // for (int i = 0; i < current.size(); i++)
-    // {
-    //     cout << "Trem " << i+1 << " - ";
-    //     for (int j = 0; j < current[i].size(); j++)
-    //     {
-    //         cout << current[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-
     // normalize combinations to verify whether it was already added
     // (only changes the train that will complete the trips)
 
@@ -250,11 +232,11 @@ bool Combinations::check_final_feasibility (Data &data, vector<vector<int>> &cur
             demands_per_day[i] += data.get_demands()[i][j];
     }
     vector<int> times_vertex_was_visited (data.get_nb_vertices(), 0);
-    for (int i = 0; i < current.size(); i++)                                // for each train
+    for (int i = 0; i < current.size(); i++)
     {
-        for (int j = 0; j < current[i].size(); j++)                         // for each route completed by the train
+        for (int j = 0; j < current[i].size(); j++)                        
         {
-            if (current[i][j] != data.get_nb_routes())  // if trip is made
+            if (current[i][j] != data.get_nb_routes())
             {
                 int route = current[i][j];
                 for (auto vertex : data.get_route_vertices(route))
@@ -279,13 +261,6 @@ void Combinations::generate_trips_combinations(Data &data, int train_idx)
     vector<int> current(data.get_train_max_trips(train_idx), 0);
     for (unsigned long long count = 0; count < nb_trips_comb_for_train; count++)
     {
-        // cout << "Combinação: ";
-        // for (int i = 0; i < current.size(); i++)
-        // {
-        //     cout << current[i] << " ";
-        // }
-        // cout << endl;
-
         // verify feasibility of the current combination before adding to the vector
         if (check_trips_feasibility(data, current))
         {
@@ -302,9 +277,8 @@ void Combinations::generate_trips_combinations(Data &data, int train_idx)
     }
 }
 
-bool Combinations::check_trips_feasibility (Data &data, vector <int> &current)
+bool Combinations::check_trips_feasibility (Data &data, vector<int> &current)
 {
-
     // verify whether first route starts at the initial depot
     if (!data.is_valid_route(0, 0, current[0])) return false;
 
@@ -316,6 +290,19 @@ bool Combinations::check_trips_feasibility (Data &data, vector <int> &current)
 
     return true; 
 }
+
+bool Combinations::verify_overflow(unsigned long long base, unsigned long long exp)
+{
+    unsigned long long result = 1;
+    for (unsigned long long i = 0; i < exp; i++)
+    {
+        if (result > ULLONG_MAX / base)
+            return true;
+        result *= base;
+    }
+    return false;
+}
+
 
 
 
