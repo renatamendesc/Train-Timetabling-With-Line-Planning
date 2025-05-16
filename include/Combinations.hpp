@@ -27,11 +27,12 @@ private:
 
     int nb_trains;
 
-    std::set<std::vector<int>> prohibited_combinations;
-    std::set<std::vector<int>> unique_combinations;
+    std::set<std::vector<std::vector<int>>> prohibited_combinations_full;
+    std::set<std::vector<int>> prohibited_combinations_trips;
+    std::set<std::vector<std::vector<int>>> unique_combinations;
 
-    std::vector<std::vector<int>> trips_combinations;
     // std::vector<std::vector<int>> all_combinations;
+    std::vector<std::vector<std::vector<int>>> trips_combinations;
 
     std::queue<std::pair<int, int>> queue_chunks;
 

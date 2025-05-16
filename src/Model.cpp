@@ -54,19 +54,29 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
         for (int i = 0; i < current.size(); i++)
         {
             if (i < data.get_train_max_trips(t))
-            {
-                current[i] != data.get_nb_routes();
-                if (current[i] != data.get_nb_routes()) 
+            {      
+                // if trip is not made                           
+                if (current[i] == data.get_nb_routes())
                 {
-                    // variable is 1 if route is completed
-                    constraints.add(lambda_[t][i][current[i]] == 1);
-                }
-                else                                    
-                {
-                    // variable is zero if trip is not made
+                    // assign variable equal to zero
                     for (int r = 0; r < data.get_nb_routes(); r++)
                     {
+                        // cout << "lambda_[" << t << "][" << i << "][" << r << "] equal to zero" << endl;
                         constraints.add(lambda_[t][i][r] == 0);
+                    }
+                }
+                else
+                {
+                    // if not, trip can or can not complete route assigned to it
+                    for (int r = 0; r < data.get_nb_routes(); r++)
+                    {
+                        // cout << current[i] << "!=" << r << endl;
+                        if (data.is_valid_route(t, i, r) && current[i] != r)
+                        {
+                            // cout << "lambda_[" << t << "][" << i << "][" << r << "] " << r << " can be made" << endl;
+                            constraints.add(lambda_[t][i][r] == 0);
+                        }
+                        
                     }
                 }
             }
@@ -701,6 +711,76 @@ void Model::add_constraints (Data &data)
             }
         }
     }
+
+    // // rotas da pai
+    // constraints.add(lambda_[0][0][2] == 1);
+    // constraints.add(lambda_[0][1][0] == 1);
+    // constraints.add(lambda_[1][0][3] == 1);
+    // constraints.add(lambda_[1][1][2] == 1);
+    // constraints.add(lambda_[2][0][3] == 1);
+    // constraints.add(lambda_[2][1][2] == 1);
+
+    // // variaveis do otimo
+    // constraints.add(y_[0][0][0] == 0);
+    // constraints.add(y_[0][0][1] == 0);
+    // constraints.add(y_[0][0][2] == 0);
+    // constraints.add(y_[0][0][3] == 0);
+    // constraints.add(y_[0][0][4] == 0);
+    // constraints.add(y_[0][0][5] == 0);
+    // constraints.add(y_[0][0][6] == 2380);
+    // constraints.add(y_[0][0][7] == 1620);
+    // constraints.add(y_[0][0][8] == 840);
+    // constraints.add(y_[0][0][9] == 180);
+    // constraints.add(y_[0][1][0] == 3460);
+    // constraints.add(y_[0][1][1] == 4400);
+    // constraints.add(y_[0][1][2] == 5180);
+    // constraints.add(y_[0][1][3] == 5960);
+    // constraints.add(y_[0][1][4] == 0);
+    // constraints.add(y_[0][1][5] == 0);
+    // constraints.add(y_[0][1][6] == 0);
+    // constraints.add(y_[0][1][7] == 0);
+    // constraints.add(y_[0][1][8] == 0);
+    // constraints.add(y_[0][1][9] == 0);
+    // constraints.add(y_[1][0][0] == 3820);
+    // constraints.add(y_[1][0][1] == 4760);
+    // constraints.add(y_[1][0][2] == 5540);
+    // constraints.add(y_[1][0][3] == 6320);
+    // constraints.add(y_[1][0][4] == 7040);
+    // constraints.add(y_[1][0][5] == 3640);
+    // constraints.add(y_[1][0][6] == 2560);
+    // constraints.add(y_[1][0][7] == 1800);
+    // constraints.add(y_[1][0][8] == 1020);
+    // constraints.add(y_[1][0][9] == 360);
+    // constraints.add(y_[1][1][0] == 0);
+    // constraints.add(y_[1][1][1] == 0);
+    // constraints.add(y_[1][1][2] == 0);
+    // constraints.add(y_[1][1][3] == 0);
+    // constraints.add(y_[1][1][4] == 0);
+    // constraints.add(y_[1][1][5] == 0);
+    // constraints.add(y_[1][1][6] == 0);
+    // constraints.add(y_[1][1][7] == 0);
+    // constraints.add(y_[1][1][8] == 0);
+    // constraints.add(y_[1][1][9] == 0);
+    // constraints.add(y_[2][0][0] == 3640);
+    // constraints.add(y_[2][0][1] == 4580);
+    // constraints.add(y_[2][0][2] == 5360);
+    // constraints.add(y_[2][0][3] == 6140);
+    // constraints.add(y_[2][0][4] == 6860);
+    // constraints.add(y_[2][0][5] == 3460);
+    // constraints.add(y_[2][0][6] == 2200);
+    // constraints.add(y_[2][0][7] == 1440);
+    // constraints.add(y_[2][0][8] == 660);
+    // constraints.add(y_[2][0][9] == 0);
+    // constraints.add(y_[2][1][0] == 0);
+    // constraints.add(y_[2][1][1] == 0);
+    // constraints.add(y_[2][1][2] == 0);
+    // constraints.add(y_[2][1][3] == 0);
+    // constraints.add(y_[2][1][4] == 0);
+    // constraints.add(y_[2][1][5] == 0);
+    // constraints.add(y_[2][1][6] == 0);
+    // constraints.add(y_[2][1][7] == 0);
+    // constraints.add(y_[2][1][8] == 0);
+    // constraints.add(y_[2][1][9] == 0);
 }
 
 int Model::extract_solution(Data &data, bool is_final_solution)
@@ -872,6 +952,18 @@ void Model::get_value_of_variables(Data &data, IloCplex &cplex, bool is_final_so
         lambda_values[map_indexes_lambda[i][0]][map_indexes_lambda[i][1]][map_indexes_lambda[i][2]] += floor(lambda_values_array[i] + 1e-5);
     lambda_values_array.end();
     lambda_array.end();
+
+    // // display y values
+    // for (int t = 0; t < data.get_nb_trains(); t++)
+    // {
+    //     for (int i = 0; i < data.get_train_max_trips(t); i++)
+    //     {
+    //         for (int v = 0; v < data.get_nb_vertices(); v++)
+    //         {
+    //             cout << "constraints.add(y_[" << t << "][" << i << "][" << v << "] == " << cplex.getValue(y_[t][i][v]) << ");" << endl;
+    //         }
+    //     }
+    // }
 
     // display w values
     // for (int t = 0; t < data.get_nb_trains(); t++)
@@ -1046,7 +1138,7 @@ void Model::get_solution (Data &data, bool is_final_solution)
             }
         }
 
-        get_graph(data, idx_sol);
+        // get_graph(data, idx_sol);
     }
 }
 
