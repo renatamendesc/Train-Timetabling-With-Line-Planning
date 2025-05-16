@@ -7,11 +7,11 @@ int main(int argc, char *argv[])
     Data data(argv[1]);
     data.print_data();
 
-    // Combinations comb (data);
+    Combinations comb (data);
 
-    Model model;
-    model.initialize(data);
-    model.run(data);
+    // Model model;
+    // model.initialize(data);
+    // model.run(data);
 
     return 0;
 }

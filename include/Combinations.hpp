@@ -25,21 +25,18 @@ private:
 
     std::set<std::vector<std::vector<int>>> prohibited_combinations_full;
     std::set<std::vector<int>> prohibited_combinations_trips;
-    std::set<std::vector<int>> unique_combinations;
+    std::set<std::vector<std::vector<int>>> unique_combinations;
 
-    std::vector<std::vector<int>> all_combinations;
-    std::vector<std::vector<int>> trips_combinations;
+    // std::vector<std::vector<int>> all_combinations;
+    std::vector<std::vector<std::vector<int>>> trips_combinations;
 
     void reset_directory(Data &data);
 
-    void generate_trips_combinations(Data &data);
+    void generate_trips_combinations(Data &data, int train_idx);
     void generate_all_combinations(Data &data, Model &model);
 
     bool check_trips_feasibility (Data &data, std::vector <int> &current);
-    bool check_final_feasibility (Data &data, std::vector <int> &current);
-
-    void add_to_prohibited_set_full(std::vector <std::vector<int>> &invalid_combination);
-    void add_to_prohibited_set_trips(std::vector <int> invalid_combination);
+    bool check_final_feasibility (Data &data, std::vector<std::vector<int>> &current);
 };
 
 #endif
