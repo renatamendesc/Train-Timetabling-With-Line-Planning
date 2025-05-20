@@ -25,7 +25,7 @@ private:
 
     int _nb_trains;
     int _nb_points;
-    int _initial_point;
+    // int _initial_point;
     int _nb_routes;
     int _max_nb_trips;
     // one entry for each point
@@ -73,6 +73,8 @@ private:
     bool validate_instance();
 
 public:
+    int _initial_point;
+    
     Data(std::string instance_path);
 
     void print_data();

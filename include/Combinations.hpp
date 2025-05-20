@@ -32,7 +32,7 @@ private:
     std::set<std::vector<int>> prohibited_combinations_trips;
     std::set<std::vector<std::vector<int>>> unique_combinations;
 
-    // std::vector<std::vector<int>> all_combinations;
+    std::vector<std::vector<std::vector<int>>> all_combinations;
     std::vector<std::vector<std::vector<int>>> trips_combinations;
 
     std::queue<std::pair<int, int>> queue_chunks;
@@ -47,6 +47,8 @@ private:
 
     bool check_trips_feasibility (Data &data, std::vector<int> &current);
     bool check_final_feasibility (Data &data, std::vector<std::vector<int>> &current);
+
+    void create_cycles (Data &data);
 
     int strategy;
 
