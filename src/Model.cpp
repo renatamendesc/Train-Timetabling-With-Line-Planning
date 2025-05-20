@@ -48,31 +48,52 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
     add_constraints(data);
 
     // create routes constraints
-    // (all combinations)
-    for (int t = 0; t < routes_of_trains.size(); t++)
+    if (strategy == 0) // (all combinations)
     {
-        vector<int> current = routes_of_trains[t];
-        for (int i = 0; i < current.size(); i++)
+        for (int t = 0; t < routes_of_trains.size(); t++)
         {
-            if (i < data.get_train_max_trips(t))
-            {       
-                // if trip is not made                           
-                if (current[i] == data.get_nb_routes())
-                {
-                    // assign variable equal to zero
-                    for (int r = 0; r < data.get_nb_routes(); r++)
+            vector<int> current = routes_of_trains[t];
+            for (int i = 0; i < current.size(); i++)
+            {
+                if (i < data.get_train_max_trips(t))
+                {       
+                    // if trip is not made                           
+                    if (current[i] == data.get_nb_routes())
                     {
-                        constraints.add(lambda_[t][i][r] == 0);
+                        // assign variable equal to zero
+                        for (int r = 0; r < data.get_nb_routes(); r++)
+                        {
+                            constraints.add(lambda_[t][i][r] == 0);
+                        }
+                    }
+                    else
+                    {
+                        // variable is 1 if route is completed
+                        constraints.add(lambda_[t][i][current[i]] == 1); 
                     }
                 }
-                else
-                {
-                    if (strategy == 0)
+            }
+        }
+    }
+    else if (strategy == 1) // (complete trips only)
+    {
+        for (int t = 0; t < routes_of_trains.size(); t++)
+        {
+            vector<int> current = routes_of_trains[t];
+            for (int i = 0; i < current.size(); i++)
+            {
+                if (i < data.get_train_max_trips(t))
+                {       
+                    // if trip is not made                           
+                    if (current[i] == data.get_nb_routes())
                     {
-                       // variable is 1 if route is completed
-                       constraints.add(lambda_[t][i][current[i]] == 1); 
+                        // assign variable equal to zero
+                        for (int r = 0; r < data.get_nb_routes(); r++)
+                        {
+                            constraints.add(lambda_[t][i][r] == 0);
+                        }
                     }
-                    else if (strategy == 1)
+                    else
                     {
                         // if not, trip can or can not complete route assigned to it
                         for (int r = 0; r < data.get_nb_routes(); r++)
