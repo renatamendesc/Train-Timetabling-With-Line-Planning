@@ -41,7 +41,7 @@ public:
     void reset (Data &data);
 
     void run (Data &data);
-    int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains);
+    int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int strategy);
 
     void get_solution (Data &data, bool is_final_solution);
     void get_graph (Data &data, int idx_sol);

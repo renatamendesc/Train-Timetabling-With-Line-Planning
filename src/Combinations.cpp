@@ -2,8 +2,10 @@
 
 using namespace std;
 
-Combinations::Combinations(Data &data, int t, string type_scheduling)
+Combinations::Combinations(Data &data, int t, string scheduling, int strat)
 {
+    strategy = strat; // 0 -> all combinations and 1 -> complete combinations
+
     // reset directory that stores solutions for the instance
     reset_directory(data);
 
@@ -12,7 +14,18 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
 
     // generate trips combinations for each train
     nb_routes = data.get_nb_routes();
-    nb_trains = data.get_nb_trains();                                  
+    if (strategy == 0)
+    {
+        cout << "Strategy: Testing all combinations" << endl;
+        nb_effective_routes = data.get_nb_routes()+1;  
+    }                             
+    else if (strategy == 1)
+    {
+        cout << "Strategy: Testing complete combinations" << endl;
+        nb_effective_routes = nb_routes;
+    }
+
+    nb_trains = data.get_nb_trains();
     trips_combinations.resize(nb_trains);    
     for (int i = 0; i < nb_trains; i++)                                      
     {
@@ -34,7 +47,7 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
                 cout << endl << ">> Too many combinations. Instance can't be solved!" << endl;
                 return;
             }
-            int nb_trips_comb_for_train = pow(nb_routes, data.get_train_max_trips(i));        
+            int nb_trips_comb_for_train = pow(nb_effective_routes, data.get_train_max_trips(i));
             generate_trips_combinations(data, i); // calculate number of trips combinations
         }
     }
@@ -58,16 +71,19 @@ Combinations::Combinations(Data &data, int t, string type_scheduling)
     // create chunks
     unsigned long long chunk_size;
     // if (total_nb_combinations < /*define number*/)
-    if (type_scheduling == "-s")
+    if (scheduling == "static")
     {
+        cout << "Using static scheduling..." << endl;
         chunk_size = total_nb_combinations / nb_threads; // equivalent to static
     }
     else
     {
-        chunk_size = total_nb_combinations * 0.1; // / 1000;       // equivalent to dynamic
+        cout << "Using dynamic scheduling..." << endl;
+        chunk_size = total_nb_combinations * 0.1;        // equivalent to dynamic
         if (total_nb_combinations * 0.1 < 1)
             chunk_size = total_nb_combinations / nb_threads;
     }
+
     // cout << "Chunk size: " << chunk_size << endl;
     // cout << "Number of jobs: " << total_nb_combinations / chunk_size << endl;
     // cout << "Threads: " << nb_threads << endl;
@@ -160,6 +176,9 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
             current.push_back(trips_combinations[k][indices[k]]);
         }
 
+        // mtx.lock();
+        // cout << counter_solved << "/" << total_nb_combinations << endl;
+        // mtx.unlock();
         // for (int i = 0; i < current.size(); i++)
         // {
         //     cout << "Trem " << i << ": ";
@@ -175,7 +194,7 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
         {     
             // reset the model and executes it with routes constraints
             model_thread.reset(data);
-            bool feasible = model_thread.run_with_routes_constraints(data, current);
+            bool feasible = model_thread.run_with_routes_constraints(data, current, strategy);
 
             if (feasible)
             {
@@ -256,11 +275,17 @@ bool Combinations::check_final_feasibility (Data &data, vector<vector<int>> &cur
 
 void Combinations::generate_trips_combinations(Data &data, int train_idx)
 {
-    int nb_trips_comb_for_train = pow(nb_routes, data.get_train_max_trips(train_idx));
+    int nb_trips_comb_for_train = pow(nb_effective_routes, data.get_train_max_trips(train_idx));
 
     vector<int> current(data.get_train_max_trips(train_idx), 0);
     for (unsigned long long count = 0; count < nb_trips_comb_for_train; count++)
     {
+        // for (int i = 0; i < current.size(); i++)
+        // {
+        //     cout << current[i] << " ";
+        // }
+        // cout << endl;
+
         // verify feasibility of the current combination before adding to the vector
         if (check_trips_feasibility(data, current))
         {
@@ -270,7 +295,7 @@ void Combinations::generate_trips_combinations(Data &data, int train_idx)
         // go to next combination
         for (int i = data.get_train_max_trips(train_idx)-1; i >= 0; i--)
         {
-            if (++current[i] < nb_routes)
+            if (++current[i] < nb_effective_routes)
                 break;
             current[i] = 0;
         }
@@ -280,15 +305,40 @@ void Combinations::generate_trips_combinations(Data &data, int train_idx)
 bool Combinations::check_trips_feasibility (Data &data, vector<int> &current)
 {
     // verify whether first route starts at the initial depot
-    if (!data.is_valid_route(0, 0, current[0])) return false;
-
-    // verify whether subsequential routes are compatible
-    for (int i = 0; i < current.size()-1; i++)
+    // if (!data.is_valid_route(0, 0, current[0])) return false;
+    if (current[0] != nb_routes)
     {
-        if (data.are_incompatible_routes(current[i], current[i+1])) return false;
+        if (!data.is_valid_route(0, 0, current[0])) return false;
     }
 
-    return true; 
+    // // verify whether subsequential routes are compatible
+    // for (int i = 0; i < current.size()-1; i++)
+    // {
+    //     if (data.are_incompatible_routes(current[i], current[i+1])) return false;
+    // }
+    bool flag = false; // flag to tell whether train completes any trips during the day
+    for (int i = 0; i < current.size()-1; i++)
+    {
+        if (current[i] != nb_routes)
+        {
+            flag = true;
+            if (current[i+1] != nb_routes)
+            {
+                // verify whether subsequential routes are compatible
+                if (data.are_incompatible_routes(current[i], current[i+1])) return false;
+            }
+        }
+        else if (current[i] == nb_routes)
+        {
+            // if trip is not made, verify whether the next ones also are not made
+            if (i != current.size()-1 && current[i+1] != nb_routes) return false;
+        }
+    }
+
+    if (current.front() != nb_routes) flag = true;
+
+    // return true;
+    return flag; 
 }
 
 bool Combinations::verify_overflow(unsigned long long base, unsigned long long exp)

@@ -17,13 +17,14 @@ public:
     unsigned long long int total_nb_combinations = 0;
     unsigned long long int nb_feasible_combinations = 0;
 
-    Combinations(Data &data, int t, std::string type_scheduling);
+    Combinations(Data &data, int t, std::string scheduling, int strat);
 
 private:
     unsigned long long int max_nb_trips_combinations = 0;
 
     int max_nb_trips;
     int nb_routes;
+    int nb_effective_routes; // used when we consider nb_routes+1 as route not made
 
     int nb_trains;
 
@@ -46,6 +47,8 @@ private:
 
     bool check_trips_feasibility (Data &data, std::vector<int> &current);
     bool check_final_feasibility (Data &data, std::vector<std::vector<int>> &current);
+
+    int strategy;
 
     int nb_threads;
     Model best_thread;
