@@ -34,7 +34,7 @@ void Model::run (Data &data)
     extract_solution(data, true);
 }
 
-int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains, int strategy)
+int Model::run_LP_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains)
 {
     // create decision variables
     add_variables(data);
@@ -48,61 +48,74 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
     add_constraints(data);
 
     // create routes constraints
-    if (strategy == 0) // (all combinations)
+    for (int t = 0; t < routes_of_trains.size(); t++)
     {
-        for (int t = 0; t < routes_of_trains.size(); t++)
+        vector<int> current = routes_of_trains[t];
+        for (int i = 0; i < current.size(); i++)
         {
-            vector<int> current = routes_of_trains[t];
-            for (int i = 0; i < current.size(); i++)
-            {
-                if (i < data.get_train_max_trips(t))
-                {       
-                    // if trip is not made                           
-                    if (current[i] == data.get_nb_routes())
+            if (i < data.get_train_max_trips(t))
+            {       
+                // if trip is not made                           
+                if (current[i] == data.get_nb_routes())
+                {
+                    // assign variable equal to zero
+                    for (int r = 0; r < data.get_nb_routes(); r++)
                     {
-                        // assign variable equal to zero
-                        for (int r = 0; r < data.get_nb_routes(); r++)
-                        {
-                            constraints.add(lambda_[t][i][r] == 0);
-                        }
+                        constraints.add(lambda_[t][i][r] == 0);
                     }
-                    else
-                    {
-                        // variable is 1 if route is completed
-                        constraints.add(lambda_[t][i][current[i]] == 1); 
-                    }
+                }
+                else
+                {
+                    // variable is 1 if route is completed
+                    constraints.add(lambda_[t][i][current[i]] == 1); 
                 }
             }
         }
     }
-    else if (strategy == 1) // (complete trips only)
+    model.add(constraints);
+
+    // extract solution from the model
+    return extract_solution(data, false);
+}
+
+int Model::run_MIP_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains)
+{
+    // create decision variables
+    add_variables(data);
+
+    // create objective function
+    obj = z_; 
+    model.add(IloMinimize(env, obj));
+    constraints.add(z_ >= 0);
+
+    // create constraints
+    add_constraints(data);
+
+    for (int t = 0; t < routes_of_trains.size(); t++)
     {
-        for (int t = 0; t < routes_of_trains.size(); t++)
+        vector<int> current = routes_of_trains[t];
+        for (int i = 0; i < current.size(); i++)
         {
-            vector<int> current = routes_of_trains[t];
-            for (int i = 0; i < current.size(); i++)
-            {
-                if (i < data.get_train_max_trips(t))
-                {       
-                    // if trip is not made                           
-                    if (current[i] == data.get_nb_routes())
+            if (i < data.get_train_max_trips(t))
+            {       
+                // if trip is not made                           
+                if (current[i] == data.get_nb_routes())
+                {
+                    // assign variable equal to zero
+                    for (int r = 0; r < data.get_nb_routes(); r++)
                     {
-                        // assign variable equal to zero
-                        for (int r = 0; r < data.get_nb_routes(); r++)
+                        constraints.add(lambda_[t][i][r] == 0);
+                    }
+                }
+                else
+                {
+                    // if not, trip can or can not complete route assigned to it
+                    for (int r = 0; r < data.get_nb_routes(); r++)
+                    {
+                        if (data.is_valid_route(t, i, r) && current[i] != r)
                         {
                             constraints.add(lambda_[t][i][r] == 0);
-                        }
-                    }
-                    else
-                    {
-                        // if not, trip can or can not complete route assigned to it
-                        for (int r = 0; r < data.get_nb_routes(); r++)
-                        {
-                            if (data.is_valid_route(t, i, r) && current[i] != r)
-                            {
-                                constraints.add(lambda_[t][i][r] == 0);
-                            } 
-                        }
+                        } 
                     }
                 }
             }
@@ -770,6 +783,7 @@ int Model::extract_solution(Data &data, bool is_final_solution)
         std::chrono::duration<double> time = end-start;
         current_sol.computational_time = (time).count();
         current_sol.obj_value = cplex.getObjValue();
+        cout << "Custo: " << current_sol.obj_value << endl;
         current_sol.gap_value = cplex.getMIPRelativeGap();
         get_value_of_variables(data, cplex, is_final_solution);
         
@@ -963,6 +977,37 @@ void Model::get_value_of_variables(Data &data, IloCplex &cplex, bool is_final_so
         best_sol.y_bar_values = y_bar_values;
         best_sol.lambda_values = lambda_values;
     }
+}
+
+void Model::get_combination (Data &data, vector<vector<int>> &combination)
+{
+    VarValuesMatrix3d lambda_values = best_sol.lambda_values;
+
+    for (int i = 0; i < data.get_nb_trains(); i++)
+    {
+        for (int j = 0; j < data.get_train_max_trips(i); j++)
+        {
+            for (int k = 0; k < data.get_nb_routes(); k++)
+            {
+                if (lambda_values[i][j][k] == 1)
+                {
+                    combination[i][j] = k;
+                    break;
+                } 
+            }
+        }
+    }
+
+    for (int i = 0; i < combination.size(); i++)
+    {
+        cout << "Trem " << i+1 << ": ";
+        for (int j = 0; j < combination[i].size(); j++)
+        {
+            cout << combination[i][j] << " ";
+        }
+        cout << endl;
+    }
+
 }
 
 void Model::get_solution (Data &data, bool is_final_solution)

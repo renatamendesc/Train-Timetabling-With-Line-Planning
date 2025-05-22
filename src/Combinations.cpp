@@ -2,80 +2,6 @@
 
 using namespace std;
 
-void Combinations::create_cycles (Data &data)
-{
-    vector <int> valid_routes;
-    for (int i = 0; i < nb_routes; i++)
-    {
-        int point = data._initial_point;
-        int upper = data.get_point_vertices(point)[0];
-        int lower = data.get_point_vertices(point)[1];
-
-        if (data.get_route_vertices(i)[0] == upper || data.get_route_vertices(i)[0] == lower)
-        {
-            valid_routes.push_back(i);
-        }
-
-        if (data.is_cyclic_route(i))
-        {
-            vector <vector <int>> aux_trips;
-            for (int j = 0; j < nb_trains; j++)
-            {
-                cout << "Trem " << j << ": ";
-                vector <int> aux_route;
-                for (int k = 0; k < data.get_train_max_trips(j); k++)
-                {
-                    aux_route.push_back(i);
-                    cout << i << " ";
-                }
-                aux_trips.push_back(aux_route);
-                cout << endl;
-            }
-            all_combinations.push_back(aux_trips);
-        }
-    }
-
-    // 12 e 14
-    // 0 0 0 0
-    int initial_size = all_combinations.size();
-    for (int i = 0; i < initial_size; i++)
-    {
-        // Trem 0: 4 4 4 4 4 4 4 
-        // Trem 1: 4 4 4 4 4 4 
-        // Trem 2: 4 4 4 
-        if (all_combinations[i][0][0] != data._initial_point)
-        {
-            for (int r = 0; r < valid_routes.size(); r++)
-            {
-                // cout << "válida " << valid_routes[r] << endl;
-                vector <vector <int>> aux = all_combinations[i];
-                for (int j = 0; j < all_combinations[i].size(); j++)
-                {
-                    aux[j][0] = valid_routes[r];
-                }
-                all_combinations.push_back(aux);
-            }
-        }
-    }
-    
-    cout << endl;
-    cout << "Final: " << endl;
-    for (int i = 0; i < all_combinations.size(); i++)
-    {
-        cout << "Combinação: " << endl;
-        for (int j = 0; j < all_combinations[i].size(); j++)
-        {
-            cout << "Trem " << j << ": ";
-            for (int k = 0; k < all_combinations[i][j].size(); k++)
-            {
-                cout << all_combinations[i][j][k] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
-}
-
 Combinations::Combinations(Data &data, int t, string scheduling, int strat)
 {
     strategy = strat; // 0 -> all combinations and 1 -> complete combinations
@@ -101,43 +27,13 @@ Combinations::Combinations(Data &data, int t, string scheduling, int strat)
 
     nb_trains = data.get_nb_trains();
     trips_combinations.resize(nb_trains);    
-    // for (int i = 0; i < nb_trains; i++)                                      
-    // {
-    //     // verify whether trips were already calculated for the train
-    //     bool skip = false;
-    //     for (int j = i-1; j >= 0; j--)
-    //     {
-    //         if (data.get_train_max_trips(j) == data.get_train_max_trips(i))
-    //         {
-    //             trips_combinations[i] = trips_combinations[j];
-    //             skip = true;
-    //             break;
-    //         }
-    //     }
-    //     if (!skip)
-    //     {
-    //         if (verify_overflow(nb_routes, data.get_train_max_trips(i)))
-    //         {
-    //             cout << endl << ">> Too many combinations. Instance can't be solved!" << endl;
-    //             return;
-    //         }
-    //         int nb_trips_comb_for_train = pow(nb_effective_routes, data.get_train_max_trips(i));
-    //         generate_trips_combinations(data, i); // calculate number of trips combinations
-    //     }
-    // }
 
-    // // generate all combinations
-    // max_nb_trips = data.get_max_nb_trips();
-    // total_nb_combinations = 1;
-    // for (int i = 0; i < trips_combinations.size(); i++)
-    // {
-    //     // calculate total number of possible combinations
-    //     total_nb_combinations *= trips_combinations[i].size(); 
-    // }
-
-    create_cycles(data);
+    heuristic.create_initial_combinations(data);
+    all_combinations = heuristic.candidate_combinations;
     total_nb_combinations = all_combinations.size();
     generate_all_combinations(data, 0, all_combinations.size(), 0);
+
+
 
     // // initialize threads
     // vector <thread> threads;
@@ -239,58 +135,65 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
     Model model_thread;
     model_thread.initialize(data);
 
-    // create combinations on the interval
-    for (unsigned long long count = start; count < end; count++)
+    for (int t = 0; t < 3; t++)
     {
-        // // get current combination
-        // int idx = count;
-        // vector<int> indices(nb_trains);
-        // for (int k = nb_trains - 1; k >= 0; k--) {
-        //     indices[k] = idx % trips_combinations[k].size();
-        //     idx /= trips_combinations[k].size();
-        // }
+        all_combinations = heuristic.candidate_combinations;
+        total_nb_combinations = all_combinations.size();
+        end = total_nb_combinations;
+
+        cout << "Iter " << t+1 << ": " << total_nb_combinations << endl;
+
+        // create combinations on the interval
         vector<vector<int>> current;
-        // for (int k = 0; k < nb_trains; k++) {
-        //     current.push_back(trips_combinations[k][indices[k]]);
-        // }
-
-        // mtx.lock();
-        // cout << counter_solved << "/" << total_nb_combinations << endl;
-        // mtx.unlock();
-        current = all_combinations[count];
-        for (int i = 0; i < current.size(); i++)
+        for (unsigned long long count = start; count < end; count++)
         {
-            cout << "Trem " << i << ": ";
-            for (int j = 0; j < current[i].size(); j++)
+            // cout << counter_solved << "/" << total_nb_combinations << endl;
+            current = all_combinations[count];
+
+            cout << "Combinação: " << count+1 << endl;
+            for (int i = 0; i < current.size(); i++)
             {
-                cout << current[i][j] << " ";
+                cout << "Trem " << i << ": ";
+                for (int j = 0; j < current[i].size(); j++)
+                {
+                    cout << current[i][j] << " ";
+                }
+                cout << endl;
             }
-            cout << endl;
+
+            // check if its feasible
+            if (check_final_feasibility(data, current))
+            {   
+                // reset the model and executes it with routes constraints
+                model_thread.reset(data);
+                bool feasible = model_thread.run_LP_with_routes_constraints(data, current);
+
+                if (feasible)
+                {
+                    cout << "viável" << endl;
+                    mtx.lock();
+                    nb_feasible_combinations++;
+                    mtx.unlock();
+                }
+            }
+            mtx.lock();
+            counter_solved++;
+            mtx.unlock();
+
+        
+            if (counter_solved % aux_progress == 0)
+                cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
         }
 
-        // check if its feasible
-        if (check_final_feasibility(data, current))
-        {   
-            // reset the model and executes it with routes constraints
-            model_thread.reset(data);
-            bool feasible = model_thread.run_with_routes_constraints(data, current, strategy);
+        model_thread.get_combination(data, current);
+        heuristic.remove_trips(data, true, current);
+        // se encontrou viável...
 
-            if (feasible)
-            {
-                cout << "viável" << endl;
-                mtx.lock();
-                nb_feasible_combinations++;
-                mtx.unlock();
-            }
-        }
-        mtx.lock();
-        counter_solved++;
-        mtx.unlock();
+        // model_thread.reset(data);
+        // model_thread.run_MIP_with_routes_constraints(data, current);
 
-     
-        if (counter_solved % aux_progress == 0)
-            cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
-        // cout << count-start << "/" << end-start << " combination(s) tested! (Thread " << thread_id << ")" << endl;
+        // se não encontrou...
+        // manipular o conjunto de soluções candidatas
     }
 
     mtx.lock();
@@ -306,12 +209,12 @@ bool Combinations::check_final_feasibility (Data &data, vector<vector<int>> &cur
     // normalize combinations to verify whether it was already added
     // (only changes the train that will complete the trips)
 
-    // make sure all dimensions have the same size
-    for (int i = 0; i < current.size(); i++)
-    {
-        while (current[i].size() < max_nb_trips)
-            current[i].push_back(nb_routes);
-    }
+    // // make sure all dimensions have the same size
+    // for (int i = 0; i < current.size(); i++)
+    // {
+    //     while (current[i].size() < max_nb_trips)
+    //         current[i].push_back(nb_routes);
+    // }
     // normalize the vector
     vector<vector<int>> normalized_combination = current;
     sort(normalized_combination.begin(), normalized_combination.end());

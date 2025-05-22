@@ -3,6 +3,7 @@
 
 #include "Data.hpp"
 #include "Model.hpp"
+#include "Heuristic.hpp"
 #include <cmath>
 #include <algorithm>
 #include <set>
@@ -20,6 +21,8 @@ public:
     Combinations(Data &data, int t, std::string scheduling, int strat);
 
 private:
+    Heuristic heuristic;
+
     unsigned long long int max_nb_trips_combinations = 0;
 
     int max_nb_trips;
@@ -47,8 +50,6 @@ private:
 
     bool check_trips_feasibility (Data &data, std::vector<int> &current);
     bool check_final_feasibility (Data &data, std::vector<std::vector<int>> &current);
-
-    void create_cycles (Data &data);
 
     int strategy;
 

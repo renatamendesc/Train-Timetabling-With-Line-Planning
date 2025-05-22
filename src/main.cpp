@@ -1,6 +1,7 @@
 #include "Data.hpp"
 #include "Model.hpp"
 #include "Combinations.hpp"
+#include "Heuristic.hpp"
 
 // Input must indicate instance and method to be used (model or enum). If enumeration was chosen,
 // the user also must indicate de number of threads to be used, and the scheduling of thread scheduling
@@ -137,19 +138,24 @@ int main(int argc, char *argv[])
     Data data(argv[1]);
     data.print_data();
 
-    if (read_input(argc, argv))
-    {
-        if (method == "model")
-        {
-            Model model;
-            model.initialize(data);
-            model.run(data);
-        }
-        else if (method == "enum")
-        {
-            Combinations comb (data, threads, scheduling, strategy); 
-        }
-    }
+    Combinations comb (data, 1, "static", 0); 
+
+    // Heuristic heuristic;
+    // heuristic.create_initial_combinations(data);
+
+    // if (read_input(argc, argv))
+    // {
+    //     if (method == "model")
+    //     {
+    //         Model model;
+    //         model.initialize(data);
+    //         model.run(data);
+    //     }
+    //     else if (method == "enum")
+    //     {
+    //         Combinations comb (data, threads, scheduling, strategy); 
+    //     }
+    // }
 
     return 0;
 }
