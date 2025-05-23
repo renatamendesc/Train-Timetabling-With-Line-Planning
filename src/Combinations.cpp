@@ -186,7 +186,7 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
         }
 
         model_thread.get_combination(data, current);
-        heuristic.remove_trips(data, true, current);
+        heuristic.remove_trips(data, true, current); // reduz até as demandas não serem cumpridas
         // se encontrou viável...
 
         // model_thread.reset(data);

@@ -169,8 +169,8 @@ void Heuristic::add_all_subsets (Data &data)
 
 void Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> current)
 {
-    if (feasible)
-    {
+    // if (feasible)
+    // {
         candidate_combinations.clear();
 
         vector<int> max_lengths(data.get_nb_trains());
@@ -187,11 +187,8 @@ void Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> cur
                 vector<int> reduced(current[i].begin(), current[i].begin() + current_lengths[i]);
                 subset.push_back(reduced);
             }
-
-            // Armazenar no vetor de subconjuntos e também nos candidatos
             candidate_combinations.push_back(subset);
 
-            // Atualizar os comprimentos, como um contador misto
             for (int i = data.get_nb_trains()-1; i >= 0; i--)
             {
                 if (current_lengths[i] > current[i].size()-1)
@@ -207,7 +204,11 @@ void Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> cur
                 }
             }
         } 
-    }
+    // }
+    // else
+    // {
+
+    // }
 
     for (int i = 0; i < candidate_combinations.size(); i++)
     {
@@ -223,10 +224,6 @@ void Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> cur
         }
         cout << endl;
     }
-    // else
-    // {
-
-    // }
 }
 
 
