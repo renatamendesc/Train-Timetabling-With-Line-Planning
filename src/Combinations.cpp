@@ -179,14 +179,15 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
             mtx.lock();
             counter_solved++;
             mtx.unlock();
-
         
             if (counter_solved % aux_progress == 0)
                 cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
         }
 
         model_thread.get_combination(data, current);
-        heuristic.remove_trips(data, true, current); // reduz até as demandas não serem cumpridas
+
+        
+        // heuristic.remove_trips(data, true, current); // reduz até as demandas não serem cumpridas
         // se encontrou viável...
 
         // model_thread.reset(data);
