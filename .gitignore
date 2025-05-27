@@ -47,3 +47,5 @@ combinations/
 
 # File to generate graphs
 script-solution.txt
+
+HiGHS.log

@@ -147,9 +147,9 @@ int main(int argc, char *argv[])
     // {
     //     if (method == "model")
     //     {
-    //         Model model;
-    //         model.initialize(data);
-    //         model.run(data);
+    //        Model model;
+    //        model.initialize(data);
+    //        model.run(data);
     //     }
     //     else if (method == "enum")
     //     {

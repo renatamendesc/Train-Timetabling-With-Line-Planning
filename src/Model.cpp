@@ -107,16 +107,9 @@ int Model::run_MIP_with_routes_constraints (Data &data, vector<vector<int>> &rou
                         constraints.add(lambda_[t][i][r] == 0);
                     }
                 }
-                else
+                else if (current[i] != -1)
                 {
-                    // if not, trip can or can not complete route assigned to it
-                    for (int r = 0; r < data.get_nb_routes(); r++)
-                    {
-                        if (data.is_valid_route(t, i, r) && current[i] != r)
-                        {
-                            constraints.add(lambda_[t][i][r] == 0);
-                        } 
-                    }
+                    constraints.add(lambda_[t][i][current[i]] == 1);
                 }
             }
         }
@@ -776,6 +769,8 @@ int Model::extract_solution(Data &data, bool is_final_solution)
         auto start = chrono::high_resolution_clock::now();
         bool solved = cplex.solve();
         auto end = chrono::high_resolution_clock::now();
+
+        cout << "Viável? " << solved << endl;
         
         if (!solved)
             return 0;
@@ -998,6 +993,7 @@ void Model::get_combination (Data &data, vector<vector<int>> &combination)
         }
     }
 
+    cout << endl;
     for (int i = 0; i < combination.size(); i++)
     {
         cout << "Trem " << i+1 << ": ";

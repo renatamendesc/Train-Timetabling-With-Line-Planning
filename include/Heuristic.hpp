@@ -7,9 +7,11 @@
 class Heuristic
 {
 public:
-    void create_initial_combinations (Data &data);
-    void remove_trips (Data &data, bool feasible, std::vector<std::vector<int>> current);
     std::vector<std::vector<std::vector<int>>> candidate_combinations;
+
+    void create_initial_combinations (Data &data);
+    void remove_trips (Data &data, bool feasible, std::vector<std::vector<int>> current, int min_nb_trips);
+    void change_trips (Data &data, std::vector<std::vector<int>> &current);
 
 private:
     std::vector <int> cyclical_routes_set;

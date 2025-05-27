@@ -96,7 +96,7 @@ void Heuristic::create_initial_combinations (Data &data)
         }
     }
 
-    // add_all_subsets(data);
+    // add_all_subsets(data); // modifcar para remover o tamanho até demandas não serem atendidas
 
     for (int i = 0; i < candidate_combinations.size(); i++)
     {
@@ -167,65 +167,126 @@ void Heuristic::add_all_subsets (Data &data)
     }
 }
 
-void Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> current)
+void Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> current, int min_nb_trips)
 {
+    // Gerar todos os prefixos de cada linha, do maior para o menor
+    std::vector<std::vector<std::vector<int>>> all_prefixes;
+
+    for (const auto& row : current) {
+        std::vector<std::vector<int>> prefixes;
+        for (int len = row.size(); len >= 0; --len) {
+            prefixes.emplace_back(row.begin(), row.begin() + len);
+        }
+        all_prefixes.push_back(prefixes);
+    }
+
+    const auto& row1_prefixes = all_prefixes[0];
+    const auto& row2_prefixes = all_prefixes[1];
+
+    candidate_combinations.clear();
+
+    // Produto cartesiano: para cada combinação de prefixos, salvar como nova "matriz"
+    for (const auto& prefix1 : row1_prefixes) {
+        for (const auto& prefix2 : row2_prefixes) {
+            if (prefix1.size() + prefix2.size() >= min_nb_trips) {
+                candidate_combinations.push_back({prefix1, prefix2});
+            }
+        }
+    }
+
+    // // Exibir as matrizes geradas
+    // for (const auto& submatrix : candidate_combinations) {
+    //     std::cout << "{\n";
+    //     for (const auto& row : submatrix) {
+    //         std::cout << "  { ";
+    //         for (int val : row)
+    //             std::cout << val << " ";
+    //         std::cout << "}\n";
+    //     }
+    //     std::cout << "}\n\n";
+    // }
+
     // if (feasible)
     // {
-        candidate_combinations.clear();
+        // candidate_combinations.clear();
 
-        vector<int> max_lengths(data.get_nb_trains());
-        for (int i = 0; i < data.get_nb_trains(); i++)
-            max_lengths[i] = current[i].size();
+        // vector<int> max_lengths(data.get_nb_trains());
+        // for (int i = 0; i < data.get_nb_trains(); i++)
+        //     max_lengths[i] = current[i].size();
 
-        vector<int> current_lengths = max_lengths;
-        bool done = false;
-        while (!done)
-        {
-            vector<vector<int>> subset;
-            for (int i = 0; i < data.get_nb_trains(); i++)
-            {
-                vector<int> reduced(current[i].begin(), current[i].begin() + current_lengths[i]);
-                subset.push_back(reduced);
-            }
-            candidate_combinations.push_back(subset);
+        // vector<int> current_lengths = max_lengths;
+        // bool done = false;
+        // while (!done)
+        // {
+        //     vector<vector<int>> subset;
+        //     for (int i = 0; i < data.get_nb_trains(); i++)
+        //     {
+        //         vector<int> reduced(current[i].begin(), current[i].begin() + current_lengths[i]);
+        //         subset.push_back(reduced);
+        //     }
+        //     candidate_combinations.push_back(subset);
 
-            for (int i = data.get_nb_trains()-1; i >= 0; i--)
-            {
-                if (current_lengths[i] > current[i].size()-1)
-                {
-                    current_lengths[i]--;
-                    for (int j = i + 1; j < data.get_nb_trains(); j++)
-                        current_lengths[j] = max_lengths[j];
-                    break;
-                }
-                else if (i == 0)
-                {
-                    done = true;
-                }
-            }
-        } 
+        //     for (int i = data.get_nb_trains()-1; i >= 0; i--)
+        //     {
+        //         if (current_lengths[i] > current[i].size()-1)
+        //         {
+        //             current_lengths[i]--;
+        //             for (int j = i + 1; j < data.get_nb_trains(); j++)
+        //                 current_lengths[j] = max_lengths[j];
+        //             break;
+        //         }
+        //         else if (i == 0)
+        //         {
+        //             done = true;
+        //         }
+        //     }
+        // } 
     // }
     // else
     // {
 
     // }
 
-    for (int i = 0; i < candidate_combinations.size(); i++)
+    // for (int i = 0; i < candidate_combinations.size(); i++)
+    // {
+    //     cout << "Combinação " << i+1 << ": " << endl;
+    //     for (int j = 0; j < candidate_combinations[i].size(); j++)
+    //     {
+    //         cout << "Trem " << j << ": ";
+    //         for (int k = 0; k < candidate_combinations[i][j].size(); k++)
+    //         {
+    //             cout << candidate_combinations[i][j][k] << " ";
+    //         }
+    //         cout << endl;
+    //     }
+    //     cout << endl;
+    // }
+}
+
+void Heuristic::change_trips (Data &data, vector<vector<int>> &current)
+{
+    // final trip is chosen by the model
+    // obs.: -1 = free, nb_routes = trip not made
+
+    for (int i = 0; i < data.get_nb_trains(); i++)
     {
-        cout << "Combinação " << i+1 << ": " << endl;
-        for (int j = 0; j < candidate_combinations[i].size(); j++)
+        current[i].back() = -1;
+    }
+
+    // current[1].back() = 7;
+
+    cout << endl;
+    for (int i = 0; i < current.size(); i++)
+    {
+        cout << "Trem " << i+1 << ": ";
+        for (int j = 0; j < current[i].size(); j++)
         {
-            cout << "Trem " << j << ": ";
-            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
-            {
-                cout << candidate_combinations[i][j][k] << " ";
-            }
-            cout << endl;
+            cout << current[i][j] << " ";
         }
         cout << endl;
     }
-}
 
+}
 
 void Heuristic::create_cyclical_routes_set(Data &data)
 {

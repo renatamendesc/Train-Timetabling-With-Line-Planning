@@ -135,7 +135,8 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
     Model model_thread;
     model_thread.initialize(data);
 
-    for (int t = 0; t < 3; t++)
+    vector<vector<int>> current;
+    for (int t = 0; t < 2; t++)
     {
         all_combinations = heuristic.candidate_combinations;
         total_nb_combinations = all_combinations.size();
@@ -144,7 +145,6 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
         cout << "Iter " << t+1 << ": " << total_nb_combinations << endl;
 
         // create combinations on the interval
-        vector<vector<int>> current;
         for (unsigned long long count = start; count < end; count++)
         {
             // cout << counter_solved << "/" << total_nb_combinations << endl;
@@ -162,20 +162,19 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
             }
 
             // check if its feasible
-            if (check_final_feasibility(data, current))
-            {   
+            // if (check_final_feasibility(data, current))
+            // {   
                 // reset the model and executes it with routes constraints
                 model_thread.reset(data);
                 bool feasible = model_thread.run_LP_with_routes_constraints(data, current);
 
                 if (feasible)
                 {
-                    cout << "viável" << endl;
                     mtx.lock();
                     nb_feasible_combinations++;
                     mtx.unlock();
                 }
-            }
+            // }
             mtx.lock();
             counter_solved++;
             mtx.unlock();
@@ -186,8 +185,7 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
 
         model_thread.get_combination(data, current);
 
-        
-        // heuristic.remove_trips(data, true, current); // reduz até as demandas não serem cumpridas
+        heuristic.remove_trips(data, true, current, data.get_max_nb_trips()-t+1); // reduz até as demandas não serem cumpridas
         // se encontrou viável...
 
         // model_thread.reset(data);
@@ -195,7 +193,15 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
 
         // se não encontrou...
         // manipular o conjunto de soluções candidatas
+
+        // no fim de tudo... -> testar solução espelhada
     }
+
+    model_thread.get_combination(data, current);
+
+    // heuristic.change_trips(data, current);
+    // model_thread.reset(data);
+    // model_thread.run_MIP_with_routes_constraints(data, current);
 
     mtx.lock();
     if (model_thread.best_sol.obj_value < best_thread.best_sol.obj_value)
