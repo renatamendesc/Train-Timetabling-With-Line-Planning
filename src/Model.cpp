@@ -993,7 +993,9 @@ void Model::get_combination (Data &data, vector<vector<int>> &combination)
         }
     }
 
-    cout << endl;
+    cout << "Melhor custo atual: " << best_sol.obj_value << endl;
+
+    cout << "Melhor solução atual:" << endl;
     for (int i = 0; i < combination.size(); i++)
     {
         cout << "Trem " << i+1 << ": ";
@@ -1003,6 +1005,7 @@ void Model::get_combination (Data &data, vector<vector<int>> &combination)
         }
         cout << endl;
     }
+    cout << endl;
 
 }
 

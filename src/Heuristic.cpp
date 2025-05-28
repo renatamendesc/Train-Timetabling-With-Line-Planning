@@ -169,14 +169,17 @@ void Heuristic::add_all_subsets (Data &data)
 
 void Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> current, int min_nb_trips)
 {
-    // Gerar todos os prefixos de cada linha, do maior para o menor
-    std::vector<std::vector<std::vector<int>>> all_prefixes;
 
+    // Gerar todos os prefixos de cada linha (do maior para o menor)
+    std::vector<std::vector<std::vector<int>>> all_prefixes;
     for (const auto& row : current) {
         std::vector<std::vector<int>> prefixes;
-        for (int len = row.size(); len >= 0; --len) {
+    
+        // Aqui está o truque: começamos de row.size() - 1
+        for (int len = static_cast<int>(row.size()) - 1; len >= 0; --len) {
             prefixes.emplace_back(row.begin(), row.begin() + len);
         }
+    
         all_prefixes.push_back(prefixes);
     }
 
@@ -185,16 +188,18 @@ void Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> cur
 
     candidate_combinations.clear();
 
-    // Produto cartesiano: para cada combinação de prefixos, salvar como nova "matriz"
+    cout << "Tamanho mínimo: " << min_nb_trips << endl;
+
+    // Produto cartesiano com filtro de tamanho total
     for (const auto& prefix1 : row1_prefixes) {
         for (const auto& prefix2 : row2_prefixes) {
-            if (prefix1.size() + prefix2.size() >= min_nb_trips) {
+            if (prefix1.size() >= min_nb_trips && prefix2.size() >= min_nb_trips) {
                 candidate_combinations.push_back({prefix1, prefix2});
             }
         }
     }
 
-    // // Exibir as matrizes geradas
+    // // Exibir os resultados
     // for (const auto& submatrix : candidate_combinations) {
     //     std::cout << "{\n";
     //     for (const auto& row : submatrix) {
@@ -247,20 +252,21 @@ void Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> cur
 
     // }
 
-    // for (int i = 0; i < candidate_combinations.size(); i++)
-    // {
-    //     cout << "Combinação " << i+1 << ": " << endl;
-    //     for (int j = 0; j < candidate_combinations[i].size(); j++)
-    //     {
-    //         cout << "Trem " << j << ": ";
-    //         for (int k = 0; k < candidate_combinations[i][j].size(); k++)
-    //         {
-    //             cout << candidate_combinations[i][j][k] << " ";
-    //         }
-    //         cout << endl;
-    //     }
-    //     cout << endl;
-    // }
+    cout << "Flexibilizando viagens..." << endl << endl;
+    for (int i = 0; i < candidate_combinations.size(); i++)
+    {
+        cout << "Combinação " << i+1 << ": " << endl;
+        for (int j = 0; j < candidate_combinations[i].size(); j++)
+        {
+            cout << "Trem " << j << ": ";
+            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
+            {
+                cout << candidate_combinations[i][j][k] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
 }
 
 void Heuristic::change_trips (Data &data, vector<vector<int>> &current)
