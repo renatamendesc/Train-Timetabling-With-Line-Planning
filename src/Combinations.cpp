@@ -94,7 +94,7 @@ Combinations::Combinations(Data &data, int t, string scheduling, int strat)
 
     // get optimal solution
     best_thread.get_solution(data, true);
-    cout << endl << nb_feasible_combinations << "/" << total_nb_combinations << " were feasible combination(s) (" << std::fixed << std::setprecision(5) << (double(nb_feasible_combinations) / total_nb_combinations) * 100 << "%)" << endl;
+    // cout << endl << nb_feasible_combinations << "/" << total_nb_combinations << " were feasible combination(s) (" << std::fixed << std::setprecision(5) << (double(nb_feasible_combinations) / total_nb_combinations) * 100 << "%)" << endl;
 }
 
 void Combinations::reset_directory(Data &data)
@@ -136,13 +136,15 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
     model_thread.initialize(data);
 
     vector<vector<int>> current;
-    for (int t = 0; t < 2; t++)
+    bool not_done = true;
+    int iter = 0;
+    while(not_done)
     {
         all_combinations = heuristic.candidate_combinations;
         total_nb_combinations = all_combinations.size();
         end = total_nb_combinations;
 
-        cout << "Iter " << t+1 << ": " << total_nb_combinations << endl;
+        // cout << "Iter " << iter+1 << endl;
 
         // create combinations on the interval
         for (unsigned long long count = start; count < end; count++)
@@ -150,20 +152,9 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
             // cout << counter_solved << "/" << total_nb_combinations << endl;
             current = all_combinations[count];
 
-            cout << "Combinação: " << count+1 << endl;
-            for (int i = 0; i < current.size(); i++)
-            {
-                cout << "Trem " << i << ": ";
-                for (int j = 0; j < current[i].size(); j++)
-                {
-                    cout << current[i][j] << " ";
-                }
-                cout << endl;
-            }
-
             // check if its feasible
-            // if (check_final_feasibility(data, current))
-            // {   
+            if (check_final_feasibility(data, current))
+            {   
                 // reset the model and executes it with routes constraints
                 model_thread.reset(data);
                 bool feasible = model_thread.run_LP_with_routes_constraints(data, current);
@@ -174,34 +165,36 @@ void Combinations::generate_all_combinations(Data &data, unsigned long long int 
                     nb_feasible_combinations++;
                     mtx.unlock();
                 }
-            // }
+            }
             mtx.lock();
             counter_solved++;
             mtx.unlock();
         
-            if (counter_solved % aux_progress == 0)
-                cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
+            // if (counter_solved % aux_progress == 0)
+            //     cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
+        }
+
+        if (nb_feasible_combinations == 0)
+        {
+            iter++;
+            heuristic.create_subsets(data, iter);
+            continue;
         }
 
         model_thread.get_combination(data, current);
+        not_done = heuristic.remove_trips(data, true, current, data.get_max_nb_trips()-iter-1); // reduz até as demandas não serem cumpridas
 
-        heuristic.remove_trips(data, true, current, data.get_max_nb_trips()-t-1); // reduz até as demandas não serem cumpridas
-        // se encontrou viável...
-
-        // model_thread.reset(data);
-        // model_thread.run_MIP_with_routes_constraints(data, current);
-
-        // se não encontrou...
-        // manipular o conjunto de soluções candidatas
-
-        // no fim de tudo... -> testar solução espelhada
+        iter++;
     }
 
-    // model_thread.get_combination(data, current);
+    heuristic.change_trips(data, current); // verificar possibilidade de ainda deixar outra rota livre
+    if (check_final_feasibility(data, current))
+    {
+        model_thread.reset(data);
+        model_thread.run_LP_with_routes_constraints(data, current);
+    }
 
-    // heuristic.change_trips(data, current);
-    // model_thread.reset(data);
-    // model_thread.run_MIP_with_routes_constraints(data, current);
+    // no fim de tudo... -> testar solução espelhada?
 
     mtx.lock();
     if (model_thread.best_sol.obj_value < best_thread.best_sol.obj_value)
@@ -216,12 +209,12 @@ bool Combinations::check_final_feasibility (Data &data, vector<vector<int>> &cur
     // normalize combinations to verify whether it was already added
     // (only changes the train that will complete the trips)
 
-    // // make sure all dimensions have the same size
-    // for (int i = 0; i < current.size(); i++)
-    // {
-    //     while (current[i].size() < max_nb_trips)
-    //         current[i].push_back(nb_routes);
-    // }
+    // make sure all dimensions have the same size
+    for (int i = 0; i < current.size(); i++)
+    {
+        while (current[i].size() < max_nb_trips)
+            current[i].push_back(nb_routes);
+    }
     // normalize the vector
     vector<vector<int>> normalized_combination = current;
     sort(normalized_combination.begin(), normalized_combination.end());
@@ -234,31 +227,31 @@ bool Combinations::check_final_feasibility (Data &data, vector<vector<int>> &cur
     }
 
     // verify whether demands were met
-    vector <int> demands_per_day (data.get_nb_vertices(), 0);
-    for (int i = 0; i < data.get_nb_vertices(); i++)
-    {
-        for (int j = 0; j < data.get_nb_intervals(); j++)
-            demands_per_day[i] += data.get_demands()[i][j];
-    }
-    vector<int> times_vertex_was_visited (data.get_nb_vertices(), 0);
-    for (int i = 0; i < current.size(); i++)
-    {
-        for (int j = 0; j < current[i].size(); j++)                        
-        {
-            if (current[i][j] != data.get_nb_routes())
-            {
-                int route = current[i][j];
-                for (auto vertex : data.get_route_vertices(route))
-                { 
-                    times_vertex_was_visited[vertex]++;
-                }
-            }
-        }
-    }
-    for (int i = 0 ; i < data.get_nb_vertices(); i++)
-    {
-        if (times_vertex_was_visited[i] < demands_per_day[i]) return false;
-    }
+    // vector <int> demands_per_day (data.get_nb_vertices(), 0);
+    // for (int i = 0; i < data.get_nb_vertices(); i++)
+    // {
+    //     for (int j = 0; j < data.get_nb_intervals(); j++)
+    //         demands_per_day[i] += data.get_demands()[i][j];
+    // }
+    // vector<int> times_vertex_was_visited (data.get_nb_vertices(), 0);
+    // for (int i = 0; i < current.size(); i++)
+    // {
+    //     for (int j = 0; j < current[i].size(); j++)                        
+    //     {
+    //         if (current[i][j] != data.get_nb_routes())
+    //         {
+    //             int route = current[i][j];
+    //             for (auto vertex : data.get_route_vertices(route))
+    //             { 
+    //                 times_vertex_was_visited[vertex]++;
+    //             }
+    //         }
+    //     }
+    // }
+    // for (int i = 0 ; i < data.get_nb_vertices(); i++)
+    // {
+    //     if (times_vertex_was_visited[i] < data.get_demand_per_day()[i]) return false;
+    // }
 
     return true;
 }

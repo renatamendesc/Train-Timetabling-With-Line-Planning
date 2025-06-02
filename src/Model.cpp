@@ -64,7 +64,7 @@ int Model::run_LP_with_routes_constraints (Data &data, vector<vector<int>> &rout
                         constraints.add(lambda_[t][i][r] == 0);
                     }
                 }
-                else
+                else if (current[i] != -1)
                 {
                     // variable is 1 if route is completed
                     constraints.add(lambda_[t][i][current[i]] == 1); 
@@ -769,8 +769,6 @@ int Model::extract_solution(Data &data, bool is_final_solution)
         auto start = chrono::high_resolution_clock::now();
         bool solved = cplex.solve();
         auto end = chrono::high_resolution_clock::now();
-
-        cout << "Viável? " << solved << endl;
         
         if (!solved)
             return 0;
@@ -778,7 +776,7 @@ int Model::extract_solution(Data &data, bool is_final_solution)
         std::chrono::duration<double> time = end-start;
         current_sol.computational_time = (time).count();
         current_sol.obj_value = cplex.getObjValue();
-        cout << "Custo: " << current_sol.obj_value << endl;
+        // cout << "Custo: " << current_sol.obj_value << endl;
         current_sol.gap_value = cplex.getMIPRelativeGap();
         get_value_of_variables(data, cplex, is_final_solution);
         
@@ -993,8 +991,7 @@ void Model::get_combination (Data &data, vector<vector<int>> &combination)
         }
     }
 
-    cout << "Melhor custo atual: " << best_sol.obj_value << endl;
-
+    cout << endl << "Melhor custo atual: " << best_sol.obj_value << endl;
     cout << "Melhor solução atual:" << endl;
     for (int i = 0; i < combination.size(); i++)
     {

@@ -237,6 +237,13 @@ Data::Data(string instance_path)
             instance_file >> _demands[i][j];
         }
     }
+    // get demands of vertices for a whole day
+    _demand_per_day.assign(get_nb_vertices(), 0);
+    for (int i = 0; i < get_nb_vertices(); i++)
+    {
+        for (int j = 0; j < get_nb_intervals(); j++)
+            _demand_per_day[i] += get_demands()[i][j];
+    }
 
     // read #_max_time
     cout << "   > Reading maximum time..." << endl;

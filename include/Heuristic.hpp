@@ -10,8 +10,9 @@ public:
     std::vector<std::vector<std::vector<int>>> candidate_combinations;
 
     void create_initial_combinations (Data &data);
-    void remove_trips (Data &data, bool feasible, std::vector<std::vector<int>> current, int min_nb_trips);
+    bool remove_trips (Data &data, bool feasible, std::vector<std::vector<int>> &current, int min_nb_trips);
     void change_trips (Data &data, std::vector<std::vector<int>> &current);
+    void create_subsets (Data &data, int iter);
 
 private:
     std::vector <int> cyclical_routes_set;
@@ -19,8 +20,7 @@ private:
     std::vector <int> initial_valid_routes_set;
     void create_initial_valid_routes_set(Data &data);
 
-    void add_all_subsets (Data &data);
-
+    bool verify_demands(Data &data, std::vector<std::vector<int>> &current);
 };
 
 #endif
