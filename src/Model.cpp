@@ -763,8 +763,8 @@ int Model::extract_solution(Data &data, bool is_final_solution)
     if (!is_final_solution)
     {
         // remove outputs
-        cplex.setOut(env.getNullStream());     
-        cplex.setError(env.getNullStream());    
+        // cplex.setOut(env.getNullStream());     
+        // cplex.setError(env.getNullStream());    
 
         auto start = chrono::high_resolution_clock::now();
         bool solved = cplex.solve();

@@ -21,6 +21,7 @@ private:
     void create_initial_valid_routes_set(Data &data);
 
     bool verify_demands(Data &data, std::vector<std::vector<int>> &current);
+    bool verify_compatibility (Data &data, std::vector<int> &current);
 };
 
 #endif
