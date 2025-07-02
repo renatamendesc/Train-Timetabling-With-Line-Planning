@@ -221,14 +221,14 @@ bool Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> &cu
 {
     cout << "Removing trips from current best combination..." << endl;
 
-    bool nb_trips_met_demand = true;
+    bool trips_met_demand = false;
 
     candidate_combinations.clear();
     std::vector<std::vector<std::vector<int>>> resultado;
 
     size_t totalCombinacoes = 1 << data.get_nb_trains();  // 2^n combinações possíveis
 
-    for (size_t mask = 0; mask < totalCombinacoes; ++mask) {
+    for (size_t mask = 0; mask < totalCombinacoes; mask++) {
         if (mask == 0) continue;
         std::vector<std::vector<int>> combinacao;
 
@@ -250,12 +250,13 @@ bool Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> &cu
         if (valida) {
             if (verify_demands(data, combinacao))
             {
-                candidate_combinations.push_back(combinacao);   
+                candidate_combinations.push_back(combinacao);
+                trips_met_demand = true;  
                 // cout << "cumpre demanda" << endl;
             }
             else
             {
-                nb_trips_met_demand = false;
+                trips_met_demand = false;
                 // cout << "não cumpre demanda" << endl;
 
             }
@@ -278,7 +279,7 @@ bool Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> &cu
     //     cout << endl;
     // }
 
-    return nb_trips_met_demand;
+    return trips_met_demand;
 }
 
 void Heuristic::change_trips (Data &data, vector<vector<int>> &current)

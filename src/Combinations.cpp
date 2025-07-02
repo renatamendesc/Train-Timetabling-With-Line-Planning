@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Combinations::Combinations(Data &data, int threads, string scheduling, int strategy)
+Combinations::Combinations(Data &data, int threads, int strategy)
 {
     // reset directory that stores solutions for the instance
     reset_directory(data);
@@ -13,8 +13,8 @@ Combinations::Combinations(Data &data, int threads, string scheduling, int strat
     nb_routes = data.get_nb_routes();
     nb_trains = data.get_nb_trains();
 
-    type_strategy = strategy;   // 0 -> all combinations, 1 -> heuristic
-    if (type_strategy == 0)     // exploring all possible combinations
+    // if strategy: 0 -> enumeration, 1 -> heuristic
+    if (strategy == 0) 
     {
         nb_effective_routes = nb_routes+1;
         trips_combinations.resize(nb_trains);
@@ -52,80 +52,62 @@ Combinations::Combinations(Data &data, int threads, string scheduling, int strat
             total_nb_combinations *= trips_combinations[i].size(); 
         }
     }
-    else if (type_strategy == 1) // executing heuristic
+    else if (strategy == 1) // executing heuristic
     {
         heuristic.create_initial_combinations(data);
         all_combinations = heuristic.candidate_combinations;
         total_nb_combinations = all_combinations.size();
-        // execute_heuristic_combinations(data);
     }
 
-    // exit(1);
+    // // variable to assist in displaying progress
+    // aux_progress = ceil(0.1 * total_nb_combinations);
+    // if (aux_progress == 0)
+    //     aux_progress = 1;    
 
-    // // initialize threads
-    // vector <thread> vector_threads;
-    // if (total_nb_combinations < threads) 
-    //     nb_threads = total_nb_combinations; // make sure number of threads is consistent
-    // else
-    //     nb_threads = threads;
-
-    // // create chunks
-    // unsigned long long chunk_size;
-    // // if (total_nb_combinations < /*define number*/)
-    // if (scheduling == "static")
-    // {
-    //     cout << "Using static scheduling..." << endl;
-    //     chunk_size = total_nb_combinations / nb_threads; // equivalent to static
-    // }
-    // else
-    // {
-    //     cout << "Using dynamic scheduling..." << endl;
-    //     chunk_size = total_nb_combinations * 0.1;        // equivalent to dynamic
-    //     if (total_nb_combinations * 0.1 < 1)
-    //         chunk_size = total_nb_combinations / nb_threads;
-    // }
-
-    // // cout << "Chunk size: " << chunk_size << endl;
-    // // cout << "Number of jobs: " << total_nb_combinations / chunk_size << endl;
-    // // cout << "Threads: " << nb_threads << endl;
-    // for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
-    // {
-    //     int end = std::min(i + chunk_size, total_nb_combinations);
-    //     queue_chunks.push({i, end});
-    // }
-
-    // variable to assist in displaying progress
-    aux_progress = ceil(0.1 * total_nb_combinations);
-    if (aux_progress == 0)
-        aux_progress = 1;
-
-    // cout << "Starting to test combinations... - Total number of combinations = " << total_nb_combinations << endl;
-    
-    if (type_strategy == 0)
+    if (strategy == 0) // enumeration
     {
-        cout << "Exploring all combinations..." << endl;
-    }
-    else if (type_strategy == 1)
-    {
-        execute_heuristic_set_of_combinations(data, 0, total_nb_combinations, 0);
-        // create threads
+        // vector <thread> vector_threads;
+        // cout << "Exploring all combinations..." << endl;
+
+        // if (total_nb_combinations < threads) 
+        //     nb_threads = total_nb_combinations; // make sure number of threads is consistent
+        // else
+        //     nb_threads = threads;
+
+        // // create chunks
+        // unsigned long long chunk_size;
+        // // cout << "Using static scheduling..." << endl;
+        // // chunk_size = total_nb_combinations / nb_threads; // equivalent to static
+        // cout << "Using dynamic scheduling..." << endl;
+        // chunk_size = total_nb_combinations * 0.1;           // equivalent to dynamic
+        // if (total_nb_combinations * 0.1 < 1)
+        //     chunk_size = total_nb_combinations / nb_threads;
+        // for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
+        // {
+        //     int end = std::min(i + chunk_size, total_nb_combinations);
+        //     queue_chunks.push({i, end});
+        // }
+
+        // cout << "Starting to test combinations... - Total number of combinations = " << total_nb_combinations << endl;
+
+        // // create threads
         // for (int i = 0; i < nb_threads; i++)
         // {
         //     vector_threads.emplace_back(&Combinations::worker, this, std::ref(data), i);
         // }
     }
-
-    // wait for all threads to finish
-    // for (auto& t : vector_threads)
-    // {
-    //     t.join();
-    // }
+    else if (strategy == 1) // heuristic
+    {
+        execute_heuristic(data, threads);
+    }
     cout << "All combination(s) tested!" << endl;
 
     // finish counting time
     auto end = chrono::high_resolution_clock::now();
     std::chrono::duration<double> time = end-start;
     best_thread.best_sol.computational_time = (time).count();
+    // std::chrono::duration<double> time_was_found = (best_thread.best_sol.was_found)-start;
+    // best_thread.best_sol.was_found_total = (time_was_found).count();
 
     // get optimal solution
     best_thread.get_solution(data, true);
@@ -164,85 +146,56 @@ void Combinations::worker (Data &data, int thread_id)
     }
 }
 
-void Combinations::execute_heuristic_set_of_combinations(Data &data, unsigned long long int start, unsigned long long int end, int thread_id)
+void Combinations::execute_heuristic (Data &data, int threads)
 {
-    // create object of the model for each thread
-    Model model_thread;
-    model_thread.initialize(data);
-
-    vector<vector<int>> current;
-
-    // for (unsigned long long count = start; count < end; count++)
-    // {
-    //     cout << count << "/" << total_nb_combinations << endl;
-    //     current = all_combinations[count];
-
-    //     // check if its feasible
-    //     if (check_final_feasibility(data, current))
-    //     {   
-    //         // reset the model and executes it with routes constraints
-    //         model_thread.reset(data);
-    //         bool feasible = model_thread.run_LP_with_routes_constraints(data, current);
-
-    //         if (feasible)
-    //         {
-    //             mtx.lock();
-    //             nb_feasible_combinations++;
-    //             mtx.unlock();
-    //         }
-    //     }
-    //     mtx.lock();
-    //     counter_solved++;
-    //     mtx.unlock();
-    // }
-
-    bool not_done = true;
     int iter = 0;
-    while(not_done)
+    bool not_done = true;
+    vector<vector<int>> current;
+    while (not_done)
     {
-        all_combinations = heuristic.candidate_combinations;
+        // get current set of combinations from heuristic
+        all_combinations = heuristic.candidate_combinations; 
         total_nb_combinations = all_combinations.size();
-        end = total_nb_combinations;
 
-        cout << "Iter " << iter+1 << " - " << total_nb_combinations << endl;
+        execute_combinations(data, 0, total_nb_combinations, threads);
 
-        // create combinations on the interval
-        for (unsigned long long count = start; count < end; count++)
-        {
-            cout << count << "/" << total_nb_combinations << endl;
-            current = all_combinations[count];
+        // vector <thread> vector_threads;
+        // nb_threads = threads;
+        // if (total_nb_combinations < threads) 
+        //     nb_threads = total_nb_combinations; // make sure number of threads is consistent
 
-            // check if its feasible
-            if (check_final_feasibility(data, current))
-            {   
-                // reset the model and executes it with routes constraints
-                model_thread.reset(data);
-                cout << "Resolvendo modelo..." << endl;
-                bool feasible = model_thread.run_LP_with_routes_constraints(data, current);
-                cout << "Resolvi modelo!" << endl << endl;
+        // // create chunks (static scheduling) --- maybe add dynamic later?
+        // unsigned long long chunk_size;
+        // // cout << "chunk_size = " << total_nb_combinations << "/" <<nb_threads << endl;
+        // chunk_size = total_nb_combinations / nb_threads;
+        // for (int i = 0; i < total_nb_combinations; i += chunk_size+1)
+        // {
+        //     int end = std::min(i + chunk_size, total_nb_combinations);
+        //     queue_chunks.push({i, end});
+        // }
 
+        // // create threads
+        // for (int i = 0; i < nb_threads; i++)
+        // {
+        //     vector_threads.emplace_back(&Combinations::worker_heuristic, this, std::ref(data), i);
+        // }
 
-                if (feasible)
-                {
-                    mtx.lock();
-                    nb_feasible_combinations++;
-                    mtx.unlock();
-                }
-            }
-            mtx.lock();
-            counter_solved++;
-            mtx.unlock();
-        }
+        // // wait for all threads to finish
+        // for (auto& t : vector_threads)
+        // {
+        //     t.join();
+        // }
 
         if (nb_feasible_combinations == 0)
         {
-            cout << "Não achei nehuma solução viável no conjunto inicial..." << endl;
+            cout << "No feasible solution was found..." << endl;
             iter++;
             heuristic.create_subsets(data, iter);
             continue;
         }
 
-        model_thread.get_combination(data, current);
+        // if feasible solution was found...
+        best_thread.get_combination(data, current);
         not_done = heuristic.remove_trips(data, true, current, data.get_max_nb_trips()-iter-1); // reduz até as demandas não serem cumpridas
 
         iter++;
@@ -251,18 +204,43 @@ void Combinations::execute_heuristic_set_of_combinations(Data &data, unsigned lo
     heuristic.change_trips(data, current); // verificar possibilidade de ainda deixar outra rota livre
     if (check_final_feasibility(data, current))
     {
-        model_thread.reset(data);
-        model_thread.run_LP_with_routes_constraints(data, current);
+        best_thread.reset(data);
+        best_thread.run_LP_with_routes_constraints(data, current);
     }
 
     // no fim de tudo... -> testar solução espelhada?
+}
 
-    mtx.lock();
-    if (model_thread.best_sol.obj_value < best_thread.best_sol.obj_value)
-    {
-        best_thread = model_thread;
+void Combinations::execute_combinations (Data &data, unsigned long long int start, unsigned long long int end, int nb_threads)
+{
+    #pragma omp parallel for num_threads(nb_threads)
+    for (unsigned long long count = start; count < end; count++) {
+        Model model_thread;
+        model_thread.initialize(data);
+
+        auto current = all_combinations[count];
+        cout << count << "/" << end << " - thread " << omp_get_thread_num() << endl;
+
+        if (check_final_feasibility(data, current)) {
+            model_thread.reset(data);
+            bool feasible = model_thread.run_LP_with_routes_constraints(data, current);
+
+            if (feasible) {
+                #pragma omp atomic
+                nb_feasible_combinations++;
+
+                #pragma omp critical
+                {
+                    if (model_thread.best_sol.obj_value <= best_thread.best_sol.obj_value) {
+                        best_thread = model_thread;
+                    }
+                }
+            }
+        }
+
+        #pragma omp atomic
+        counter_solved++;
     }
-    mtx.unlock();
 }
 
 void Combinations::generate_all_combinations(Data &data, unsigned long long int start, unsigned long long int end, int thread_id)

@@ -4,6 +4,7 @@
 #include "Data.hpp"
 #include "Model.hpp"
 #include "Heuristic.hpp"
+#include <omp.h>
 #include <cmath>
 #include <algorithm>
 #include <set>
@@ -18,7 +19,7 @@ public:
     unsigned long long int total_nb_combinations = 0;
     unsigned long long int nb_feasible_combinations = 0;
 
-    Combinations(Data &data, int threads, std::string scheduling, int strategy);
+    Combinations(Data &data, int threads, int strategy);
 
 private:
     Heuristic heuristic;
@@ -47,7 +48,9 @@ private:
 
     void generate_trips_combinations(Data &data, int train_idx);
     void generate_all_combinations(Data &data, unsigned long long int start, unsigned long long int end, int thread_id);
-    void execute_heuristic_set_of_combinations(Data &data, unsigned long long int start, unsigned long long int end, int thread_id);
+
+    void execute_heuristic (Data &data, int threads);
+    void execute_combinations (Data &data, unsigned long long int start, unsigned long long int end, int nb_threads);
 
     bool check_trips_feasibility (Data &data, std::vector<int> &current);
     bool check_final_feasibility (Data &data, std::vector<std::vector<int>> &current);

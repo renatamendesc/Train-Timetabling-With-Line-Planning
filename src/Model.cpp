@@ -763,8 +763,8 @@ int Model::extract_solution(Data &data, bool is_final_solution)
     if (!is_final_solution)
     {
         // remove outputs
-        // cplex.setOut(env.getNullStream());     
-        // cplex.setError(env.getNullStream());    
+        cplex.setOut(env.getNullStream());     
+        cplex.setError(env.getNullStream());    
 
         auto start = chrono::high_resolution_clock::now();
         bool solved = cplex.solve();
@@ -776,12 +776,15 @@ int Model::extract_solution(Data &data, bool is_final_solution)
         std::chrono::duration<double> time = end-start;
         current_sol.computational_time = (time).count();
         current_sol.obj_value = cplex.getObjValue();
-        // cout << "Custo: " << current_sol.obj_value << endl;
+        // current_sol.was_found = end;
+        
         current_sol.gap_value = cplex.getMIPRelativeGap();
         get_value_of_variables(data, cplex, is_final_solution);
         
         if (current_sol.obj_value < best_sol.obj_value)
         {
+            // best_sol.was_found = current_sol.was_found;
+
             best_sol.obj_value = current_sol.obj_value;
             best_sol.gap_value = current_sol.gap_value;
             best_sol.y_values = current_sol.y_values;
@@ -976,19 +979,22 @@ void Model::get_combination (Data &data, vector<vector<int>> &combination)
 {
     VarValuesMatrix3d lambda_values = best_sol.lambda_values;
 
+    combination.clear();
     for (int i = 0; i < data.get_nb_trains(); i++)
     {
+        vector <int> aux;
         for (int j = 0; j < data.get_train_max_trips(i); j++)
         {
             for (int k = 0; k < data.get_nb_routes(); k++)
             {
                 if (lambda_values[i][j][k] == 1)
                 {
-                    combination[i][j] = k;
+                    aux.push_back(k);
                     break;
                 } 
             }
         }
+        combination.push_back(aux);
     }
 
     cout << endl << "Melhor custo atual: " << best_sol.obj_value << endl;
@@ -1101,7 +1107,8 @@ void Model::get_solution (Data &data, bool is_final_solution)
         cout << endl << ">> Printing some results..." << endl << fixed << setprecision(2);
         cout << "    -> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
         cout << "    -> Total time = " << best_sol.computational_time << endl;
-        cout << "    -> Gap value = " << best_sol.gap_value << endl << endl;;
+        // cout << "    -> Time to find optimal = " << best_sol.was_found_total << endl;
+        cout << "    -> Gap value = " << best_sol.gap_value << endl << endl;
 
         for (int t = 0; t < data.get_nb_trains(); t++)
         {
