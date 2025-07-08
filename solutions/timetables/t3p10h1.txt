@@ -1,5 +1,5 @@
 -> Solution value = 10440 - 02:54:00
--> Total time = 5.54257
+-> Total time = 1.96513
 -> Gap value = 0
 
 =============
