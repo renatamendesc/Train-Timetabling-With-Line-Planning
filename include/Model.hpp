@@ -2,6 +2,7 @@
 #define MODEL_HPP
 
 #include "Data.hpp"
+#include "MyIncumbentCallback.hpp"
 #include <ctime>
 #include <sstream>
 #include <filesystem>
@@ -26,8 +27,7 @@ struct Solution {
     double gap_value;
     double computational_time;
 
-    // double was_found_total;
-    // std::chrono::time_point<std::chrono::high_resolution_clock> was_found;
+    std::chrono::steady_clock::time_point time_found;
 
     VarValuesMatrix3d y_values;
     VarValuesMatrix3d y_bar_values;

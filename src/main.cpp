@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
 
     // read method and max number of threads
     std::string method = argv[2];
-    int threads = 1;
+    int threads = 4;
     if (argc > 3)
         threads = std::stoi(argv[3]);
 
-    // execute selected method
+    execute selected method
     if (method == "model")
     {
         Model model;

@@ -2,6 +2,8 @@
 
 using namespace std;
 
+double MyIncumbentCallback::best_solution_time = -1;
+
 void Model::initialize (Data &data)
 {
     env = IloEnv();
@@ -766,9 +768,9 @@ int Model::extract_solution(Data &data, bool is_final_solution)
         cplex.setOut(env.getNullStream());     
         cplex.setError(env.getNullStream());    
 
-        auto start = chrono::high_resolution_clock::now();
+        auto start = chrono::steady_clock::now();
         bool solved = cplex.solve();
-        auto end = chrono::high_resolution_clock::now();
+        auto end = chrono::steady_clock::now();
         
         if (!solved)
             return 0;
@@ -776,14 +778,15 @@ int Model::extract_solution(Data &data, bool is_final_solution)
         std::chrono::duration<double> time = end-start;
         current_sol.computational_time = (time).count();
         current_sol.obj_value = cplex.getObjValue();
-        // current_sol.was_found = end;
         
         current_sol.gap_value = cplex.getMIPRelativeGap();
         get_value_of_variables(data, cplex, is_final_solution);
         
         if (current_sol.obj_value < best_sol.obj_value)
         {
-            // best_sol.was_found = current_sol.was_found;
+            // cout << current_sol.obj_value << " < " << best_sol.obj_value << endl;
+            // cout << "Found new best solution - Cost " << current_sol.obj_value << endl;
+            best_sol.time_found = chrono::steady_clock::now();
 
             best_sol.obj_value = current_sol.obj_value;
             best_sol.gap_value = current_sol.gap_value;
@@ -795,9 +798,10 @@ int Model::extract_solution(Data &data, bool is_final_solution)
     else
     {
         cout << endl << ">> Solving..." << endl;
-        auto start = chrono::high_resolution_clock::now();
+        auto start = chrono::steady_clock::now();
+        cplex.use(new (env) MyIncumbentCallback(env, start));
         cplex.solve();
-        auto end = chrono::high_resolution_clock::now();
+        auto end = chrono::steady_clock::now();
         std::chrono::duration<double> time = end-start;
         best_sol.computational_time = (time).count();
 
@@ -807,6 +811,8 @@ int Model::extract_solution(Data &data, bool is_final_solution)
             cerr << "Error: Instance is infeasible\n";
             return 0;
         }
+
+        cout << fixed << setprecision(2) << "    -> Optimal was found = " << MyIncumbentCallback::best_solution_time << endl;
 
         best_sol.obj_value = cplex.getObjValue();
         best_sol.gap_value = cplex.getMIPRelativeGap();
@@ -1107,7 +1113,6 @@ void Model::get_solution (Data &data, bool is_final_solution)
         cout << endl << ">> Printing some results..." << endl << fixed << setprecision(2);
         cout << "    -> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
         cout << "    -> Total time = " << best_sol.computational_time << endl;
-        // cout << "    -> Time to find optimal = " << best_sol.was_found_total << endl;
         cout << "    -> Gap value = " << best_sol.gap_value << endl << endl;
 
         for (int t = 0; t < data.get_nb_trains(); t++)

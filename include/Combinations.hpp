@@ -12,6 +12,7 @@
 #include <thread>
 #include <mutex>
 #include <semaphore.h>
+#include <iomanip>
 
 class Combinations
 {

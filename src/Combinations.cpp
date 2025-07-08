@@ -8,7 +8,7 @@ Combinations::Combinations(Data &data, int threads, int strategy)
     reset_directory(data);
 
     // start counting time
-    auto start = chrono::high_resolution_clock::now();
+    auto start = std::chrono::steady_clock::now();
 
     nb_routes = data.get_nb_routes();
     nb_trains = data.get_nb_trains();
@@ -103,11 +103,13 @@ Combinations::Combinations(Data &data, int threads, int strategy)
     cout << "All combination(s) tested!" << endl;
 
     // finish counting time
-    auto end = chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time = end-start;
+    auto end = chrono::steady_clock::now();
+    chrono::duration<double> time = end-start;
     best_thread.best_sol.computational_time = (time).count();
-    // std::chrono::duration<double> time_was_found = (best_thread.best_sol.was_found)-start;
-    // best_thread.best_sol.was_found_total = (time_was_found).count();
+
+    chrono::duration<double> time_optimal_aux = best_thread.best_sol.time_found-start;
+    double time_optimal = (time_optimal_aux).count();
+    cout << fixed << setprecision(2) << "    -> Optimal was found = " << time_optimal << endl;
 
     // get optimal solution
     best_thread.get_solution(data, true);
@@ -213,34 +215,71 @@ void Combinations::execute_heuristic (Data &data, int threads)
 
 void Combinations::execute_combinations (Data &data, unsigned long long int start, unsigned long long int end, int nb_threads)
 {
-    #pragma omp parallel for num_threads(nb_threads)
-    for (unsigned long long count = start; count < end; count++) {
-        Model model_thread;
-        model_thread.initialize(data);
+    // vectors with models for each thread
+    vector<Model> models(nb_threads);
 
-        auto current = all_combinations[count];
-        cout << count << "/" << end << " - thread " << omp_get_thread_num() << endl;
+    #pragma omp parallel num_threads(nb_threads)
+    {
+        int thread_id = omp_get_thread_num();
+        models[thread_id].initialize(data);
 
-        if (check_final_feasibility(data, current)) {
-            model_thread.reset(data);
-            bool feasible = model_thread.run_LP_with_routes_constraints(data, current);
+        #pragma omp for
+        for (unsigned long long count = start; count < end; count++) {
+            Model &model_thread = models[thread_id];
+            auto current = all_combinations[count];
 
-            if (feasible) {
-                #pragma omp atomic
-                nb_feasible_combinations++;
+            cout << count << "/" << end << " - thread " << thread_id << endl;
 
-                #pragma omp critical
-                {
-                    if (model_thread.best_sol.obj_value <= best_thread.best_sol.obj_value) {
-                        best_thread = model_thread;
+            if (check_final_feasibility(data, current)) {
+                model_thread.reset(data);
+                bool feasible = model_thread.run_LP_with_routes_constraints(data, current);
+
+                if (feasible) {
+                    #pragma omp atomic
+                    nb_feasible_combinations++;
+
+                    #pragma omp critical
+                    {
+                        if (model_thread.best_sol.obj_value <= best_thread.best_sol.obj_value) {
+                            best_thread = model_thread;
+                        }
                     }
                 }
             }
-        }
 
-        #pragma omp atomic
-        counter_solved++;
+            #pragma omp atomic
+            counter_solved++;
+        }
     }
+
+    // #pragma omp parallel for num_threads(nb_threads)
+    // for (unsigned long long count = start; count < end; count++) {
+    //     Model model_thread;
+    //     model_thread.initialize(data);
+
+    //     auto current = all_combinations[count];
+    //     cout << count << "/" << end << " - thread " << omp_get_thread_num() << endl;
+
+    //     if (check_final_feasibility(data, current)) {
+    //         model_thread.reset(data);
+    //         bool feasible = model_thread.run_LP_with_routes_constraints(data, current);
+
+    //         if (feasible) {
+    //             #pragma omp atomic
+    //             nb_feasible_combinations++;
+
+    //             #pragma omp critical
+    //             {
+    //                 if (model_thread.best_sol.obj_value <= best_thread.best_sol.obj_value) {
+    //                     best_thread = model_thread;
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     #pragma omp atomic
+    //     counter_solved++;
+    // }
 }
 
 void Combinations::generate_all_combinations(Data &data, unsigned long long int start, unsigned long long int end, int thread_id)

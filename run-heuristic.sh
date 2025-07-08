@@ -17,7 +17,7 @@ fi
 NB_THREADS=$1
 shift
 
-LOG_FILE="results/results-heuristic.log"
+LOG_FILE="results/results-new.log"
 
 # parse additional flags
 for arg in "$@"; do
@@ -62,9 +62,11 @@ for INSTANCE in "$INSTANCES_FOLDER"/*.txt; do
         OUTPUT="$($EXECUTABLE "$INSTANCE")"
         SOLUTION=$(awk -F'= ' '/-> Solution value =/ {split($2,a," "); print a[1]}' <<< "$OUTPUT")
         TIME=$(awk -F'= ' '/-> Total time =/ {print $2}' <<< "$OUTPUT")
+        OPTIMAL_FOUND=$(awk -F'= ' '/-> Optimal was found =/ {print $2}' <<< "$OUTPUT")
 
         echo "-> Solution value: $SOLUTION" >> "$LOG_FILE"
         echo "-> Total time: $TIME" >> "$LOG_FILE"
+        echo "-> Optimal was found: $OPTIMAL_FOUND" >> "$LOG_FILE"
 
         echo "" >> "$LOG_FILE"
     fi
