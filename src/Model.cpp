@@ -2,8 +2,6 @@
 
 using namespace std;
 
-double MyIncumbentCallback::best_solution_time = -1;
-
 void Model::initialize (Data &data)
 {
     env = IloEnv();
@@ -33,16 +31,16 @@ void Model::run (Data &data)
     model.add(constraints);
 
     // extract solution from the model
-    extract_solution(data, true);
+    extract_solution(data, true, __INT_MAX__);
 }
 
-int Model::run_LP_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains)
+int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains, int best_bound)
 {
     // create decision variables
     add_variables(data);
 
     // create objective function
-    obj = z_; 
+    obj = z_;
     model.add(IloMinimize(env, obj));
     constraints.add(z_ >= 0);
 
@@ -77,49 +75,7 @@ int Model::run_LP_with_routes_constraints (Data &data, vector<vector<int>> &rout
     model.add(constraints);
 
     // extract solution from the model
-    return extract_solution(data, false);
-}
-
-int Model::run_MIP_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains)
-{
-    // create decision variables
-    add_variables(data);
-
-    // create objective function
-    obj = z_; 
-    model.add(IloMinimize(env, obj));
-    constraints.add(z_ >= 0);
-
-    // create constraints
-    add_constraints(data);
-
-    for (int t = 0; t < routes_of_trains.size(); t++)
-    {
-        vector<int> current = routes_of_trains[t];
-        for (int i = 0; i < current.size(); i++)
-        {
-            if (i < data.get_train_max_trips(t))
-            {       
-                // if trip is not made                           
-                if (current[i] == data.get_nb_routes())
-                {
-                    // assign variable equal to zero
-                    for (int r = 0; r < data.get_nb_routes(); r++)
-                    {
-                        constraints.add(lambda_[t][i][r] == 0);
-                    }
-                }
-                else if (current[i] != -1)
-                {
-                    constraints.add(lambda_[t][i][current[i]] == 1);
-                }
-            }
-        }
-    }
-    model.add(constraints);
-
-    // extract solution from the model
-    return extract_solution(data, false);
+    return extract_solution(data, false, best_bound);
 }
 
 void Model::add_variables (Data &data)
@@ -747,7 +703,7 @@ void Model::add_constraints (Data &data)
     }
 }
 
-int Model::extract_solution(Data &data, bool is_final_solution)
+int Model::extract_solution(Data &data, bool is_final_solution, int best_bound)
 {
     IloCplex cplex(env);
 
@@ -755,8 +711,6 @@ int Model::extract_solution(Data &data, bool is_final_solution)
     cplex.setParam(IloCplex::ClockType, 2);
     cplex.setParam(IloCplex::TiLim, 43200); // set time limit of 12 hours
     cplex.setWarning(env.getNullStream());  // silence warnings
-    cplex.setParam(IloCplex::Threads, 1);
-    cplex.setParam(IloCplex::ParallelMode, 0);
 
     // extract model and .lp file
     cplex.extract(model);
@@ -764,32 +718,31 @@ int Model::extract_solution(Data &data, bool is_final_solution)
 
     if (!is_final_solution)
     {
+        // using single thread to solve the model
+        cplex.setParam(IloCplex::Threads, 1);
+        cplex.setParam(IloCplex::ParallelMode, 0);
+
+        // set best integer solution already known
+        cplex.setParam(IloCplex::CutUp, best_bound);
+
         // remove outputs
         cplex.setOut(env.getNullStream());     
         cplex.setError(env.getNullStream());    
 
-        auto start = chrono::steady_clock::now();
         bool solved = cplex.solve();
-        auto end = chrono::steady_clock::now();
-        
         if (!solved)
             return 0;
 
-        std::chrono::duration<double> time = end-start;
-        current_sol.computational_time = (time).count();
         current_sol.obj_value = cplex.getObjValue();
-        
-        current_sol.gap_value = cplex.getMIPRelativeGap();
-        get_value_of_variables(data, cplex, is_final_solution);
-        
         if (current_sol.obj_value < best_sol.obj_value)
         {
-            // cout << current_sol.obj_value << " < " << best_sol.obj_value << endl;
             // cout << "Found new best solution - Cost " << current_sol.obj_value << endl;
-            best_sol.time_found = chrono::steady_clock::now();
 
             best_sol.obj_value = current_sol.obj_value;
-            best_sol.gap_value = current_sol.gap_value;
+            best_sol.gap_value = cplex.getMIPRelativeGap();
+            // best_sol.time_found = chrono::steady_clock::now();
+
+            get_value_of_variables(data, cplex, is_final_solution);
             best_sol.y_values = current_sol.y_values;
             best_sol.y_bar_values = current_sol.y_bar_values;
             best_sol.lambda_values = current_sol.lambda_values;
@@ -798,11 +751,12 @@ int Model::extract_solution(Data &data, bool is_final_solution)
     else
     {
         cout << endl << ">> Solving..." << endl;
+
         auto start = chrono::steady_clock::now();
-        cplex.use(new (env) MyIncumbentCallback(env, start));
         cplex.solve();
         auto end = chrono::steady_clock::now();
-        std::chrono::duration<double> time = end-start;
+
+        chrono::duration<double> time = end-start;
         best_sol.computational_time = (time).count();
 
         cout << cplex.getStatus() << endl;
@@ -812,14 +766,13 @@ int Model::extract_solution(Data &data, bool is_final_solution)
             return 0;
         }
 
-        cout << fixed << setprecision(2) << "    -> Optimal was found = " << MyIncumbentCallback::best_solution_time << endl;
-
         best_sol.obj_value = cplex.getObjValue();
         best_sol.gap_value = cplex.getMIPRelativeGap();
+
+        get_value_of_variables(data, cplex, is_final_solution);
+        get_solution(data, is_final_solution);
     }
 
-    get_value_of_variables(data, cplex, is_final_solution);
-    get_solution(data, is_final_solution);
     return 1;
 }
 
@@ -1003,68 +956,36 @@ void Model::get_combination (Data &data, vector<vector<int>> &combination)
         combination.push_back(aux);
     }
 
-    cout << endl << "Melhor custo atual: " << best_sol.obj_value << endl;
-    cout << "Melhor solução atual:" << endl;
-    for (int i = 0; i < combination.size(); i++)
-    {
-        cout << "Trem " << i+1 << ": ";
-        for (int j = 0; j < combination[i].size(); j++)
-        {
-            cout << combination[i][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
+    // cout << endl << "Best current cost: " << best_sol.obj_value << endl;
+    // cout << "Best current solution:" << endl;
+    // for (int i = 0; i < combination.size(); i++)
+    // {
+    //     cout << "Train " << i+1 << ": ";
+    //     for (int j = 0; j < combination[i].size(); j++)
+    //     {
+    //         cout << combination[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
 
 }
 
 void Model::get_solution (Data &data, bool is_final_solution)
 {   
-    VarValuesMatrix3d y_values;
-    VarValuesMatrix3d y_bar_values;
-    VarValuesMatrix3d lambda_values;
-
-    int idx_sol = 0;
+    VarValuesMatrix3d y_values = best_sol.y_values;
+    VarValuesMatrix3d y_bar_values = best_sol.y_bar_values;
+    VarValuesMatrix3d lambda_values = best_sol.lambda_values;
 
     ofstream solution_file, solution_script;
-    if (!is_final_solution)
-    {
-        y_values = current_sol.y_values;
-        y_bar_values = current_sol.y_bar_values;
-        lambda_values = current_sol.lambda_values;
-        
-        // creates folder to save files about solution
-        string full_path =  "combinations/feasible-combinations/" + data.get_instance_name();
-        filesystem::create_directory(full_path);
 
-        idx_sol++;
-        string full_path_sol = full_path + "/sol" + to_string(idx_sol);
-        while(!filesystem::create_directory(full_path_sol))
-        {
-            idx_sol++;
-            full_path_sol = full_path + "/sol" + to_string(idx_sol);
-        }
+    // create files to register the solution given by the model
+    solution_file.open("solutions/timetables/" + data.get_instance_name() + ".txt", ios::out | ios::trunc); // file to register the timetable
+    solution_script.open("script-solution.txt", ios::out | ios::trunc);                                     // file to execute python script to generate the graphs of the timetable
 
-        solution_file.open(full_path_sol + "/timetable.txt", ios::out | ios::trunc);                   // file to register the timetable obtained
-        solution_script.open(full_path_sol + "/script-solution.txt", ios::out | ios::trunc);           // file to execute the python script, in order to generate the graphs of the timetable
-        
-        solution_file << "-> Solution value = " << current_sol.obj_value << " - " << convert_time(current_sol.obj_value) << endl; 
-        solution_file << "-> Total time = " << current_sol.computational_time << endl;
-    }
-    else
-    {
-        y_values = best_sol.y_values;
-        y_bar_values = best_sol.y_bar_values;
-        lambda_values = best_sol.lambda_values;
-
-        // create files to register the solution given by the model
-        solution_file.open("solutions/timetables/" + data.get_instance_name() + ".txt", ios::out | ios::trunc); // file to register the timetable
-        solution_script.open("script-solution.txt", ios::out | ios::trunc);                                     // file to execute the python script, in order to generate the graphs of the timetable
-
-        solution_file << "-> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
-        solution_file << "-> Total time = " << best_sol.computational_time << endl;
-        solution_file << "-> Gap value = " << best_sol.gap_value << endl << endl;
-    }
+    solution_file << "-> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
+    solution_file << "-> Total time = " << best_sol.computational_time << endl;
+    solution_file << "-> Gap value = " << best_sol.gap_value << endl << endl;
 
     solution_script << "num_points " << data.get_nb_points() << endl;
     solution_script << "---" << endl;
@@ -1108,56 +1029,53 @@ void Model::get_solution (Data &data, bool is_final_solution)
     solution_script.close();
 
     // display solution on terminal if it's the final solution
-    if (is_final_solution)
-    {
-        cout << endl << ">> Printing some results..." << endl << fixed << setprecision(2);
-        cout << "    -> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
-        cout << "    -> Total time = " << best_sol.computational_time << endl;
-        cout << "    -> Gap value = " << best_sol.gap_value << endl << endl;
+    cout << endl << ">> Printing some results..." << endl << fixed << setprecision(2);
+    cout << "    -> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
+    cout << "    -> Total time = " << best_sol.computational_time << endl;
+    cout << "    -> Gap value = " << best_sol.gap_value << endl << endl;
 
-        for (int t = 0; t < data.get_nb_trains(); t++)
+    for (int t = 0; t < data.get_nb_trains(); t++)
+    {
+        cout << "=============" << endl
+                << "Train " << t << endl
+                << "=============" << endl;
+        for (int i = 0; i < data.get_train_max_trips(t); i++)
         {
-            cout << "=============" << endl
-                 << "Train " << t << endl
-                 << "=============" << endl;
-            for (int i = 0; i < data.get_train_max_trips(t); i++)
+            for (int r = 0; r < data.get_nb_routes(); r++)
             {
-                for (int r = 0; r < data.get_nb_routes(); r++)
+                if (data.is_valid_route(t, i, r))
                 {
-                    if (data.is_valid_route(t, i, r))
+                    if (lambda_values[t][i][r] > 0)
                     {
-                        if (lambda_values[t][i][r] > 0)
+                        cout << "> Trip " << i << endl;
+                        int departure, arrival;
+
+                        for (auto arc : data.get_route_arcs(r))
                         {
-                            cout << "> Trip " << i << endl;
-                            int departure, arrival;
-    
-                            for (auto arc : data.get_route_arcs(r))
-                            {
-                                departure = arc.out;
-                                arrival = arc.inc;
-    
-                                cout << "   " << departure << "(time " << y_values[t][i][departure] << " - " << convert_time(y_values[t][i][departure]) << ")"
-                                     << "(time " << y_bar_values[t][i][arrival] << " - " << convert_time(y_bar_values[t][i][arrival])
-                                     << ") -> ";
-                            }
-                            cout << arrival << endl;
+                            departure = arc.out;
+                            arrival = arc.inc;
+
+                            cout << "   " << departure << "(time " << y_values[t][i][departure] << " - " << convert_time(y_values[t][i][departure]) << ")"
+                                    << "(time " << y_bar_values[t][i][arrival] << " - " << convert_time(y_bar_values[t][i][arrival])
+                                    << ") -> ";
                         }
+                        cout << arrival << endl;
                     }
                 }
             }
         }
-
-        // get_graph(data, idx_sol);
     }
+
+    // get_graph(data);
 }
 
-void Model::get_graph (Data &data, int idx_sol)
+void Model::get_graph (Data &data)
 {
     // calls python script to generate graph of the solution
     string command = "python3 ";
     string file_name = "script.py ";
     string instance_name = "\"" + data.get_instance_name() + "\"";
-    command += (file_name + instance_name + " " + to_string(idx_sol));
+    command += (file_name + instance_name);
     system(command.c_str());
 }
 

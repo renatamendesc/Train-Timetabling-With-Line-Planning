@@ -4,7 +4,7 @@
 #include "Heuristic.hpp"
 
 // ----------------------------------------------------------------- //
-// Input: ./cbtu instances/<name-instance> <method> <max_nb_threads>
+// Input: ./cbtu instances/<name-instance> <method> <number of threads>
 // ----------------------------------------------------------------- //
 
 int main(int argc, char *argv[])
@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     // read method and max number of threads
     std::string method = argv[2];
-    int threads = 4;
+    int threads = 1;
     if (argc > 3)
         threads = std::stoi(argv[3]);
 

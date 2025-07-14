@@ -2,12 +2,16 @@
 
 using namespace std;
 
-void Heuristic::create_initial_combinations (Data &data)
+void Heuristic::create_initial_candidates (Data &data)
 {
     cout << endl << "Creating initial set of candidate combinations..." << endl;
 
+    // próximo passo: criar conjunto a partir da mínima quantidade de viagens que atende as demandas
+
     create_cyclical_routes_set(data);
     create_initial_valid_routes_set(data);
+
+    // adicionar viagens até cumprir as demandas
 
     int nb_trains = data.get_nb_trains();
     int num_valid = initial_valid_routes_set.size();
@@ -56,18 +60,6 @@ void Heuristic::create_initial_combinations (Data &data)
                 candidate_combinations.push_back(combination);
             }
 
-            // cout << "Combinação: " << endl;
-            // for (int j = 0; j < combination.size(); j++)
-            // {
-            //     cout << "Trem " << j << ": ";
-            //     for (int k = 0; k < combination[j].size(); k++)
-            //     {
-            //         cout << combination[j][k] << " ";
-            //     }
-            //     cout << endl;
-            // }
-            // cout << endl;
-
             if (data.get_max_nb_trips() == 1)
                 break;
 
@@ -101,25 +93,25 @@ void Heuristic::create_initial_combinations (Data &data)
         }
     }
 
-    for (int i = 0; i < candidate_combinations.size(); i++)
-    {
-        cout << "Combinação " << i+1 << ": " << endl;
-        for (int j = 0; j < candidate_combinations[i].size(); j++)
-        {
-            cout << "Trem " << j << ": ";
-            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
-            {
-                cout << candidate_combinations[i][j][k] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
+    // for (int i = 0; i < candidate_combinations.size(); i++)
+    // {
+    //     cout << "Combinação " << i+1 << ": " << endl;
+    //     for (int j = 0; j < candidate_combinations[i].size(); j++)
+    //     {
+    //         cout << "Trem " << j << ": ";
+    //         for (int k = 0; k < candidate_combinations[i][j].size(); k++)
+    //         {
+    //             cout << candidate_combinations[i][j][k] << " ";
+    //         }
+    //         cout << endl;
+    //     }
+    //     cout << endl;
+    // }
 }
 
 void Heuristic::create_subsets (Data &data, int iter)
 {
-    cout << "Creating subsets from initial candidate combinations..." << endl;
+    cout << endl << "Creating subsets from initial candidate combinations..." << endl;
 
     candidate_combinations.clear();
 
@@ -219,46 +211,49 @@ void Heuristic::create_subsets (Data &data, int iter)
 
 bool Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> &current, int min_nb_trips)
 {
-    cout << "Removing trips from current best combination..." << endl;
+    cout << endl << "Removing trips from current best combination..." << endl;
 
     bool trips_met_demand = false;
 
     candidate_combinations.clear();
-    std::vector<std::vector<std::vector<int>>> resultado;
+    vector<vector<vector<int>>> resultado;
 
-    size_t totalCombinacoes = 1 << data.get_nb_trains();  // 2^n combinações possíveis
-
-    for (size_t mask = 0; mask < totalCombinacoes; mask++) {
+    size_t total_combinations = 1 << data.get_nb_trains(); // 2^n possibilities
+    for (size_t mask = 0; mask < total_combinations; mask++)
+    {
         if (mask == 0) continue;
-        std::vector<std::vector<int>> combinacao;
+        vector<vector<int>> aux_combination;
 
-        bool valida = true;
-
-        for (size_t i = 0; i < data.get_nb_trains(); ++i) {
-            // Se o bit i da máscara estiver ativado, tenta remover 1 elemento
-            if ((mask >> i) & 1) {
-                if (current[i].size() < min_nb_trips) {
-                    valida = false;  // Não é possível remover elemento dessa linha
+        bool valid = true;
+        for (size_t i = 0; i < data.get_nb_trains(); i++)
+        {
+            // if bit is activated, try to remove it
+            if ((mask >> i) & 1)
+            {
+                // verify if bit is from a trip that can be removed
+                if (current[i].size() < min_nb_trips)
+                {
+                    valid = false;
                     break;
                 }
-                combinacao.push_back(std::vector<int>(current[i].begin(), current[i].end() - 1));
-            } else {
-                combinacao.push_back(current[i]);  // Mantém linha original
+                aux_combination.push_back(vector<int>(current[i].begin(), current[i].end() - 1));
+            }
+            else
+            {
+                aux_combination.push_back(current[i]);  // trips stay the same for the train
             }
         }
 
-        if (valida) {
-            if (verify_demands(data, combinacao))
+        if (valid)
+        {
+            if (verify_demands(data, aux_combination))
             {
-                candidate_combinations.push_back(combinacao);
+                candidate_combinations.push_back(aux_combination);
                 trips_met_demand = true;  
-                // cout << "cumpre demanda" << endl;
             }
             else
             {
                 trips_met_demand = false;
-                // cout << "não cumpre demanda" << endl;
-
             }
         }
     }
@@ -287,21 +282,18 @@ void Heuristic::change_trips (Data &data, vector<vector<int>> &current)
     // final trip is chosen by the model
     // obs.: -1 = free, nb_routes = trip not made
 
-    cout << "Relaxing trips from current best combination, so the model can make changes..." << endl;
+    cout << endl << "Relaxing trips from current best solution, so the model can make changes..." << endl;
 
-    // teste inicial: deixar livre as primeiras e ultimas viagens
-    // ultima rota
+    // last route is free for the model to choose
     for (int i = 0; i < data.get_nb_trains(); i++)
     {
         current[i].back() = -1;
     }
-    // primeira rota
+    // first route is free for the model to choose
     // for (int i = 0; i < data.get_nb_trains(); i++)
     // {
     //     current[i].front() = -1;
     // }
-
-    // deixar também rotas "do meio" livres???
 
     // cout << endl;
     // for (int i = 0; i < current.size(); i++)
@@ -342,7 +334,7 @@ bool Heuristic::verify_compatibility (Data &data, vector<int> &current)
     return flag; 
 }
 
-bool Heuristic::verify_demands(Data &data, std::vector<std::vector<int>> &current)
+bool Heuristic::verify_demands(Data &data, vector<vector<int>> &current)
 {
     // cout << endl;
     // for (int i = 0; i < current.size(); i++)
@@ -395,12 +387,12 @@ void Heuristic::create_cyclical_routes_set(Data &data)
             cyclical_routes_set.push_back(i);
     }
 
-    cout << "Rotas cíclicas válidas: " << endl;
-    for (int i  = 0; i < cyclical_routes_set.size(); i++)
-    {
-        cout << cyclical_routes_set[i] << " ";
-    }
-    cout << endl << endl;
+    // cout << "Rotas cíclicas válidas: " << endl;
+    // for (int i  = 0; i < cyclical_routes_set.size(); i++)
+    // {
+    //     cout << cyclical_routes_set[i] << " ";
+    // }
+    // cout << endl << endl;
 }
 
 void Heuristic::create_initial_valid_routes_set(Data &data)
@@ -434,18 +426,18 @@ void Heuristic::create_initial_valid_routes_set(Data &data)
         }
     }
 
-    cout << "------------------------" << endl;
-    cout << "Rotas iniciais válidas: " << endl;
-    for (int i  = 0; i < initial_valid_routes_set.size(); i++)
-    {
-        cout << initial_valid_routes_set[i] << " ";
-    }
-    cout << endl << endl;
+    // cout << "------------------------" << endl;
+    // cout << "Rotas iniciais válidas: " << endl;
+    // for (int i  = 0; i < initial_valid_routes_set.size(); i++)
+    // {
+    //     cout << initial_valid_routes_set[i] << " ";
+    // }
+    // cout << endl << endl;
 
-    cout << "Rotas cíclicas válidas (após remoção): " << endl;
-    for (int i  = 0; i < cyclical_routes_set.size(); i++)
-    {
-        cout << cyclical_routes_set[i] << " ";
-    }
-    cout << endl << endl;
+    // cout << "Rotas cíclicas válidas (após remoção): " << endl;
+    // for (int i  = 0; i < cyclical_routes_set.size(); i++)
+    // {
+    //     cout << cyclical_routes_set[i] << " ";
+    // }
+    // cout << endl << endl;
 }

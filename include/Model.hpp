@@ -2,7 +2,6 @@
 #define MODEL_HPP
 
 #include "Data.hpp"
-#include "MyIncumbentCallback.hpp"
 #include <ctime>
 #include <sstream>
 #include <filesystem>
@@ -44,12 +43,11 @@ public:
     void reset (Data &data);
 
     void run (Data &data);
-    int run_LP_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains);
-    int run_MIP_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains);
+    int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound);
 
     void get_solution (Data &data, bool is_final_solution);
     void get_combination (Data &data, std::vector<std::vector<int>> &combination);
-    void get_graph (Data &data, int idx_sol);
+    void get_graph (Data &data);
 
 private:
     IloEnv env;
@@ -70,12 +68,11 @@ private:
     void add_variables (Data &data);
     void add_constraints (Data &data);
 
-    int extract_solution (Data &data, bool is_final_solution);
+    int extract_solution (Data &data, bool is_final_solution, int best_bound);
 
     void get_value_of_variables (Data &data, IloCplex &cplex, bool is_final_solution);
 
     std::string convert_time (int seconds);
-
 };
 
 #endif

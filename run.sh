@@ -1,30 +1,25 @@
 #!/bin/bash
 
-# usage: ./run.sh <nb_threads> [--ignore-real]
-# example: ./run.sh 8 --ignore-real
+# usage: ./run.sh <method> <nb_threads> 
 
 EXECUTABLE="./cbtu"
 INSTANCES_FOLDER="./instances"
-IGNORE_REAL=false
-LOG_FILE="results.log"
+LOG_FILE="results/results-new.log"
 
-# check if the number of threads was provided
-if [[ -z "$1" || "$1" =~ ^-- ]]; then
-    echo "Usage: $0 <nb_threads> [--ignore-real]"
+# check if method and number of threads was provided
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <method> <nb_threads>"
     exit 1
 fi
 
-NB_THREADS=$1
-shift
+METHOD=$1
+NB_THREADS=$2
 
-LOG_FILE="results/results-${NB_THREADS}.log"
-
-# parse additional flags
-for arg in "$@"; do
-    if [[ "$arg" == "--ignore-real" ]]; then
-        IGNORE_REAL=true
-    fi
-done
+# validate method
+if [[ "$METHOD" != "model" && "$METHOD" != "enum" && "$METHOD" != "heuristic" ]]; then
+    echo "Error: Invalid method '$METHOD'"
+    exit 1
+fi
 
 # check if the instances folder has .txt files
 INSTANCES_FILES=("$INSTANCES_FOLDER"/*.txt)
@@ -41,8 +36,8 @@ fi
 
 # create or clear log file
 echo "Results generated on $(date)" > "$LOG_FILE"
+echo "Method: $METHOD" >> "$LOG_FILE"
 echo "Number of threads: $NB_THREADS" >> "$LOG_FILE"
-echo "Ignore '-real.txt' instances: $IGNORE_REAL" >> "$LOG_FILE"
 echo "-------------------------------------------" >> "$LOG_FILE"
 
 # loop over each instance
@@ -50,24 +45,18 @@ for INSTANCE in "$INSTANCES_FOLDER"/*.txt; do
     if [[ -f "$INSTANCE" ]]; then
         INSTANCE_NAME=$(basename "$INSTANCE")
 
-        # Skip -real.txt if requested
-        if [[ "$IGNORE_REAL" == true && "$INSTANCE_NAME" =~ -real\.txt$ ]]; then
-            continue
-        fi
-
-        echo -e "\nRunning $INSTANCE_NAME with $NB_THREADS threads..."
+        echo -e "\nRunning $INSTANCE_NAME with method '$METHOD' and $NB_THREADS threads..."
 
         echo "$INSTANCE_NAME:" >> "$LOG_FILE"
 
-        # static
-        OUTPUT_STATIC="$($EXECUTABLE "$INSTANCE" "$NB_THREADS" -s)"
-        TIME_STATIC=$(awk -F'= ' '/-> Total time =/ {print $2}' <<< "$OUTPUT_STATIC")
-        echo "- static: -> Total time: $TIME_STATIC" >> "$LOG_FILE"
+        OUTPUT="$($EXECUTABLE "$INSTANCE" "$METHOD" "$NB_THREADS")"
+        SOLUTION=$(awk -F'= ' '/-> Solution value =/ {split($2,a," "); print a[1]}' <<< "$OUTPUT")
+        TIME=$(awk -F'= ' '/-> Total time =/ {print $2}' <<< "$OUTPUT")
+        # OPTIMAL_FOUND=$(awk -F'= ' '/-> Optimal was found =/ {print $2}' <<< "$OUTPUT")
 
-        # dynamic
-        OUTPUT_DYNAMIC="$($EXECUTABLE "$INSTANCE" "$NB_THREADS" -d)"
-        TIME_DYNAMIC=$(awk -F'= ' '/-> Total time =/ {print $2}' <<< "$OUTPUT_DYNAMIC")
-        echo "- dynamic: -> Total time: $TIME_DYNAMIC" >> "$LOG_FILE"
+        echo "-> Solution value: $SOLUTION" >> "$LOG_FILE"
+        echo "-> Total time: $TIME" >> "$LOG_FILE"
+        # echo "-> Optimal was found: $OPTIMAL_FOUND" >> "$LOG_FILE"
 
         echo "" >> "$LOG_FILE"
     fi

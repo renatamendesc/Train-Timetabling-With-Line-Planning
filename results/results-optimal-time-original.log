@@ -1,0 +1,144 @@
+=== Running instance: t1p5h1A.txt ===
+>>> No integer solution was found.
+>>> Total time (CPLEX): 0.07 seconds
+
+=== Running instance: t1p5h1B.txt ===
+>>> No integer solution was found.
+>>> Total time (CPLEX): 0.03 seconds
+
+=== Running instance: t1p5h2A.txt ===
+>>> Optimal (1280.0000) was found at 0.05 seconds
+>>> Total time (CPLEX): 0.06 seconds
+
+=== Running instance: t1p5h2B.txt ===
+>>> Optimal (3840.0000) was found at 0.05 seconds
+>>> Total time (CPLEX): 0.05 seconds
+
+=== Running instance: t1p6h1.txt ===
+>>> No integer solution was found.
+>>> Total time (CPLEX): 0.02 seconds
+
+=== Running instance: t1p6h2.txt ===
+>>> Optimal (8040.0000) was found at 0.20 seconds
+>>> Total time (CPLEX): 0.20 seconds
+
+=== Running instance: t2p5h1A.txt ===
+>>> Optimal (6360.0000) was found at 0.11 seconds
+>>> Total time (CPLEX): 0.12 seconds
+
+=== Running instance: t2p5h1B.txt ===
+>>> Optimal (120.0000) was found at 0.02 seconds
+>>> Total time (CPLEX): 0.10 seconds
+
+=== Running instance: t2p5h1C.txt ===
+>>> Optimal (60.0000) was found at 0.02 seconds
+>>> Total time (CPLEX): 0.04 seconds
+
+=== Running instance: t2p5h1D.txt ===
+>>> Optimal (60.0000) was found at 0.09 seconds
+>>> Total time (CPLEX): 0.14 seconds
+
+=== Running instance: t2p5h1E.txt ===
+>>> Optimal (60.0000) was found at 0.03 seconds
+>>> Total time (CPLEX): 0.05 seconds
+
+=== Running instance: t2p5h1F.txt ===
+>>> Optimal (60.0000) was found at 0.03 seconds
+>>> Total time (CPLEX): 0.06 seconds
+
+=== Running instance: t2p5h1G.txt ===
+>>> Optimal (960.0000) was found at 0.88 seconds
+>>> Total time (CPLEX): 0.89 seconds
+
+=== Running instance: t2p5h1H.txt ===
+>>> Optimal (5180.0000) was found at 2.83 seconds
+>>> Total time (CPLEX): 2.93 seconds
+
+=== Running instance: t2p5h2A.txt ===
+>>> Optimal (7380.0000) was found at 0.36 seconds
+>>> Total time (CPLEX): 0.36 seconds
+
+=== Running instance: t2p5h2B.txt ===
+>>> Optimal (14040.0000) was found at 0.50 seconds
+>>> Total time (CPLEX): 0.50 seconds
+
+=== Running instance: t2p5h3A.txt ===
+>>> Optimal (13681.0000) was found at 50.43 seconds
+>>> Total time (CPLEX): 50.55 seconds
+
+=== Running instance: t2p6h1.txt ===
+>>> Optimal (5480.0000) was found at 0.63 seconds
+>>> Total time (CPLEX): 2.64 seconds
+
+=== Running instance: t2p6h2.txt ===
+>>> Optimal (5720.0000) was found at 2.53 seconds
+>>> Total time (CPLEX): 4.17 seconds
+
+=== Running instance: t2p6h3A.txt ===
+>>> Optimal (10161.0000) was found at 14.61 seconds
+>>> Total time (CPLEX): 28.75 seconds
+
+=== Running instance: t2p6h3B.txt ===
+>>> Optimal (10081.0000) was found at 33.85 seconds
+>>> Total time (CPLEX): 49.34 seconds
+
+=== Running instance: t2p8h1.txt ===
+>>> Optimal (8920.0000) was found at 1.05 seconds
+>>> Total time (CPLEX): 1.10 seconds
+
+=== Running instance: t2p8h2.txt ===
+>>> Optimal (17720.0000) was found at 476.68 seconds
+>>> Total time (CPLEX): 3230.65 seconds
+
+=== Running instance: t3p10h1.txt ===
+>>> Optimal (10440.0000) was found at 1.33 seconds
+>>> Total time (CPLEX): 1.34 seconds
+
+=== Running instance: t3p5h1A.txt ===
+>>> Optimal (7040.0000) was found at 2.48 seconds
+>>> Total time (CPLEX): 3.00 seconds
+
+=== Running instance: t3p5h1B.txt ===
+>>> Optimal (13960.0000) was found at 16.41 seconds
+>>> Total time (CPLEX): 26.81 seconds
+
+=== Running instance: t3p5h1C.txt ===
+>>> Optimal (14440.0000) was found at 0.24 seconds
+>>> Total time (CPLEX): 5.91 seconds
+
+=== Running instance: t3p5h1D.txt ===
+>>> Optimal (11820.0000) was found at 8.49 seconds
+>>> Total time (CPLEX): 8.65 seconds
+
+=== Running instance: t3p5h2A.txt ===
+>>> Optimal (18600.0000) was found at 5.10 seconds
+>>> Total time (CPLEX): 5.11 seconds
+
+=== Running instance: t3p5h2B.txt ===
+>>> Optimal (11820.0000) was found at 261.16 seconds
+>>> Total time (CPLEX): 680.01 seconds
+
+=== Running instance: t3p5h3.txt ===
+>>> Optimal (32161.0000) was found at 6.46 seconds
+>>> Total time (CPLEX): 6.54 seconds
+
+=== Running instance: t3p6h3A.txt ===
+>>> Optimal (7761.0000) was found at 425.60 seconds
+>>> Total time (CPLEX): 439.41 seconds
+
+=== Running instance: t3p6h3B.txt ===
+>>> Optimal (7621.0000) was found at 271.77 seconds
+>>> Total time (CPLEX): 573.47 seconds
+
+=== Running instance: t3p8h1.txt ===
+>>> Optimal (6880.0000) was found at 674.53 seconds
+>>> Total time (CPLEX): 1894.30 seconds
+
+=== Running instance: t3p8h2.txt ===
+>>> Optimal (7230.0000) was found at 1108.58 seconds
+>>> Total time (CPLEX): 1270.70 seconds
+
+=== Running instance: t3p8h3.txt ===
+>>> Optimal (17081.0000) was found at 39365.97 seconds
+>>> Total time (CPLEX): 43200.61 seconds
+

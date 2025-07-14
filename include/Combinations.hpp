@@ -22,14 +22,19 @@ private:
     Model best_thread;
     Heuristic heuristic;
 
+    int best_bound = __INT_MAX__; // best integer solution found
+
     int nb_threads;
     int nb_routes; 
     int nb_trains;
 
-    void execute_enumeration(Data &data);
-    void execute_all_combinations(Data &data);
+    int aux_progress;
+    int counter_solved = 0;
 
+    void execute_enumeration(Data &data);
     void execute_heuristic (Data &data);
+
+    void execute_all_combinations(Data &data);
     void execute_candidate_combinations (Data &data);
 
     std::set<std::vector<std::vector<int>>> unique_combinations;
@@ -42,11 +47,7 @@ private:
     bool check_trips_feasibility (Data &data, std::vector<int> &current);
     bool check_final_feasibility (Data &data, std::vector<std::vector<int>> &current);
 
-    void reset_directory(Data &data);
     bool verify_overflow(unsigned long long base, unsigned long long exp);
-
-    int aux_progress;
-    int counter_solved = 0;
 };
 
 #endif
