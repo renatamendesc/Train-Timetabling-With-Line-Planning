@@ -1,23 +1,30 @@
 #!/bin/bash
 
-# usage: ./run.sh <method> <nb_threads> 
+# usage: ./run.sh <instances_folder> <method> <nb_threads> 
 
 EXECUTABLE="./cbtu"
 INSTANCES_FOLDER="./instances"
 LOG_FILE="results/results-new.log"
 
 # check if method and number of threads was provided
-if [[ $# -ne 2 ]]; then
-    echo "Usage: $0 <method> <nb_threads>"
+if [[ $# -ne 3 ]]; then
+    echo "Usage: $0 <instance_folder> <method> <nb_threads>"
     exit 1
 fi
 
-METHOD=$1
-NB_THREADS=$2
+INSTANCES_FOLDER=$1
+METHOD=$2
+NB_THREADS=$3
 
 # validate method
 if [[ "$METHOD" != "model" && "$METHOD" != "enum" && "$METHOD" != "heuristic" ]]; then
     echo "Error: Invalid method '$METHOD'"
+    exit 1
+fi
+
+# check if folder exists
+if [[ ! -d "$INSTANCES_FOLDER" ]]; then
+    echo "Error: Instance folder '$INSTANCES_FOLDER' does not exist!"
     exit 1
 fi
 
@@ -36,6 +43,7 @@ fi
 
 # create or clear log file
 echo "Results generated on $(date)" > "$LOG_FILE"
+echo "Set of instances: $INSTANCES_FOLDER" >> "$LOG_FILE"
 echo "Method: $METHOD" >> "$LOG_FILE"
 echo "Number of threads: $NB_THREADS" >> "$LOG_FILE"
 echo "-------------------------------------------" >> "$LOG_FILE"
