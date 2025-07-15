@@ -381,10 +381,21 @@ void Heuristic::create_cyclical_routes_set(Data &data)
     // }
 
     // only full cycles included
+    bool have_cycles = false;
     for (int i = 0; i < data.get_nb_routes(); i++)
     {
         if ((data.is_cyclic_route(i)) && (data.get_route_vertices(i).size() == data.get_nb_vertices()+1))
+        {
             cyclical_routes_set.push_back(i);
+            have_cycles = true;
+        }
+    }
+
+    if (!have_cycles)
+    {
+        // chamar função que seleciona outro conjunto de rotas
+        // tentar rotas incompletas
+        // formar um ciclo com rotas não cíclicas ??
     }
 
     // cout << "Rotas cíclicas válidas: " << endl;
