@@ -30,10 +30,11 @@
 *.exe
 *.out
 *.app
-cbtu
+# cbtu
 
 # Files .lp
 *.lp
+cbtu.lp
 
 # Vscode settings
 .vscode/
@@ -47,5 +48,4 @@ combinations/
 # File to generate graphs
 script-solution.txt
 
-# HiGHS log
 HiGHS.log

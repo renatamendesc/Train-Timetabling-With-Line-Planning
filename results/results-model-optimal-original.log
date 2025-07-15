@@ -1,0 +1,179 @@
+Results generated on ter 08 jul 2025 19:46:55 -03
+Number of threads: 1
+-------------------------------------------
+t1p5h1A.txt:
+-> Solution value: 0.00
+-> Total time: 0.00
+-> Optimal was found: 0.00
+
+t1p5h1B.txt:
+-> Solution value: 3840.00
+-> Total time: 0.00
+-> Optimal was found: 0.00
+
+t1p5h2A.txt:
+-> Solution value: 1280.00
+-> Total time: 0.01
+-> Optimal was found: 0.01
+
+t1p5h2B.txt:
+-> Solution value: 3840.00
+-> Total time: 0.01
+-> Optimal was found: 0.01
+
+t1p6h1.txt:
+-> Solution value: 7680.00
+-> Total time: 0.01
+-> Optimal was found: 0.00
+
+t1p6h2.txt:
+-> Solution value: 8040.00
+-> Total time: 0.34
+-> Optimal was found: 0.13
+
+t2p5h1A.txt:
+-> Solution value: 6360.00
+-> Total time: 0.24
+-> Optimal was found: 0.24
+
+t2p5h1B.txt:
+-> Solution value: 120.00
+-> Total time: 0.01
+-> Optimal was found: 0.00
+
+t2p5h1C.txt:
+-> Solution value: 60.00
+-> Total time: 0.01
+-> Optimal was found: 0.00
+
+t2p5h1D.txt:
+-> Solution value: 60.00
+-> Total time: 0.01
+-> Optimal was found: 0.00
+
+t2p5h1E.txt:
+-> Solution value: 60.00
+-> Total time: 0.01
+-> Optimal was found: 0.00
+
+t2p5h1F.txt:
+-> Solution value: 60.00
+-> Total time: 0.01
+-> Optimal was found: 0.01
+
+t2p5h1G.txt:
+-> Solution value: 960.00
+-> Total time: 4.48
+-> Optimal was found: 4.48
+
+t2p5h1H.txt:
+-> Solution value: 5180.00
+-> Total time: 13.95
+-> Optimal was found: 13.95
+
+t2p5h2A.txt:
+-> Solution value: 7380.00
+-> Total time: 2.86
+-> Optimal was found: 1.50
+
+t2p5h2B.txt:
+-> Solution value: 14040.00
+-> Total time: 0.69
+-> Optimal was found: 0.37
+
+t2p5h3A.txt:
+-> Solution value: 13681.00
+-> Total time: 29.16
+-> Optimal was found: 11.71
+
+t2p6h1.txt:
+-> Solution value: 5480.00
+-> Total time: 4.28
+-> Optimal was found: 3.54
+
+t2p6h2.txt:
+-> Solution value: 5720.00
+-> Total time: 14.00
+-> Optimal was found: 12.83
+
+t2p6h3A.txt:
+-> Solution value: 10161.00
+-> Total time: 346.82
+-> Optimal was found: 282.33
+
+t2p6h3B.txt:
+-> Solution value: 10081.00
+-> Total time: 395.02
+-> Optimal was found: 356.17
+
+t2p8h1.txt:
+-> Solution value: 8920.00
+-> Total time: 7.94
+-> Optimal was found: 4.12
+
+t2p8h2.txt:
+-> Solution value: 17720.00
+-> Total time: 5623.98
+-> Optimal was found: 5467.03
+
+t3p10h1.txt:
+-> Solution value: 10440.00
+-> Total time: 2.41
+-> Optimal was found: 2.41
+
+t3p5h1A.txt:
+-> Solution value: 7040.00
+-> Total time: 6.31
+-> Optimal was found: 4.50
+
+t3p5h1B.txt:
+-> Solution value: 13960.00
+-> Total time: 69.68
+-> Optimal was found: 18.32
+
+t3p5h1C.txt:
+-> Solution value: 14440.00
+-> Total time: 3.35
+-> Optimal was found: 0.05
+
+t3p5h1D.txt:
+-> Solution value: 11820.00
+-> Total time: 91.04
+-> Optimal was found: 44.43
+
+t3p5h2A.txt:
+-> Solution value: 18600.00
+-> Total time: 56.19
+-> Optimal was found: 5.20
+
+t3p5h2B.txt:
+-> Solution value: 11820.00
+-> Total time: 376.13
+-> Optimal was found: 376.13
+
+t3p5h3.txt:
+-> Solution value: 32161.00
+-> Total time: 6.73
+-> Optimal was found: 5.62
+
+t3p6h3A.txt:
+-> Solution value: 7761.00
+-> Total time: 7277.04
+-> Optimal was found: 4853.27
+
+t3p6h3B.txt:
+-> Solution value: 7621.00
+-> Total time: 4517.22
+-> Optimal was found: 2224.97
+
+t3p8h1.txt:
+-> Solution value: 6880.00
+-> Total time: 3856.21
+-> Optimal was found: 1542.68
+
+t3p8h2.txt:
+-> Solution value: 7230.00
+-> Total time: 5623.10
+-> Optimal was found: 2074.60
+
+t3p8h3.txt:

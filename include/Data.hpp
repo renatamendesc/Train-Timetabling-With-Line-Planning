@@ -25,8 +25,9 @@ private:
 
     int _nb_trains;
     int _nb_points;
-    int _initial_point;
+    // int _initial_point;
     int _nb_routes;
+    int _max_nb_trips;
     // one entry for each point
     std::vector<bool> _is_station;
     std::vector<bool> _is_crossing;
@@ -63,6 +64,8 @@ private:
     std::vector<int> _distance_and_service_max;
     // demands of each vertex by time intervals
     std::vector<std::vector<int>> _demands;
+    // sum of all demands that must be followd on a day for each vertex
+    std::vector<int> _demand_per_day;
     // maximum time for all of the trips to end
     int _max_time;
     // alpha - headway time
@@ -72,6 +75,8 @@ private:
     bool validate_instance();
 
 public:
+    int _initial_point;
+    
     Data(std::string instance_path);
 
     void print_data();
@@ -172,14 +177,29 @@ public:
         return _demands;
     }
 
+    std::vector<int> &get_demand_per_day()
+    {
+        return _demand_per_day;
+    }
+
     int get_vertex_point(int vertex)
     {
         return _vertex_to_point[vertex];
     }
 
+    std::vector <int> get_max_trips_per_train()
+    {
+        return _max_trips_per_train;
+    }
+
     int get_train_max_trips(int train)
     {
         return _max_trips_per_train[train];
+    }
+
+    int get_max_nb_trips()
+    {
+        return _max_nb_trips;
     }
 
     int get_nb_intervals()

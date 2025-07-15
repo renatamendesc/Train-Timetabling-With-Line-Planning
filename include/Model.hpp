@@ -3,7 +3,8 @@
 
 #include "Data.hpp"
 #include <ctime>
-#include <chrono>
+#include <sstream>
+#include <filesystem>
 #include <ilcplex/ilocplex.h>
 
 #define BIG_M 100000
@@ -21,9 +22,11 @@ typedef std::vector<VarValuesMatrix4d> VarValuesMatrix5d;
 typedef std::vector<VarValuesMatrix5d> VarValuesMatrix6d;
 
 struct Solution {
-    double obj_value;
+    double obj_value = __DBL_MAX__;
     double gap_value;
     double computational_time;
+
+    std::chrono::steady_clock::time_point time_found;
 
     VarValuesMatrix3d y_values;
     VarValuesMatrix3d y_bar_values;
@@ -33,9 +36,18 @@ struct Solution {
 class Model
 {
 public:
-    Solution sol;
+    Solution best_sol;
+    Solution current_sol;
 
-    void init (Data &data);
+    void initialize (Data &data);
+    void reset (Data &data);
+
+    void run (Data &data);
+    int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound);
+
+    void get_solution (Data &data, bool is_final_solution);
+    void get_combination (Data &data, std::vector<std::vector<int>> &combination);
+    void get_graph (Data &data);
 
 private:
     IloEnv env;
@@ -56,13 +68,11 @@ private:
     void add_variables (Data &data);
     void add_constraints (Data &data);
 
-    int extract_solution(Data &data);
+    int extract_solution (Data &data, bool is_final_solution, int best_bound);
 
-    void get_value_of_variables(Data &data, IloCplex &cplex);
-    void get_final_solution(Data &data);
+    void get_value_of_variables (Data &data, IloCplex &cplex, bool is_final_solution);
 
-    std::string convert_time(int seconds);
-
+    std::string convert_time (int seconds);
 };
 
 #endif

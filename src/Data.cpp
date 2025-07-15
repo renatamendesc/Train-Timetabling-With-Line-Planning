@@ -44,9 +44,12 @@ Data::Data(string instance_path)
     instance_file.ignore(100000, '#');
     instance_file.ignore(100000, '\n');
     _max_trips_per_train.assign(_nb_trains, 0);
+    _max_nb_trips = 0;
     for (int i = 0; i < _nb_trains; i++)
     {
         instance_file >> _max_trips_per_train[i];
+        if (_max_trips_per_train[i] > _max_nb_trips)
+            _max_nb_trips = _max_trips_per_train[i];
     }
 
     // read #_time_intervals
@@ -233,6 +236,13 @@ Data::Data(string instance_path)
         {
             instance_file >> _demands[i][j];
         }
+    }
+    // get demands of vertices for a whole day
+    _demand_per_day.assign(get_nb_vertices(), 0);
+    for (int i = 0; i < get_nb_vertices(); i++)
+    {
+        for (int j = 0; j < get_nb_intervals(); j++)
+            _demand_per_day[i] += get_demands()[i][j];
     }
 
     // read #_max_time
