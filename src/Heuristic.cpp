@@ -11,12 +11,114 @@ void Heuristic::create_initial_candidates (Data &data)
     create_cyclical_routes_set(data);
     create_initial_valid_routes_set(data);
 
-    // adicionar viagens até cumprir as demandas
-
     int nb_trains = data.get_nb_trains();
     int num_valid = initial_valid_routes_set.size();
     int num_cyclic = cyclical_routes_set.size();
 
+    // adicionar viagens até cumprir as demandas
+    add_trips_till_demands_are_met(data, nb_trains, num_valid, num_cyclic);
+
+    // create maximum size combinations
+    // create_maximum_size_candidates(data, nb_trains, num_valid, num_cyclic);
+
+    for (int i = 0; i < candidate_combinations.size(); i++)
+    {
+        cout << "Combination " << i+1 << ": " << endl;
+        for (int j = 0; j < candidate_combinations[i].size(); j++)
+        {
+            cout << "Train " << j << ": ";
+            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
+            {
+                cout << candidate_combinations[i][j][k] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
+}
+
+void Heuristic::add_trips_till_demands_are_met(Data &data, int nb_trains, int num_valid, int num_cyclic)
+{
+    vector<int> initial_indices(nb_trains, 0);
+    bool done_initial = false;
+    while (!done_initial)
+    {
+        // map cyclical routes done by each train
+        vector<int> cyclic_indices(nb_trains, 0);
+        bool done_cyclic = false;
+        while (!done_cyclic)
+        {
+            for (int i = 0; i < data.get_max_nb_trips(); i++) 
+            {
+                vector<vector<int>> combination;
+                bool valid_combination = true;
+                for (int t = 0; t < nb_trains; t++)
+                {
+                    vector<int> routes_of_train;
+
+                    // choose initial trip
+                    routes_of_train.push_back(initial_valid_routes_set[initial_indices[t]]);
+
+                    // choose cyclical route
+                    for (int k = 0; k < i; k++)
+                    {
+                        routes_of_train.push_back(cyclical_routes_set[cyclic_indices[t]]);
+                    }
+
+                    if (verify_compatibility(data, routes_of_train))
+                    {
+                        combination.push_back(routes_of_train);
+                    }
+                    else
+                    {
+                        valid_combination = false;
+                    }
+                }
+
+                // verify whether demands are met
+                if (valid_combination && verify_demands(data, combination))
+                {
+                    candidate_combinations.push_back(combination);
+                    break;
+                }
+            }
+
+            if (!candidate_combinations.empty() && candidate_combinations.back()[0].size() == 1)
+                break;
+
+            // increment cyclical indeces
+            for (int i = nb_trains - 1; i >= 0; i--)
+            {
+                if (++cyclic_indices[i] < num_cyclic)
+                {
+                    break;
+                }
+                else
+                {
+                    cyclic_indices[i] = 0;
+                    if (i == 0) done_cyclic = true;
+                }
+            }
+        }
+
+        // increment initial indices
+        for (int i = nb_trains - 1; i >= 0; i--)
+        {
+            if (++initial_indices[i] < num_valid)
+            {
+                break;
+            }
+            else
+            {
+                initial_indices[i] = 0;
+                if (i == 0) done_initial = true;
+            }
+        }
+    }
+}
+
+void Heuristic::create_maximum_size_candidates(Data &data, int nb_trains, int num_valid, int num_cyclic)
+{
     // map initial routes done by each train
     vector<int> initial_indices(nb_trains, 0);
     bool done_initial = false;
@@ -92,25 +194,11 @@ void Heuristic::create_initial_candidates (Data &data)
             }
         }
     }
-
-    // for (int i = 0; i < candidate_combinations.size(); i++)
-    // {
-    //     cout << "Combinação " << i+1 << ": " << endl;
-    //     for (int j = 0; j < candidate_combinations[i].size(); j++)
-    //     {
-    //         cout << "Trem " << j << ": ";
-    //         for (int k = 0; k < candidate_combinations[i][j].size(); k++)
-    //         {
-    //             cout << candidate_combinations[i][j][k] << " ";
-    //         }
-    //         cout << endl;
-    //     }
-    //     cout << endl;
-    // }
 }
 
 void Heuristic::create_subsets (Data &data, int iter)
 {
+    // criar todas as combinações de todos os tamanhos
     cout << endl << "Creating subsets from initial candidate combinations..." << endl;
 
     candidate_combinations.clear();
@@ -158,7 +246,16 @@ void Heuristic::create_subsets (Data &data, int iter)
                 }
                 combination.push_back(routes_of_train);
             }
-            candidate_combinations.push_back(combination);
+
+            if (verify_demands(data, combination))
+            {
+                // cout << "cumpriu demandas" << endl;
+                candidate_combinations.push_back(combination);
+            }
+            else
+            {
+                // cout << "demandas não são cumpridas" << endl;
+            }
 
             if (max_nb_trips_iter == 1)
                 break;
@@ -193,22 +290,23 @@ void Heuristic::create_subsets (Data &data, int iter)
         }
     }
 
-    // for (int i = 0; i < candidate_combinations.size(); i++)
-    // {
-    //     cout << "Combinação " << i+1 << ": " << endl;
-    //     for (int j = 0; j < candidate_combinations[i].size(); j++)
-    //     {
-    //         cout << "Trem " << j << ": ";
-    //         for (int k = 0; k < candidate_combinations[i][j].size(); k++)
-    //         {
-    //             cout << candidate_combinations[i][j][k] << " ";
-    //         }
-    //         cout << endl;
-    //     }
-    //     cout << endl;
-    // }
+    for (int i = 0; i < candidate_combinations.size(); i++)
+    {
+        cout << "Combination " << i+1 << ": " << endl;
+        for (int j = 0; j < candidate_combinations[i].size(); j++)
+        {
+            cout << "Train " << j << ": ";
+            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
+            {
+                cout << candidate_combinations[i][j][k] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
 }
 
+// essa função vai deixar de existir
 bool Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> &current, int min_nb_trips)
 {
     cout << endl << "Removing trips from current best combination..." << endl;
@@ -258,13 +356,13 @@ bool Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> &cu
         }
     }
 
-    // cout << "Flexibilizando viagens..." << endl << endl;
+    // cout << "Diminuindo tamanho das viagens..." << endl << endl;
     // for (int i = 0; i < candidate_combinations.size(); i++)
     // {
-    //     cout << "Combinação " << i+1 << ": " << endl;
+    //     cout << "Combination " << i+1 << ": " << endl;
     //     for (int j = 0; j < candidate_combinations[i].size(); j++)
     //     {
-    //         cout << "Trem " << j << ": ";
+    //         cout << "Train " << j << ": ";
     //         for (int k = 0; k < candidate_combinations[i][j].size(); k++)
     //         {
     //             cout << candidate_combinations[i][j][k] << " ";
@@ -393,6 +491,7 @@ void Heuristic::create_cyclical_routes_set(Data &data)
 
     if (!have_cycles)
     {
+        cout << "Instance doesn't have any cyclical routes!" << endl;
         // chamar função que seleciona outro conjunto de rotas
         // tentar rotas incompletas
         // formar um ciclo com rotas não cíclicas ??

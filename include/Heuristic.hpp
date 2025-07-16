@@ -20,6 +20,9 @@ private:
     std::vector <int> initial_valid_routes_set;
     void create_initial_valid_routes_set(Data &data);
 
+    void create_maximum_size_candidates(Data &data, int nb_trains, int num_valid, int num_cyclic);
+    void add_trips_till_demands_are_met(Data &data, int nb_trains, int num_valid, int num_cyclic);
+
     bool verify_demands(Data &data, std::vector<std::vector<int>> &current);
     bool verify_compatibility (Data &data, std::vector<int> &current);
 };

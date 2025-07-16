@@ -97,15 +97,31 @@ void Combinations::execute_heuristic (Data &data)
 
         if (nb_feasible_combinations == 0)
         {
+            if (iter == 1)
+            {
+                cout << "Still no feasible solution was found..." << endl;
+                // refazer conjunto de candidatos iniciais com outras rotas
+                // break;
+            }
+
             cout << "No feasible solution was found..." << endl;
+
             iter++;
             heuristic.create_subsets(data, iter);
+
             continue;
         }
+
+        // not_done = false;
 
         // if feasible solution was found...
         best_thread.get_combination(data, current);
         not_done = heuristic.remove_trips(data, true, current, data.get_max_nb_trips()-iter-1); // decrease number of trips till demands are not met
+
+        if (not_done == false)
+        {
+            cout << "Encerrando na iteração " << iter << endl;
+        }
 
         iter++;
     }
@@ -115,6 +131,11 @@ void Combinations::execute_heuristic (Data &data)
     {
         best_thread.reset(data);
         best_thread.run_with_routes_constraints(data, current, best_bound);
+    }
+
+    if (nb_feasible_combinations == 0)
+    {
+        cout << "Calls function to consider other routes" << endl;
     }
 }
 
