@@ -54,7 +54,7 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
         for (int i = 0; i < current.size(); i++)
         {
             if (i < data.get_train_max_trips(t))
-            {       
+            {   
                 // if trip is not made                           
                 if (current[i] == data.get_nb_routes())
                 {

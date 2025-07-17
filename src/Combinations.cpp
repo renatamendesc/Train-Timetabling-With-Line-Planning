@@ -110,12 +110,9 @@ void Combinations::execute_heuristic (Data &data)
         iter++;
     }
 
-    heuristic.change_trips(data, current);    
-    if (check_final_feasibility(data, current))
-    {
-        best_thread.reset(data);
-        best_thread.run_with_routes_constraints(data, current, best_bound);
-    }
+    heuristic.change_trips(data, current);
+    best_thread.initialize(data);
+    best_thread.run_with_routes_constraints(data, current, best_bound);
 }
 
 void Combinations::execute_all_combinations(Data &data)

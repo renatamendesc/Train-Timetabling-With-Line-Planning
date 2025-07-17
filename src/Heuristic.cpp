@@ -289,7 +289,7 @@ void Heuristic::change_trips (Data &data, vector<vector<int>> &current)
     {
         current[i].back() = -1;
     }
-    // first route is free for the model to choose
+    // // first route is free for the model to choose
     // for (int i = 0; i < data.get_nb_trains(); i++)
     // {
     //     current[i].front() = -1;
