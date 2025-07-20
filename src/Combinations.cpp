@@ -25,7 +25,7 @@ Combinations::Combinations(Data &data, int threads, int strategy)
     // finish counting time
     auto end = chrono::steady_clock::now();
     chrono::duration<double> time = end-start;
-    best_thread.best_sol.computational_time = (time).count();
+    best_thread.best_sol[0].computational_time = (time).count();
 
     // // get the time that it took to find the optimal solution
     // double time_till_optimal = (chrono::duration<double>(best_thread.best_sol.time_found-start)).count();
@@ -82,14 +82,17 @@ void Combinations::execute_enumeration(Data &data)
 
 void Combinations::execute_heuristic (Data &data)
 {
+    best_thread.best_sol.push_back(best_thread.current_sol);
+
     heuristic.create_initial_candidates(data);
     total_nb_combinations = heuristic.candidate_combinations.size();
 
     int iter = 0;
     bool not_done = true;
-    vector<vector<int>> current;
+    vector<vector<vector<int>>> current;
     while (not_done)
     {
+
         // get current set of combinations from heuristic
         // cout << "Iter " << iter+1 << ": " << endl;
         total_nb_combinations = heuristic.candidate_combinations.size();
@@ -97,46 +100,78 @@ void Combinations::execute_heuristic (Data &data)
 
         if (nb_feasible_combinations == 0)
         {
-            if (iter == 1)
-            {
-                cout << "Still no feasible solution was found..." << endl;
-                // refazer conjunto de candidatos iniciais com outras rotas
-                // break;
-            }
-
             cout << "No feasible solution was found..." << endl;
 
             iter++;
-            heuristic.create_subsets(data, iter);
 
-            continue;
+            if (iter == 1)
+            {
+                heuristic.create_subsets(data, iter); // verificar se faz sentido o valor de iter
+                if (heuristic.found_new_feasible_combination)
+                {
+                    continue;
+                }
+                else
+                {
+                    iter++;
+                }
+            }
+
+            if (iter == 2)
+            {
+                cout << "Preciso flexibilizar os candidatos... (" << heuristic.candidate_combinations.size() << " candidatos)" << endl;
+                // seleciona do conjunto inicial de candidatos
+                // flexibiliza selecionado(s)
+                // if (viavel) -> encerra
+                // else -> tenta com novo conjunto
+            }
+
         }
 
-        // not_done = false;
-
+        
         // if feasible solution was found...
-        best_thread.get_combination(data, current);
-        not_done = heuristic.remove_trips(data, true, current, data.get_max_nb_trips()-iter-1); // decrease number of trips till demands are not met
+        best_thread.get_best_combinations(data, current);
+
+        not_done = heuristic.add_trips(data); // increase number of trips
 
         if (not_done == false)
         {
-            cout << "Encerrando na iteração " << iter << endl;
+            cout << "Terminating at iteration " << iter << endl;
         }
 
         iter++;
+
     }
 
-    heuristic.change_trips(data, current);    
-    if (check_final_feasibility(data, current))
-    {
-        best_thread.reset(data);
-        best_thread.run_with_routes_constraints(data, current, best_bound);
-    }
+    // execute tie breaker
+    if (current.size() > 1)
+        best_thread.tie_breaker(data, current);
+    
+    heuristic.change_trips(data, current[0]);
+    best_thread.best_sol.push_back(best_thread.current_sol);
+    best_thread.initialize(data);
+    best_thread.run_with_routes_constraints(data, current[0], best_bound);
 
-    if (nb_feasible_combinations == 0)
-    {
-        cout << "Calls function to consider other routes" << endl;
-    }
+    // // execute all best symmetrical solutions
+    // for (int i = 0; i < current.size(); i++)
+    // {        
+    //     heuristic.change_trips(data, current[i]);
+
+    //     if (i == 0)
+    //     {
+    //         best_thread.best_sol.push_back(best_thread.current_sol);
+    //         best_thread.initialize(data);
+    //     }
+    //     else
+    //     {
+    //         best_thread.reset(data);
+    //     }
+
+    //     best_thread.run_with_routes_constraints(data, current[i], best_bound);
+    // }
+
+    best_thread.get_best_combinations(data, current);
+
 }
 
 void Combinations::execute_all_combinations(Data &data)
@@ -152,6 +187,7 @@ void Combinations::execute_all_combinations(Data &data)
     #pragma omp parallel num_threads(nb_threads)
     {
         int thread_id = omp_get_thread_num();
+        models[thread_id].best_sol.push_back(models[thread_id].current_sol);
         models[thread_id].initialize(data);
 
         #pragma omp for schedule(dynamic)
@@ -186,10 +222,10 @@ void Combinations::execute_all_combinations(Data &data)
 
                     #pragma omp critical
                     {
-                        if (model_thread.best_sol.obj_value <= best_thread.best_sol.obj_value)
+                        if (model_thread.best_sol[0].obj_value <= best_thread.best_sol[0].obj_value)
                         {
                             best_thread = model_thread;
-                            best_bound = model_thread.best_sol.obj_value;
+                            best_bound = model_thread.best_sol[0].obj_value;
                         }
                     }
                 }
@@ -206,6 +242,7 @@ void Combinations::execute_all_combinations(Data &data)
 
 void Combinations::execute_candidate_combinations (Data &data)
 {
+    cout << "Solving candidate combinations..." << endl;
     counter_solved = 0;
 
     // vectors with models for each thread
@@ -214,6 +251,7 @@ void Combinations::execute_candidate_combinations (Data &data)
     #pragma omp parallel num_threads(nb_threads)
     {
         int thread_id = omp_get_thread_num();
+        models[thread_id].best_sol.push_back(models[thread_id].current_sol);
         models[thread_id].initialize(data);
 
         #pragma omp for schedule(dynamic)
@@ -235,10 +273,17 @@ void Combinations::execute_candidate_combinations (Data &data)
 
                     #pragma omp critical
                     {
-                        if (model_thread.best_sol.obj_value <= best_thread.best_sol.obj_value)
+                        if (model_thread.best_sol[0].obj_value < best_thread.best_sol[0].obj_value)
                         {
                             best_thread = model_thread;
-                            best_bound = model_thread.best_sol.obj_value;
+                            best_bound = model_thread.best_sol[0].obj_value;
+                        }
+                        else if (model_thread.best_sol[0].obj_value == best_thread.best_sol[0].obj_value)
+                        {
+                            for (int i = 0; i < model_thread.best_sol.size(); i++)
+                            {
+                                best_thread.best_sol.push_back(model_thread.best_sol[i]);
+                            }
                         }
                     }
                 }
@@ -387,7 +432,6 @@ bool Combinations::verify_overflow(unsigned long long base, unsigned long long e
     }
     return false;
 }
-
 
 
 

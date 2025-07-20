@@ -2,8 +2,10 @@
 #define MODEL_HPP
 
 #include "Data.hpp"
+#include <omp.h>
 #include <ctime>
 #include <sstream>
+#include <algorithm>
 #include <filesystem>
 #include <ilcplex/ilocplex.h>
 
@@ -22,7 +24,7 @@ typedef std::vector<VarValuesMatrix4d> VarValuesMatrix5d;
 typedef std::vector<VarValuesMatrix5d> VarValuesMatrix6d;
 
 struct Solution {
-    double obj_value = __DBL_MAX__;
+    int obj_value = __INT_MAX__;
     double gap_value;
     double computational_time;
 
@@ -36,7 +38,7 @@ struct Solution {
 class Model
 {
 public:
-    Solution best_sol;
+    std::vector<Solution> best_sol;
     Solution current_sol;
 
     void initialize (Data &data);
@@ -45,8 +47,10 @@ public:
     void run (Data &data);
     int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound);
 
+    void tie_breaker(Data &data, std::vector<std::vector<std::vector<int>>> &combinations);
+
     void get_solution (Data &data, bool is_final_solution);
-    void get_combination (Data &data, std::vector<std::vector<int>> &combination);
+    void get_best_combinations (Data &data, std::vector<std::vector<std::vector<int>>> &combination);
     void get_graph (Data &data);
 
 private:

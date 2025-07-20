@@ -813,19 +813,20 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound)
         if (!solved)
             return 0;
 
-        current_sol.obj_value = cplex.getObjValue();
-        if (current_sol.obj_value < best_sol.obj_value)
+        if (cplex.getObjValue() <= best_sol[0].obj_value)
         {
-            // cout << "Found new best solution - Cost " << current_sol.obj_value << endl;
-
-            best_sol.obj_value = current_sol.obj_value;
-            best_sol.gap_value = cplex.getMIPRelativeGap();
-            // best_sol.time_found = chrono::steady_clock::now();
-
+            current_sol.obj_value = cplex.getObjValue();
             get_value_of_variables(data, cplex, is_final_solution);
-            best_sol.y_values = current_sol.y_values;
-            best_sol.y_bar_values = current_sol.y_bar_values;
-            best_sol.lambda_values = current_sol.lambda_values;
+
+            if (cplex.getObjValue() < best_sol[0].obj_value)
+            {
+                best_sol.clear();
+                best_sol.push_back(current_sol);
+            }
+            else if (cplex.getObjValue() == best_sol[0].obj_value) 
+            {
+                best_sol.push_back(current_sol);
+            }
         }
     }
     else
@@ -837,7 +838,7 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound)
         auto end = chrono::steady_clock::now();
 
         chrono::duration<double> time = end-start;
-        best_sol.computational_time = (time).count();
+        current_sol.computational_time = (time).count();
 
         cout << cplex.getStatus() << endl;
         if (cplex.getStatus() == IloCplex::Infeasible)
@@ -846,10 +847,14 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound)
             return 0;
         }
 
-        best_sol.obj_value = cplex.getObjValue();
-        best_sol.gap_value = cplex.getMIPRelativeGap();
+        current_sol.obj_value = cplex.getObjValue();
+        current_sol.gap_value = cplex.getMIPRelativeGap();
 
         get_value_of_variables(data, cplex, is_final_solution);
+
+        best_sol.clear();
+        best_sol.push_back(current_sol);
+
         get_solution(data, is_final_solution);
     }
 
@@ -1000,62 +1005,105 @@ void Model::get_value_of_variables(Data &data, IloCplex &cplex, bool is_final_so
     //     }
     // }
 
-    if (!is_final_solution)
-    {
-        current_sol.y_values = y_values;
-        current_sol.y_bar_values = y_bar_values;
-        current_sol.lambda_values = lambda_values;
-    }
-    else
-    {
-        best_sol.y_values = y_values;
-        best_sol.y_bar_values = y_bar_values;
-        best_sol.lambda_values = lambda_values;
-    }
+    current_sol.y_values = y_values;
+    current_sol.y_bar_values = y_bar_values;
+    current_sol.lambda_values = lambda_values;
 }
 
-void Model::get_combination (Data &data, vector<vector<int>> &combination)
+void Model::tie_breaker(Data &data, vector<vector<vector<int>>> &combinations)
 {
-    VarValuesMatrix3d lambda_values = best_sol.lambda_values;
+    int combination_with_highest = 0;
+    int highest_ammount_of_times = 0;
 
-    combination.clear();
-    for (int i = 0; i < data.get_nb_trains(); i++)
+    //for each combination
+    for (int i = 0; i < combinations.size(); i++)
     {
-        vector <int> aux;
-        for (int j = 0; j < data.get_train_max_trips(i); j++)
+        // get the amount of times each route is completed
+        vector <int> times_route_is_completed (data.get_nb_routes(), 0);
+
+        // for each train
+        for (int j = 0; j < combinations[i].size(); j++)
         {
-            for (int k = 0; k < data.get_nb_routes(); k++)
-            {
-                if (lambda_values[i][j][k] == 1)
+            // for each trip
+            for (int k = 0; k < combinations[i][j].size(); k++)
+            {   
+                int route = combinations[i][j][k];
+                if (route != data.get_nb_routes())
                 {
-                    aux.push_back(k);
-                    break;
-                } 
+                    times_route_is_completed[route]++;
+                }
             }
         }
-        combination.push_back(aux);
+
+        int max_times = 0;
+        for (int i = 0; i < times_route_is_completed.size(); i++)
+        {
+            if (times_route_is_completed[i] > max_times)
+                max_times = times_route_is_completed[i];
+        }
+        
+        if (max_times > highest_ammount_of_times)
+        {
+            highest_ammount_of_times = max_times;
+            combination_with_highest = i;
+        }
     }
 
-    // cout << endl << "Best current cost: " << best_sol.obj_value << endl;
-    // cout << "Best current solution:" << endl;
-    // for (int i = 0; i < combination.size(); i++)
-    // {
-    //     cout << "Train " << i+1 << ": ";
-    //     for (int j = 0; j < combination[i].size(); j++)
-    //     {
-    //         cout << combination[i][j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-    // cout << endl;
+    // change the combinations vector
+    vector<vector<int>> selected_combination = combinations[combination_with_highest];
+    combinations.clear();
+    combinations.push_back(selected_combination);
+}
 
+void Model::get_best_combinations (Data &data, vector<vector<vector<int>>> &combination)
+{
+    combination.clear();
+    vector<vector<int>> combination_aux;
+    for (int i = 0; i < best_sol.size(); i++)
+    {
+        VarValuesMatrix3d lambda_values = best_sol[i].lambda_values;
+
+        combination_aux.clear();
+        for (int i = 0; i < data.get_nb_trains(); i++)
+        {
+            vector <int> aux;
+            for (int j = 0; j < data.get_train_max_trips(i); j++)
+            {
+                for (int k = 0; k < data.get_nb_routes(); k++)
+                {
+                    if (lambda_values[i][j][k] == 1)
+                    {
+                        aux.push_back(k);
+                        break;
+                    } 
+                }
+            }
+            combination_aux.push_back(aux);
+        }
+        combination.push_back(combination_aux);
+    
+        // cout << endl << "Best current cost: " << best_sol[0].obj_value << endl;
+        // cout << "Best current solution:" << endl;
+        // for (int i = 0; i < combination_aux.size(); i++)
+        // {
+        //     cout << "Train " << i+1 << ": ";
+        //     for (int j = 0; j < combination_aux[i].size(); j++)
+        //     {
+        //         cout << combination_aux[i][j] << " ";
+        //     }
+        //     cout << endl;
+        // }
+        // cout << endl;
+    }
 }
 
 void Model::get_solution (Data &data, bool is_final_solution)
 {   
-    VarValuesMatrix3d y_values = best_sol.y_values;
-    VarValuesMatrix3d y_bar_values = best_sol.y_bar_values;
-    VarValuesMatrix3d lambda_values = best_sol.lambda_values;
+    Solution final_solution = best_sol[0];
+
+    VarValuesMatrix3d y_values = final_solution.y_values;
+    VarValuesMatrix3d y_bar_values = final_solution.y_bar_values;
+    VarValuesMatrix3d lambda_values = final_solution.lambda_values;
 
     ofstream solution_file, solution_script;
 
@@ -1063,9 +1111,9 @@ void Model::get_solution (Data &data, bool is_final_solution)
     solution_file.open("solutions/timetables/" + data.get_instance_name() + ".txt", ios::out | ios::trunc); // file to register the timetable
     solution_script.open("script-solution.txt", ios::out | ios::trunc);                                     // file to execute python script to generate the graphs of the timetable
 
-    solution_file << "-> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
-    solution_file << "-> Total time = " << best_sol.computational_time << endl;
-    solution_file << "-> Gap value = " << best_sol.gap_value << endl << endl;
+    solution_file << "-> Solution value = " << final_solution.obj_value << " - " << convert_time(final_solution.obj_value) << endl;
+    solution_file << "-> Total time = " << final_solution.computational_time << endl;
+    solution_file << "-> Gap value = " << final_solution.gap_value << endl << endl;
 
     solution_script << "num_points " << data.get_nb_points() << endl;
     solution_script << "---" << endl;
@@ -1110,9 +1158,9 @@ void Model::get_solution (Data &data, bool is_final_solution)
 
     // display solution on terminal if it's the final solution
     cout << endl << ">> Printing some results..." << endl << fixed << setprecision(2);
-    cout << "    -> Solution value = " << best_sol.obj_value << " - " << convert_time(best_sol.obj_value) << endl;
-    cout << "    -> Total time = " << best_sol.computational_time << endl;
-    cout << "    -> Gap value = " << best_sol.gap_value << endl << endl;
+    cout << "    -> Solution value = " << final_solution.obj_value << " - " << convert_time(final_solution.obj_value) << endl;
+    cout << "    -> Total time = " << final_solution.computational_time << endl;
+    cout << "    -> Gap value = " << final_solution.gap_value << endl << endl;
 
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
