@@ -41,6 +41,8 @@ Combinations::Combinations(Data &data, int threads, int strategy)
 
 void Combinations::execute_enumeration(Data &data)
 {
+    best_thread.best_sol.push_back(best_thread.current_sol);
+
     trips_combinations.resize(nb_trains);
     for (int i = 0; i < nb_trains; i++)                                
     {
