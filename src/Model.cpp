@@ -820,11 +820,13 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound)
 
             if (cplex.getObjValue() < best_sol[0].obj_value)
             {
+                cout << "Found new best!" << endl;
                 best_sol.clear();
                 best_sol.push_back(current_sol);
             }
             else if (cplex.getObjValue() == best_sol[0].obj_value) 
             {
+                cout << "Found the same!" << endl;
                 best_sol.push_back(current_sol);
             }
         }

@@ -35,7 +35,7 @@ private:
     void execute_heuristic (Data &data);
 
     void execute_all_combinations(Data &data);
-    void execute_candidate_combinations (Data &data);
+    bool execute_candidate_combinations (Data &data);
 
     std::set<std::vector<std::vector<int>>> unique_combinations;
     std::vector<std::vector<std::vector<int>>> trips_combinations;

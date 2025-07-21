@@ -16,10 +16,10 @@ void Heuristic::create_initial_candidates (Data &data)
     int num_cyclic = cyclical_routes_set.size();
 
     // adicionar viagens até cumprir as demandas
-    add_trips_till_demands_are_met(data, nb_trains, num_valid, num_cyclic);
+    // add_trips_till_demands_are_met(data, nb_trains, num_valid, num_cyclic);
 
     // create maximum size combinations
-    // create_maximum_size_candidates(data, nb_trains, num_valid, num_cyclic);
+    create_maximum_size_candidates(data, nb_trains, num_valid, num_cyclic);
 
     for (int i = 0; i < candidate_combinations.size(); i++)
     {
@@ -329,7 +329,76 @@ void Heuristic::create_subsets (Data &data, int iter)
     }
 }
 
-// essa função vai deixar de existir
+bool Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> &current, int min_nb_trips)
+{
+    cout << endl << "Removing trips from current best combination..." << endl;
+
+    cout << "minimo de viagens: " << min_nb_trips << endl;
+
+    bool trips_met_demand = false;
+
+    candidate_combinations.clear();
+    vector<vector<vector<int>>> resultado;
+
+    size_t total_combinations = 1 << data.get_nb_trains(); // 2^n possibilities
+    for (size_t mask = 0; mask < total_combinations; mask++)
+    {
+        if (mask == 0) continue;
+        vector<vector<int>> aux_combination;
+
+        bool valid = true;
+        for (size_t i = 0; i < data.get_nb_trains(); i++)
+        {
+            // if bit is activated, try to remove it
+            if ((mask >> i) & 1)
+            {
+                // verify if bit is from a trip that can be removed
+                if (current[i].size() < min_nb_trips)
+                {
+                    valid = false;
+                    break;
+                }
+                aux_combination.push_back(vector<int>(current[i].begin(), current[i].end() - 1));
+            }
+            else
+            {
+                aux_combination.push_back(current[i]);  // trips stay the same for the train
+            }
+        }
+
+        if (valid)
+        {
+            if (verify_demands(data, aux_combination))
+            {
+                candidate_combinations.push_back(aux_combination);
+                trips_met_demand = true;  
+            }
+            else
+            {
+                trips_met_demand = false;
+            }
+        }
+    }
+
+    cout << "Diminuindo viagens..." << endl << endl;
+    for (int i = 0; i < candidate_combinations.size(); i++)
+    {
+        cout << "Combinação " << i+1 << ": " << endl;
+        for (int j = 0; j < candidate_combinations[i].size(); j++)
+        {
+            cout << "Trem " << j << ": ";
+            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
+            {
+                cout << candidate_combinations[i][j][k] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
+
+    return trips_met_demand;
+}
+
 bool Heuristic::add_trips (Data &data)
 {
     cout << endl << "Adding trips to candidate combinations..." << endl;

@@ -92,11 +92,12 @@ void Combinations::execute_heuristic (Data &data)
     vector<vector<vector<int>>> current;
     while (not_done)
     {
+        bool improved = false;
 
         // get current set of combinations from heuristic
         // cout << "Iter " << iter+1 << ": " << endl;
         total_nb_combinations = heuristic.candidate_combinations.size();
-        execute_candidate_combinations(data);
+        improved = execute_candidate_combinations(data);
 
         if (nb_feasible_combinations == 0)
         {
@@ -128,11 +129,26 @@ void Combinations::execute_heuristic (Data &data)
 
         }
 
-        
+        if (iter == 1)
+        {
+            cout << "improved " << improved << endl;
+            // exit(1);
+        }
+
         // if feasible solution was found...
         best_thread.get_best_combinations(data, current);
 
-        not_done = heuristic.add_trips(data); // increase number of trips
+        if (improved)
+        {
+            best_thread.tie_breaker(data, current);
+            not_done = heuristic.remove_trips(data, true, current[0], data.get_max_nb_trips()-iter-1); // decrease number of trips till demands are not met
+        }
+        else
+        {
+            not_done = false;
+        }
+
+        // not_done = heuristic.add_trips(data); // increase number of trips
 
         if (not_done == false)
         {
@@ -240,8 +256,10 @@ void Combinations::execute_all_combinations(Data &data)
     }
 }
 
-void Combinations::execute_candidate_combinations (Data &data)
+bool Combinations::execute_candidate_combinations (Data &data)
 {
+    bool improved = false;
+
     cout << "Solving candidate combinations..." << endl;
     counter_solved = 0;
 
@@ -275,6 +293,7 @@ void Combinations::execute_candidate_combinations (Data &data)
                     {
                         if (model_thread.best_sol[0].obj_value < best_thread.best_sol[0].obj_value)
                         {
+                            improved = true;
                             best_thread = model_thread;
                             best_bound = model_thread.best_sol[0].obj_value;
                         }
@@ -297,6 +316,8 @@ void Combinations::execute_candidate_combinations (Data &data)
             }
         }
     }
+
+    return improved;
 }
 
 bool Combinations::check_final_feasibility (Data &data, vector<vector<int>> &current)

@@ -10,6 +10,7 @@ public:
     std::vector<std::vector<std::vector<int>>> candidate_combinations;
 
     void create_initial_candidates (Data &data);
+    bool remove_trips (Data &data, bool feasible, std::vector<std::vector<int>> &current, int min_nb_trips);
     bool add_trips (Data &data);
     void change_trips (Data &data, std::vector<std::vector<int>> &current);
     void create_subsets (Data &data, int iter);
