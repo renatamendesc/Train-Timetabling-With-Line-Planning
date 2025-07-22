@@ -5,36 +5,16 @@ using namespace std;
 void Heuristic::create_initial_candidates (Data &data)
 {
     // próximo passo: criar conjunto a partir da mínima quantidade de viagens que atende as demandas
-
     create_cyclical_routes_set(data);
     create_initial_valid_routes_set(data);
 
     cout << endl << endl << "Creating initial set of candidate combinations..." << endl;
 
-    int nb_trains = data.get_nb_trains();
-    int num_valid = initial_valid_routes_set.size();
-    int num_cyclic = cyclical_routes_set.size();
-
     // adicionar viagens até cumprir as demandas
     // add_trips_till_demands_are_met(data, nb_trains, num_valid, num_cyclic);
 
     // create maximum size combinations
-    create_maximum_size_candidates(data, nb_trains, num_valid, num_cyclic);
-
-    for (int i = 0; i < candidate_combinations.size(); i++)
-    {
-        cout << "Combination " << i+1 << ": " << endl;
-        for (int j = 0; j < candidate_combinations[i].size(); j++)
-        {
-            cout << "Train " << j << ": ";
-            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
-            {
-                cout << candidate_combinations[i][j][k] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
+    create_maximum_size_candidates(data);
 }
 
 void Heuristic::add_trips_till_demands_are_met(Data &data, int nb_trains, int num_valid, int num_cyclic)
@@ -120,8 +100,12 @@ void Heuristic::add_trips_till_demands_are_met(Data &data, int nb_trains, int nu
     }
 }
 
-void Heuristic::create_maximum_size_candidates(Data &data, int nb_trains, int num_valid, int num_cyclic)
+void Heuristic::create_maximum_size_candidates(Data &data)
 {
+    int nb_trains = data.get_nb_trains();
+    int num_valid = initial_valid_routes_set.size();
+    int num_cyclic = cyclical_routes_set.size();
+
     // map initial routes done by each train
     vector<int> initial_indices(nb_trains, 0);
     bool done_initial = false;
@@ -196,6 +180,21 @@ void Heuristic::create_maximum_size_candidates(Data &data, int nb_trains, int nu
                 if (i == 0) done_initial = true;
             }
         }
+    }
+
+    for (int i = 0; i < candidate_combinations.size(); i++)
+    {
+        cout << "Combination " << i+1 << ": " << endl;
+        for (int j = 0; j < candidate_combinations[i].size(); j++)
+        {
+            cout << "Train " << j << ": ";
+            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
+            {
+                cout << candidate_combinations[i][j][k] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
     }
 }
 
@@ -431,7 +430,7 @@ void Heuristic::create_cyclical_routes_set(Data &data)
         cout << "Instance doesn't have any cyclical routes!" << endl;
 
         // chamar função que seleciona outro conjunto de rotas
-        try_new_set_of_routes(data);
+        // try_new_set_of_routes(data);
         // tentar rotas incompletas
         // formar um ciclo com rotas não cíclicas ??
     }
@@ -492,7 +491,40 @@ void Heuristic::create_initial_valid_routes_set(Data &data)
     // cout << endl << endl;
 }
 
-void Heuristic::try_new_set_of_routes(Data &data)
+void Heuristic::try_new_set_of_routes(Data &data, int iter_set)
 {
+    // add all cyclical routes
+    cyclical_routes_set.clear();
+    initial_valid_routes_set.clear();
 
+    // all cyclic routes included
+    for (int i = 0; i < data.get_nb_routes(); i++)
+    {
+        if (data.is_cyclic_route(i))
+            cyclical_routes_set.push_back(i);
+    }
+
+    create_initial_valid_routes_set(data);
+
+    // adicionar rotas não cíclicas completas
+
+    cout << "------------------------" << endl;
+    cout << "Rotas iniciais válidas: " << endl;
+    for (int i  = 0; i < initial_valid_routes_set.size(); i++)
+    {
+        cout << initial_valid_routes_set[i] << " ";
+    }
+    cout << endl << endl;
+
+    cout << "Rotas cíclicas válidas (após remoção): " << endl;
+    for (int i  = 0; i < cyclical_routes_set.size(); i++)
+    {
+        cout << cyclical_routes_set[i] << " ";
+    }
+    cout << endl << endl;
+
+    candidate_combinations.clear();
+    create_maximum_size_candidates(data); // verificar se a combinação tem novas rotas antes de adicionar
+
+    // exit(1);
 }

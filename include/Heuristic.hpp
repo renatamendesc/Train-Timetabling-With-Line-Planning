@@ -17,6 +17,8 @@ public:
 
     bool found_new_feasible_combination = false;
 
+    void try_new_set_of_routes(Data &data, int iter_set);
+
 private:
     std::vector <int> cyclical_routes_set;
     void create_cyclical_routes_set(Data &data);
@@ -24,9 +26,8 @@ private:
     void create_initial_valid_routes_set(Data &data);
 
     // create new set of selected routes
-    void try_new_set_of_routes(Data &data);
 
-    void create_maximum_size_candidates(Data &data, int nb_trains, int num_valid, int num_cyclic);
+    void create_maximum_size_candidates(Data &data);
     void add_trips_till_demands_are_met(Data &data, int nb_trains, int num_valid, int num_cyclic);
 
     bool verify_demands(Data &data, std::vector<std::vector<int>> &current);

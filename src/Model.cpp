@@ -47,21 +47,25 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
     // create constraints
     add_constraints(data);
 
+
     // create routes constraints
     for (int t = 0; t < routes_of_trains.size(); t++)
     {
-        vector<int> current = routes_of_trains[t];
+        vector<int> current = routes_of_trains[t];        
         for (int i = 0; i < current.size(); i++)
         {
             if (i < data.get_train_max_trips(t))
             {       
-                // if trip is not made                           
+                // if trip is not made
                 if (current[i] == data.get_nb_routes())
                 {
                     // assign variable equal to zero
                     for (int r = 0; r < data.get_nb_routes(); r++)
                     {
-                        constraints.add(lambda_[t][i][r] == 0);
+                        // make sure that route exists for the first trip
+                        // instead of adding the condition we could prohibit combinations where train does not complete any trips
+                        if (data.is_valid_route(t, i, r))
+                            constraints.add(lambda_[t][i][r] == 0);
                     }
                 }
                 else if (current[i] != -1)

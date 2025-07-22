@@ -16,6 +16,9 @@ Combinations::Combinations(Data &data, int threads, int strategy)
     {
         execute_enumeration(data);
         cout << "All combination(s) tested!" << endl;
+
+        // get number of feasible solutions
+        cout << nb_feasible_combinations << "/" << total_nb_combinations << " were feasible combination(s)!" << endl;
     }
     else if (strategy == 1) // executing heuristic
     {
@@ -34,9 +37,6 @@ Combinations::Combinations(Data &data, int threads, int strategy)
     // get optimal solution
     best_thread.get_solution(data, true);
 
-    // get number of feasible solutions
-    // if (strategy == 0)
-    //     cout << endl << nb_feasible_combinations << "/" << total_nb_combinations << " were feasible combination(s) (" << fixed << setprecision(5) << (double(nb_feasible_combinations) / total_nb_combinations) * 100 << "%)" << endl;
 }
 
 void Combinations::execute_enumeration(Data &data)
@@ -89,6 +89,7 @@ void Combinations::execute_heuristic (Data &data)
     heuristic.create_initial_candidates(data);
     total_nb_combinations = heuristic.candidate_combinations.size();
 
+    int iter_set = 0;
     int iter = 0;
     bool not_done = true;
     vector<vector<vector<int>>> current;
@@ -105,16 +106,19 @@ void Combinations::execute_heuristic (Data &data)
         {
             cout << "No feasible solution was found..." << endl;
 
+            iter_set++;
             iter++;
 
-            if (!heuristic.remove_trips(data, true, current[0], iter))
+            if (!heuristic.remove_trips(data, true, current[0], iter_set))
             {
-                cout << "Preciso flexibilizar os candidatos... (" << heuristic.candidate_combinations.size() << " candidatos)" << endl;
-                // seleciona novo conjunto de rotas
+                cout << "Going to try a new set of routes..." << endl;
+                heuristic.try_new_set_of_routes(data, iter_set);
+                iter_set = 0;
             }
             continue;
         }
 
+        iter_set++;
         iter++;
 
         // if feasible solution was found...
