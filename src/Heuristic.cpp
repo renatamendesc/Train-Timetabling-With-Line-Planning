@@ -199,120 +199,60 @@ void Heuristic::create_maximum_size_candidates(Data &data, int nb_trains, int nu
     }
 }
 
-void Heuristic::create_subsets (Data &data, int iter)
+void Heuristic::create_subsets (Data &data, vector<vector<vector<int>>> &aux_candidates, vector<vector<int>> &current, int max_nb_trips)
 {
-    // criar todas as combinações de todos os tamanhos
-    cout << endl << "Creating subsets from initial candidate combinations..." << endl;
-
-    int nb_trains = data.get_nb_trains();
-    int num_valid = initial_valid_routes_set.size();
-    int num_cyclic = cyclical_routes_set.size();
-
-    vector <int> max_trips_iter(nb_trains);
-    int max_nb_trips_iter = 0;
-    for (int i = 0; i < nb_trains; i++)
+    size_t total_combinations = 1 << data.get_nb_trains(); // 2^n possibilities
+    for (size_t mask = 0; mask < total_combinations; mask++)
     {
-        if (data.get_train_max_trips(i) < data.get_max_nb_trips()/*-iter*/)
-            max_trips_iter[i] = data.get_train_max_trips(i);
-        else
-            max_trips_iter[i] = data.get_max_nb_trips()/*-iter*/;
+        if (mask == 0) continue;
+        vector<vector<int>> aux_combination;
 
-        if (max_nb_trips_iter < max_trips_iter[i])
-            max_nb_trips_iter = max_trips_iter[i];
-    }
-
-    // map initial routes done by each train
-    vector<int> initial_indices(nb_trains, 0);
-    bool done_initial = false;
-    while (!done_initial)
-    {
-        // map cyclical routes done by each train
-        vector<int> cyclic_indices(nb_trains, 0);
-        bool done_cyclic = false;
-        while (!done_cyclic)
+        bool valid = true;
+        for (size_t i = 0; i < data.get_nb_trains(); i++)
         {
-            vector<vector<int>> combination;
-            bool valid_combination = true;
-            for (int t = 0; t < nb_trains; t++)
+            // if bit is activated, try to remove it
+            if ((mask >> i) & 1)
             {
-                int nb_trips = max_trips_iter[t];
-                vector<int> routes_of_train(nb_trips);
-
-                // choose initial trip
-                routes_of_train[0] = initial_valid_routes_set[initial_indices[t]];
-
-                // choose cyclical route
-                for (int k = 1; k < nb_trips; k++)
+                // verify if bit is from a trip that can be removed
+                if (current[i].size() < max_nb_trips)
                 {
-                    routes_of_train[k] = cyclical_routes_set[cyclic_indices[t]];
-                }
-
-                // verify whether sequence of routes is compatible
-                if (verify_compatibility(data, routes_of_train))
-                {
-                    combination.push_back(routes_of_train);
-                }
-                else
-                {
-                    valid_combination = false;
-                }
-            }
-
-            if (valid_combination && verify_demands(data, combination))
-            {
-                if (!found_new_feasible_combination)
-                {
-                    found_new_feasible_combination = true;
-                    candidate_combinations.clear();
-                }
-                // cout << "cumpriu demandas" << endl;
-                candidate_combinations.push_back(combination);
-
-                cout << "Combination: " << endl;
-                for (int j = 0; j < combination.size(); j++)
-                {
-                    cout << "Train " << j << ": ";
-                    for (int k = 0; k < combination[j].size(); k++)
-                    {
-                        cout << combination[j][k] << " ";
-                    }
-                    cout << endl;
-                }
-            }
-
-            if (max_nb_trips_iter == 1)
-                break;
-
-            // increment cyclical indeces
-            for (int i = nb_trains - 1; i >= 0; i--)
-            {
-                if (++cyclic_indices[i] < num_cyclic)
-                {
+                    valid = false;
                     break;
                 }
-                else
-                {
-                    cyclic_indices[i] = 0;
-                    if (i == 0) done_cyclic = true;
-                }
-            }
-        }
-
-        // increment initial indices
-        for (int i = nb_trains-1; i >= 0; i--)
-        {
-            if (++initial_indices[i] < num_valid)
-            {
-                break;
+                aux_combination.push_back(vector<int>(current[i].begin(), current[i].end() - 1));
             }
             else
             {
-                initial_indices[i] = 0;
-                if (i == 0) done_initial = true;
+                aux_combination.push_back(current[i]);  // trips stay the same for the train
             }
         }
+
+        if (valid && verify_demands(data, aux_combination))
+        {
+            aux_candidates.push_back(aux_combination);
+        }
+    }
+}
+
+bool Heuristic::remove_trips (Data &data, bool remove_from_all_candiates, vector<vector<int>> &current, int iter)
+{
+    if (remove_from_all_candiates)
+    {
+        vector<vector<vector<int>>> aux_candidates;
+        for (int i = 0; i < candidate_combinations.size(); i++)
+        {
+            create_subsets(data, aux_candidates, candidate_combinations[i], data.get_max_nb_trips()-iter);
+        }
+        candidate_combinations = aux_candidates;
+    }
+    else
+    {
+        vector<vector<vector<int>>> aux_candidates;
+        create_subsets(data, aux_candidates, current, data.get_max_nb_trips()-iter);
+        candidate_combinations = aux_candidates;
     }
 
+    cout << "Removing trips..." << endl << endl;
     for (int i = 0; i < candidate_combinations.size(); i++)
     {
         cout << "Combination " << i+1 << ": " << endl;
@@ -327,76 +267,12 @@ void Heuristic::create_subsets (Data &data, int iter)
         }
         cout << endl;
     }
-}
 
-bool Heuristic::remove_trips (Data &data, bool feasible, vector<vector<int>> &current, int min_nb_trips)
-{
-    cout << endl << "Removing trips from current best combination..." << endl;
-
-    cout << "minimo de viagens: " << min_nb_trips << endl;
-
-    bool trips_met_demand = false;
-
-    candidate_combinations.clear();
-    vector<vector<vector<int>>> resultado;
-
-    size_t total_combinations = 1 << data.get_nb_trains(); // 2^n possibilities
-    for (size_t mask = 0; mask < total_combinations; mask++)
-    {
-        if (mask == 0) continue;
-        vector<vector<int>> aux_combination;
-
-        bool valid = true;
-        for (size_t i = 0; i < data.get_nb_trains(); i++)
-        {
-            // if bit is activated, try to remove it
-            if ((mask >> i) & 1)
-            {
-                // verify if bit is from a trip that can be removed
-                if (current[i].size() < min_nb_trips)
-                {
-                    valid = false;
-                    break;
-                }
-                aux_combination.push_back(vector<int>(current[i].begin(), current[i].end() - 1));
-            }
-            else
-            {
-                aux_combination.push_back(current[i]);  // trips stay the same for the train
-            }
-        }
-
-        if (valid)
-        {
-            if (verify_demands(data, aux_combination))
-            {
-                candidate_combinations.push_back(aux_combination);
-                trips_met_demand = true;  
-            }
-            else
-            {
-                trips_met_demand = false;
-            }
-        }
-    }
-
-    cout << "Diminuindo viagens..." << endl << endl;
-    for (int i = 0; i < candidate_combinations.size(); i++)
-    {
-        cout << "Combinação " << i+1 << ": " << endl;
-        for (int j = 0; j < candidate_combinations[i].size(); j++)
-        {
-            cout << "Trem " << j << ": ";
-            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
-            {
-                cout << candidate_combinations[i][j][k] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
-
-    return trips_met_demand;
+    // if there are no candidates, it means demands were not met
+    if (candidate_combinations.empty())
+        return false;
+    else
+        return true;
 }
 
 bool Heuristic::add_trips (Data &data)

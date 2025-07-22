@@ -10,10 +10,10 @@ public:
     std::vector<std::vector<std::vector<int>>> candidate_combinations;
 
     void create_initial_candidates (Data &data);
-    bool remove_trips (Data &data, bool feasible, std::vector<std::vector<int>> &current, int min_nb_trips);
+    bool remove_trips (Data &data, bool remove_from_all_candiates, std::vector<std::vector<int>> &current, int iter);
     bool add_trips (Data &data);
     void change_trips (Data &data, std::vector<std::vector<int>> &current);
-    void create_subsets (Data &data, int iter);
+    void create_subsets (Data &data, std::vector<std::vector<std::vector<int>>> &aux_candidates, std::vector<std::vector<int>> &current, int max_nb_trips);
 
     bool found_new_feasible_combination = false;
 

@@ -107,35 +107,15 @@ void Combinations::execute_heuristic (Data &data)
 
             iter++;
 
-            if (iter == 1)
-            {
-                heuristic.create_subsets(data, iter); // verificar se faz sentido o valor de iter
-                if (heuristic.found_new_feasible_combination)
-                {
-                    continue;
-                }
-                else
-                {
-                    iter++;
-                }
-            }
-
-            if (iter == 2)
+            if (!heuristic.remove_trips(data, true, current[0], iter))
             {
                 cout << "Preciso flexibilizar os candidatos... (" << heuristic.candidate_combinations.size() << " candidatos)" << endl;
-                // seleciona do conjunto inicial de candidatos
-                // flexibiliza selecionado(s)
-                // if (viavel) -> encerra
-                // else -> tenta com novo conjunto
+                // seleciona novo conjunto de rotas
             }
-
+            continue;
         }
 
-        if (iter == 1)
-        {
-            cout << "improved " << improved << endl;
-            // exit(1);
-        }
+        iter++;
 
         // if feasible solution was found...
         best_thread.get_best_combinations(data, current);
@@ -143,53 +123,25 @@ void Combinations::execute_heuristic (Data &data)
         if (improved)
         {
             best_thread.tie_breaker(data, current);
-            not_done = heuristic.remove_trips(data, true, current[0], data.get_max_nb_trips()-iter-1); // decrease number of trips till demands are not met
+            if (!heuristic.remove_trips(data, false, current[0], iter)) // decrease number of trips till demands are not met
+            {
+                cout << "Terminating at iteration " << iter << endl;
+                break;
+            }    
         }
-        else
-        {
-            not_done = false;
-        }
-
-        // not_done = heuristic.add_trips(data); // increase number of trips
-
-        if (not_done == false)
-        {
-            cout << "Terminating at iteration " << iter << endl;
-        }
-
-        iter++;
-
     }
 
     // execute tie breaker
     if (current.size() > 1)
         best_thread.tie_breaker(data, current);
     
+    // allow model to choose the last trips completed by the trains
     heuristic.change_trips(data, current[0]);
     best_thread.best_sol.push_back(best_thread.current_sol);
     best_thread.initialize(data);
     best_thread.run_with_routes_constraints(data, current[0], best_bound);
 
-    // // execute all best symmetrical solutions
-    // for (int i = 0; i < current.size(); i++)
-    // {        
-    //     heuristic.change_trips(data, current[i]);
-
-    //     if (i == 0)
-    //     {
-    //         best_thread.best_sol.push_back(best_thread.current_sol);
-    //         best_thread.initialize(data);
-    //     }
-    //     else
-    //     {
-    //         best_thread.reset(data);
-    //     }
-
-    //     best_thread.run_with_routes_constraints(data, current[i], best_bound);
-    // }
-
     best_thread.get_best_combinations(data, current);
-
 }
 
 void Combinations::execute_all_combinations(Data &data)
