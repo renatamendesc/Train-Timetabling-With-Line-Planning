@@ -1,80 +1,91 @@
-CPLEX_VERSION = 2211
+# —————————————————————————————————————————————————————————————
+# 1) VERSÃO CPLEX e DIRETÓRIOS
+# —————————————————————————————————————————————————————————————
+CPLEX_VERSION = 2212
+BASE_DIR     = /opt/ibm/ILOG/CPLEX_Studio$(CPLEX_VERSION)
 
-#detecta se o sistema é de 32 ou 64 bits
-BITS_OPTION = -m64
-
-####diretorios com as libs do cplex
-####diretorios com as libs do cplex
-ifeq ($(shell uname),Darwin) # If OS X
-	CPLEXDIR  = ~/Applications/IBM/ILOG/CPLEX_Studio201/cplex
-	CONCERTDIR = ~/Applications/IBM/ILOG/CPLEX_Studio201/concert
-	
-	CPLEXLIBDIR   = $(CPLEXDIR)/lib/x86-64_osx/static_pic
-	CONCERTLIBDIR = $(CONCERTDIR)/lib/x86-64_osx/static_pic
-else # Other unix
-	CPLEXDIR  = /opt/ibm/ILOG/CPLEX_Studio201/cplex
-	CONCERTDIR = /opt/ibm/ILOG/CPLEX_Studio201/concert
-	
-	CPLEXLIBDIR   = $(CPLEXDIR)/lib/x86-64_linux/static_pic
-	CONCERTLIBDIR = $(CONCERTDIR)/lib/x86-64_linux/static_pic
+ifeq ($(shell uname),Darwin)
+  CPLEXLIBDIR   = $(BASE_DIR)/cplex/lib/x86-64_osx/static_pic
+  CONCERTLIBDIR = $(BASE_DIR)/concert/lib/x86-64_osx/static_pic
+else
+  CPLEXLIBDIR   = $(BASE_DIR)/cplex/lib/x86-64_linux/static_pic
+  CONCERTLIBDIR = $(BASE_DIR)/concert/lib/x86-64_linux/static_pic
 endif
 
-# CPLEXDIR  = /Applications/CPLEX_Studio$(CPLEX_VERSION)/cplex
-# CONCERTDIR = /Applications/CPLEX_Studio$(CPLEX_VERSION)/concert
-   
-# CPLEXLIBDIR   = $(CPLEXDIR)/lib/arm64_osx/static_pic
-# CONCERTLIBDIR = $(CONCERTDIR)/lib/arm64_osx/static_pic
+CONCERTINCDIR = $(BASE_DIR)/concert/include
+CPLEXINCDIR   = $(BASE_DIR)/cplex/include
 
-#### define o compilador
-CPPC = g++
-#############################
+# —————————————————————————————————————————————————————————————
+# 2) COMPILADORES E FLAGS
+# —————————————————————————————————————————————————————————————
+# Compiladores
+HOSTCC = nvcc
+NVCC   = nvcc
+LD     = nvcc  # <--- alterado de g++ para nvcc
 
-#### opcoes de compilacao e includes
-CCOPT = $(BITS_OPTION) -O3 -fPIC -fexceptions -DNDEBUG -DIL_STD -std=c++17
-CONCERTINCDIR = $(CONCERTDIR)/include
-CPLEXINCDIR   = $(CPLEXDIR)/include
-CCFLAGS = $(CCOPT) -fopenmp -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) -Iinclude  
-#############################
+# Flags
+HOSTFLAGS = -m64 -O3 -Xcompiler="-fPIC -fexceptions -DNDEBUG -DIL_STD" \
+            -std=c++17 -Xcompiler -fopenmp \
+            -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) -Iinclude
 
-#### flags do linker
-CCLNFLAGS = -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -lpthread -ldl -fopenmp
-#############################
+NVCCFLAGS = -m64 -O3 -std=c++17 \
+            -Xcompiler="-fPIC -fexceptions -DNDEBUG" \
+            -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) -Iinclude
 
-#### diretorios com os source files e com os objs files
-SRCDIR = src
-OBJDIR = obj
-#############################
+LDFLAGS  = -m64 \
+           -L$(CPLEXLIBDIR) -lilocplex -lcplex \
+           -L$(CONCERTLIBDIR) -lconcert \
+           -lm -lpthread -ldl -fopenmp
 
-#### lista de todos os srcs e todos os objs
-SRCS = $(wildcard $(SRCDIR)/*.cpp)
-OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
-#############################
+# —————————————————————————————————————————————————————————————
+# 3) SRC/OBJ DIRETÓRIOS E EXTENSÕES
+# —————————————————————————————————————————————————————————————
+SRCDIR    = src
+OBJDIR    = obj
 
-#### regra principal, gera o executavel
-cbtu: $(OBJS) 
-	@echo  "\033[31m \nLinking all objects files: \033[0m"
-	$(CPPC) $(BITS_OPTION) $(OBJS) -o $@ $(CCLNFLAGS)
-############################
+# Removemos Combinations.cpp manualmente daqui
+CPP_SRCS  = $(filter-out $(SRCDIR)/Combinations.cpp, $(wildcard $(SRCDIR)/*.cpp))
+CU_SRCS   = $(wildcard $(SRCDIR)/*.cu)
+CUH_HDRS  = $(wildcard $(SRCDIR)/*.cuh)
 
-#inclui os arquivos de dependencias
--include $(OBJS:.o=.d)
+CPP_OBJS  = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CPP_SRCS))
+CU_OBJS   = $(patsubst $(SRCDIR)/%.cu, $(OBJDIR)/%.cu.o, $(CU_SRCS))
+OBJS      = $(CPP_OBJS) $(CU_OBJS) $(OBJDIR)/Combinations.o
 
-#regra para cada arquivo objeto: compila e gera o arquivo de dependencias do arquivo objeto
-#cada arquivo objeto depende do .c e dos headers (informacao dos header esta no arquivo de dependencias gerado pelo compiler)
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	@echo  "\033[31m \nCompiling $<: \033[0m"
-	$(CPPC) $(CCFLAGS) -c $< -o $@
-	@echo  "\033[32m \ncreating $< dependency file: \033[0m"
-	$(CPPC) -std=c++0x $(CCFLAGS) -MM $< > $(basename $@).d
-	@mv -f $(basename $@).d $(basename $@).d.tmp #proximas tres linhas colocam o diretorio no arquivo de dependencias (g++ nao coloca, surprisingly!)
-	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
-	@rm -f $(basename $@).d.tmp
+# —————————————————————————————————————————————————————————————
+# 4) ALVO PRINCIPAL
+# —————————————————————————————————————————————————————————————
+cbtu: $(OBJS)
+	@echo "\n\033[31mLinking all objects into $@ …\033[0m"
+	$(LD) -o $@ $(OBJS) $(LDFLAGS)
 
-#delete objetos e arquivos de dependencia
+# —————————————————————————————————————————————————————————————
+# 5) REGRAS DE COMPILAÇÃO
+# —————————————————————————————————————————————————————————————
+
+# 5.1) Compilar Combinations.cpp com nvcc -x cu (reconhece <<<>>>)
+$(OBJDIR)/Combinations.o: $(SRCDIR)/Combinations.cpp $(CUH_HDRS)
+	@mkdir -p $(OBJDIR)
+	@echo "Compiling CUDA host+kernel $< with nvcc…"
+	$(NVCC) $(NVCCFLAGS) -x cu -c $< -o $@
+
+# 5.2) Regra genérica para demais .cpp
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(CUH_HDRS)
+	@mkdir -p $(OBJDIR)
+	@echo "Compiling $< with $(HOSTCC)…"
+	$(HOSTCC) $(HOSTFLAGS) -c $< -o $@
+
+# 5.3) Regras para arquivos .cu (com extensão .cu.o)
+$(OBJDIR)/%.cu.o: $(SRCDIR)/%.cu $(CUH_HDRS)
+	@mkdir -p $(OBJDIR)
+	@echo "Compiling CUDA kernel $< with nvcc…"
+	$(NVCC) $(NVCCFLAGS) -c $< -o $@
+
+# —————————————————————————————————————————————————————————————
+# 6) LIMPEZA
+# —————————————————————————————————————————————————————————————
 clean:
-	@echo "\033[31mcleaning obj directory \033[0m"
-	@rm cbtu -f $(OBJDIR)/*.o $(OBJDIR)/*.d
-
+	@echo "\n\033[31mCleaning $(OBJDIR) and binary\033[0m"
+	@rm -f cbtu $(OBJDIR)/*.{o,cu.o,d}
 
 rebuild: clean cbtu
-

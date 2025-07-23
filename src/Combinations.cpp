@@ -1,6 +1,143 @@
 #include <Combinations.hpp>
+#include "CombinationsKernel.cuh"
+#include <cuda_runtime.h>
 
 using namespace std;
+
+// --------------------------------------------------
+// 3) Host: cópia do demand_per_day e lançamento
+// --------------------------------------------------
+void Combinations::execute_all_combinations_hybrid(Data &data) {
+    // 1) compute total combinations and trips_sizes
+    total_nb_combinations = 1;
+    std::vector<int> trips_sizes(nb_trains);
+    for (int k = 0; k < nb_trains; ++k) {
+        trips_sizes[k] = trips_combinations[k].size();
+        total_nb_combinations *= trips_sizes[k];
+    }
+    aux_progress = std::ceil(0.1 * total_nb_combinations);
+    if (aux_progress == 0) aux_progress = 1;
+
+    // 2) prepare models per CPU thread
+    std::vector<Model> models(nb_threads);
+    for (int t = 0; t < nb_threads; ++t)
+        models[t].initialize(data);
+
+    cudaMalloc(&d_trips_sizes,       nb_trains*sizeof(int));
+    cudaMalloc(&d_trip_route_idx,    nb_trains*max_routes_per_train*sizeof(int));
+    cudaMalloc(&d_route_lengths,     total_routes*sizeof(int));
+    cudaMalloc(&d_route_offsets,     total_routes*sizeof(int));
+    cudaMalloc(&d_flat_routes,       total_flat*sizeof(int));
+    cudaMalloc(&d_demand_per_day,    nb_vertices*sizeof(int));
+
+    // Copy constant GPU data once (outside OMP region)
+    cudaMemcpy(d_trips_sizes,       trips_sizes.data(),
+               nb_trains * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_trip_route_idx,    host_trip_route_idx,
+               nb_trains * max_routes_per_train * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_route_lengths,     host_route_lengths,
+               total_routes * sizeof(int),  cudaMemcpyHostToDevice);
+    cudaMemcpy(d_route_offsets,     host_route_offsets,
+               total_routes * sizeof(int),  cudaMemcpyHostToDevice);
+    cudaMemcpy(d_flat_routes,       host_flat_routes,
+               total_flat * sizeof(int),   cudaMemcpyHostToDevice);
+
+    int nb_vertices = data.get_nb_vertices();
+    cudaMemcpy(d_demand_per_day,
+               data.get_demand_per_day().data(),
+               nb_vertices * sizeof(int),
+               cudaMemcpyHostToDevice);
+
+    // 3) parallel region over CPU threads
+    #pragma omp parallel num_threads(nb_threads)
+    {
+        int tid = omp_get_thread_num();
+        cudaStream_t stream;
+        cudaStreamCreate(&stream);
+
+        unsigned long long chunk_size =
+            (total_nb_combinations + nb_threads - 1) / nb_threads;
+        unsigned long long start_idx = tid * chunk_size;
+        unsigned long long end_idx   = std::min(start_idx + chunk_size, total_nb_combinations);
+        size_t n_chunk = end_idx - start_idx;
+
+        bool* d_flags = nullptr;
+        cudaMallocAsync(&d_flags, n_chunk * sizeof(bool), stream);
+
+        int threadsPerBlock = 256;
+        int blocks = (n_chunk + threadsPerBlock - 1) / threadsPerBlock;
+        size_t shared_mem = nb_trains * sizeof(int);
+         processCombinationsKernel<<<
+            blocks, threadsPerBlock, shared_mem, stream
+        >>>(
+            d_trips_sizes,
+            d_trip_route_idx,
+            d_route_lengths,
+            d_route_offsets,
+            d_flat_routes,
+            d_demand_per_day,      
+            nb_vertices,           
+            nb_trains,
+            max_routes_per_train,
+            total_nb_combinations,
+            start_idx,
+            d_flags
+        );
+        cudaStreamSynchronize(stream);
+
+        std::vector<char> h_flags(n_chunk);
+        cudaMemcpyAsync(&h_flags[0], d_flags,
+                        n_chunk * sizeof(bool),
+                        cudaMemcpyDeviceToHost,
+                        stream);
+        cudaStreamSynchronize(stream);
+
+        Model &model = models[tid];
+        for (size_t offset = 0; offset < n_chunk; ++offset) {
+            if (!h_flags[offset]) continue;
+            unsigned long long count = start_idx + offset;
+            unsigned long long idx = count;
+            std::vector<int> indices(nb_trains);
+            for (int k = nb_trains - 1; k >= 0; --k) {
+                indices[k] = idx % trips_combinations[k].size();
+                idx /= trips_combinations[k].size();
+            }
+            std::vector<std::vector<int>> current(nb_trains);
+            for (int k = 0; k < nb_trains; ++k)
+                current[k] = trips_combinations[k][indices[k]];
+
+            // full feasibility check on CPU
+            if (!check_final_feasibility(data, current)) continue;
+
+            model.reset(data);
+            bool feas = model.run_with_routes_constraints(data, current, best_bound);
+            if (feas) {
+                #pragma omp atomic
+                nb_feasible_combinations++;
+                #pragma omp critical
+                {
+                    if (model.best_sol.obj_value <= best_thread.best_sol.obj_value) {
+                        best_thread = model;
+                        best_bound  = model.best_sol.obj_value;
+                    }
+                }
+            }
+        }
+
+        #pragma omp atomic
+        counter_solved += n_chunk;
+        if (counter_solved % aux_progress == 0) {
+            std::cout << (counter_solved/aux_progress) * 10 << "% done - "
+                      << counter_solved << "/" << total_nb_combinations
+                      << " (Thread " << tid << ")" << std::endl;
+        }
+
+        cudaFreeAsync(d_flags, stream);
+        cudaStreamDestroy(stream);
+    }
+}
+
+
 
 Combinations::Combinations(Data &data, int threads, int strategy)
 {
@@ -77,7 +214,7 @@ void Combinations::execute_enumeration(Data &data)
     }
 
     cout << "Starting to test combinations... - Total number of combinations = " << total_nb_combinations << endl;
-    execute_all_combinations(data);
+    execute_all_combinations_hybrid(data);
 }
 
 void Combinations::execute_heuristic (Data &data)
