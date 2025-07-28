@@ -91,9 +91,9 @@ void Combinations::execute_heuristic (Data &data)
 
     int iter_set = 0;
     int iter = 0;
-    bool not_done = true;
+    bool tried_new = false;
     vector<vector<vector<int>>> current;
-    while (not_done)
+    while (true)
     {
         bool improved = false;
 
@@ -111,9 +111,19 @@ void Combinations::execute_heuristic (Data &data)
 
             if (!heuristic.remove_trips(data, true, current[0], iter_set))
             {
+                if (tried_new)
+                {
+                    // flexibilizar todos
+                    heuristic.change_trips(data, true, current[0]);
+                    continue;
+                }
+
+                // se entrar aqui mais de uma vez: ou rodar flexibilizar todas combinations (custoso)
+                // ou incrementar novamente o conjunto de rotas
                 cout << "Going to try a new set of routes..." << endl;
                 heuristic.try_new_set_of_routes(data, iter_set);
                 iter_set = 0;
+                tried_new = true;
             }
             continue;
         }
@@ -133,6 +143,10 @@ void Combinations::execute_heuristic (Data &data)
                 break;
             }    
         }
+        else
+        {
+            break;
+        }
     }
 
     // execute tie breaker
@@ -140,7 +154,7 @@ void Combinations::execute_heuristic (Data &data)
         best_thread.tie_breaker(data, current);
     
     // allow model to choose the last trips completed by the trains
-    heuristic.change_trips(data, current[0]);
+    heuristic.change_trips(data, false, current[0]);
     best_thread.best_sol.push_back(best_thread.current_sol);
     best_thread.initialize(data);
     best_thread.run_with_routes_constraints(data, current[0], best_bound);

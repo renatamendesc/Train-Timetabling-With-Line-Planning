@@ -1,0 +1,70 @@
+Results generated on seg 28 jul 2025 10:52:57 -03
+Set of instances: instances-small
+Method: heuristic
+Number of threads: 4
+-------------------------------------------
+t2p10h2.txt:
+-> Solution value: 39224
+-> Total time: 0.34
+
+t2p4h1.txt:
+-> Solution value: 13205
+-> Total time: 0.10
+
+t2p4h2.txt:
+-> Solution value: 6693
+-> Total time: 0.10
+
+t2p4h3.txt:
+-> Solution value: 22014
+-> Total time: 0.15
+
+t2p5h1.txt:
+-> Solution value: 5638
+-> Total time: 0.11
+
+t2p6h2.txt:
+-> Solution value: 6329
+-> Total time: 0.25
+
+t3p10h2.txt:
+-> Solution value: 9376
+-> Total time: 4.87
+
+t3p3h3.txt:
+-> Solution value: 14631
+-> Total time: 0.51
+
+t3p6h1.txt:
+-> Solution value: 220
+-> Total time: 0.32
+
+t3p8h2.txt:
+-> Solution value: 4807
+-> Total time: 4.73
+
+t3p9h1A.txt:
+-> Solution value: 202
+-> Total time: 0.66
+
+t3p9h1.txt:
+-> Solution value: 7409
+-> Total time: 12.47
+
+t4p6h1.txt:
+-> Solution value: 4766
+-> Total time: 0.61
+
+t5p5h4.txt:
+-> Solution value: 40125
+-> Total time: 3.20
+
+t5p6h1.txt:
+-> Solution value: 821
+-> Total time: 13.07
+
+t5p6h4.txt:
+-> Solution value: 
+-> Total time: 
+
+t5p7h1.txt:
