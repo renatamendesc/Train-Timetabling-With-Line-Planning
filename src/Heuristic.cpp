@@ -523,7 +523,7 @@ void Heuristic::create_cyclical_routes_set(Data &data)
     {
         cout << "Instance does not have any cyclical routes..." << endl;
         cout << "\t> Cannot solve current instance with heuristic method!" << endl;
-        exit(1);
+        exit(0);
 
         // create_artificial_cycles(data);
 

@@ -23,7 +23,20 @@ Combinations::Combinations(Data &data, int threads, int strategy)
     else if (strategy == 1) // executing heuristic
     {
         execute_heuristic(data);
-    }  
+    }
+
+    // verify whether feasible solution was found
+    if (nb_feasible_combinations == 0)
+    {
+        if (strategy == 0)
+        {
+            cout << "\t> Instance is infeasible!" << endl;
+        }
+        else
+        {
+            cout << "\t> Couldn't find feasible solutions with heuristic method!" << endl;
+        }
+    }
 
     // finish counting time
     auto end = chrono::steady_clock::now();
@@ -96,6 +109,12 @@ void Combinations::execute_heuristic (Data &data)
     while (true)
     {
         bool improved = false;
+
+        if (heuristic.candidate_combinations.empty())
+        {
+            cout << "\t> Couldn't find any feasible combinations!" << endl;
+            exit(0);
+        }
 
         // get current set of combinations from heuristic
         // cout << "Iter " << iter+1 << ": " << endl;
