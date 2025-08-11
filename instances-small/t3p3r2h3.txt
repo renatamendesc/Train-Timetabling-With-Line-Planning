@@ -1,0 +1,74 @@
+#num_trains
+3
+
+#num_trips
+2   2   2   
+
+#num_intervals
+3
+
+#time_intervals
+0     10011
+10012     20022
+20023     30033
+
+#num_points
+3
+
+#num_stations
+2
+
+#stations
+0   2   
+
+#num_crossings
+3
+
+#crossings
+0   2   1   
+
+#num_depots
+2
+
+#depots
+0   2   
+
+#initial_point
+2
+
+#num_routes
+2
+
+#routes
+0   1   2   5   4   3   0   
+5   4   3   0   1   2   5   
+
+#service_time_min
+199   44   199   
+
+#service_time_max
+303   303   303   
+
+#cost_matrix
+    0    1    2    3    4    5
+0   -1   2279   -1   0   -1   -1
+1   -1   -1   2054   -1   -1   -1
+2   -1   -1   -1   -1   -1   0
+3   0   -1   -1   -1   -1   -1
+4   -1   -1   -1   2279   -1   -1
+5   -1   -1   0   -1   2054   -1
+
+#demands
+1 1 1 
+0 0 0 
+0 0 0 
+0 0 0 
+0 0 0 
+1 1 1 
+
+#max_time
+30033
+
+#alpha
+77
+

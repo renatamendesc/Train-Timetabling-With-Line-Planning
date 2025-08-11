@@ -839,6 +839,19 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound)
     {
         cout << endl << ">> Solving..." << endl;
 
+        // get number of physical cores
+        ifstream f("/proc/cpuinfo");
+        string line, pid, cid;
+        set<string> uniq;
+        while (std::getline(f, line)) {
+            if (line.rfind("physical id", 0) == 0) pid = line.substr(line.find(":") + 2);
+            else if (line.rfind("core id", 0) == 0) {
+                cid = line.substr(line.find(":") + 2);
+                uniq.insert(pid + "-" + cid);
+            }
+        }
+        cplex.setParam(IloCplex::Threads, uniq.size());
+
         auto start = chrono::steady_clock::now();
         cplex.solve();
         auto end = chrono::steady_clock::now();

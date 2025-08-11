@@ -94,6 +94,5 @@ file_graph = "solutions/graphs/" + instance + ".png"
 plt.savefig(file_graph, dpi=300, bbox_inches='tight')
 plt.show()
 
-
 plt.close()
 os.remove(file_name)
