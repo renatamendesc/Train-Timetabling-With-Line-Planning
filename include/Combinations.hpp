@@ -19,6 +19,15 @@ public:
     Combinations(Data &data, int threads, int strategy);
 
 private:
+
+    std::chrono::time_point<std::chrono::steady_clock> start;
+    std::chrono::time_point<std::chrono::steady_clock> end;
+
+    int time_limit_per_combination;
+    int time_limit_complete = 43200;
+
+    bool proved_optimal = true;
+
     Model best_thread;
     Heuristic heuristic;
 

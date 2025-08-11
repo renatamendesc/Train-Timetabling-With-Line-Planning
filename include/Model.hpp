@@ -47,11 +47,11 @@ public:
     void reset (Data &data);
 
     void run (Data &data);
-    int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound);
+    int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound, int time_limit);
 
     void tie_breaker(Data &data, std::vector<std::vector<std::vector<int>>> &combinations);
 
-    void get_solution (Data &data, bool is_final_solution);
+    void get_solution (Data &data, bool is_final_solution, bool print_gap);
     void get_best_combinations (Data &data, std::vector<std::vector<std::vector<int>>> &combination);
     void get_graph (Data &data);
 
@@ -74,7 +74,7 @@ private:
     void add_variables (Data &data);
     void add_constraints (Data &data);
 
-    int extract_solution (Data &data, bool is_final_solution, int best_bound);
+    int extract_solution (Data &data, bool is_final_solution, int best_bound, int time_limit);
 
     void get_value_of_variables (Data &data, IloCplex &cplex, bool is_final_solution);
 

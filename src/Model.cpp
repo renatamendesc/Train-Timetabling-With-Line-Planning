@@ -31,10 +31,10 @@ void Model::run (Data &data)
     model.add(constraints);
 
     // extract solution from the model
-    extract_solution(data, true, __INT_MAX__);
+    extract_solution(data, true, __INT_MAX__, 43200);
 }
 
-int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains, int best_bound)
+int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains, int best_bound, int time_limit)
 {
     // create decision variables
     add_variables(data);
@@ -46,7 +46,6 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
 
     // create constraints
     add_constraints(data);
-
 
     // create routes constraints
     for (int t = 0; t < routes_of_trains.size(); t++)
@@ -79,7 +78,7 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
     model.add(constraints);
 
     // extract solution from the model
-    return extract_solution(data, false, best_bound);
+    return extract_solution(data, false, best_bound, time_limit);
 }
 
 void Model::add_variables (Data &data)
@@ -787,14 +786,15 @@ void Model::add_constraints (Data &data)
     // constraints.add(lambda_[2][2][0] == 0); constraints.add(lambda_[2][2][1] == 0); constraints.add(lambda_[2][2][2] == 0); constraints.add(lambda_[2][2][3] == 0); constraints.add(lambda_[2][2][5] == 0);
 }
 
-int Model::extract_solution(Data &data, bool is_final_solution, int best_bound)
+int Model::extract_solution(Data &data, bool is_final_solution, int best_bound, int time_limit)
 {
     IloCplex cplex(env);
 
     // set parameters
     cplex.setParam(IloCplex::ClockType, 2);
-    cplex.setParam(IloCplex::TiLim, 43200); // set time limit of 12 hours
-    cplex.setWarning(env.getNullStream());  // silence warnings
+    cplex.setParam(IloCplex::TiLim, time_limit); // set time limit minutes (12 hours for model)
+
+    cplex.setWarning(env.getNullStream()); // silence warnings
 
     // extract model and .lp file
     cplex.extract(model);
@@ -874,7 +874,7 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound)
         best_sol.clear();
         best_sol.push_back(current_sol);
 
-        get_solution(data, is_final_solution);
+        get_solution(data, is_final_solution, true);
     }
 
     return 1;
@@ -1116,7 +1116,7 @@ void Model::get_best_combinations (Data &data, vector<vector<vector<int>>> &comb
     }
 }
 
-void Model::get_solution (Data &data, bool is_final_solution)
+void Model::get_solution (Data &data, bool is_final_solution, bool print_gap)
 {   
     Solution final_solution = best_sol[0];
 
@@ -1132,7 +1132,9 @@ void Model::get_solution (Data &data, bool is_final_solution)
 
     solution_file << "-> Solution value = " << final_solution.obj_value << " - " << convert_time(final_solution.obj_value) << endl;
     solution_file << "-> Total time = " << final_solution.computational_time << endl;
-    solution_file << "-> Gap value = " << final_solution.gap_value << endl << endl;
+    if (print_gap)
+        solution_file << "-> Gap value = " << final_solution.gap_value << endl;
+    cout << endl;
 
     solution_script << "num_points " << data.get_nb_points() << endl;
     solution_script << "---" << endl;
@@ -1179,7 +1181,9 @@ void Model::get_solution (Data &data, bool is_final_solution)
     cout << endl << ">> Printing some results..." << endl << fixed << setprecision(2);
     cout << "    -> Solution value = " << final_solution.obj_value << " - " << convert_time(final_solution.obj_value) << endl;
     cout << "    -> Total time = " << final_solution.computational_time << endl;
-    cout << "    -> Gap value = " << final_solution.gap_value << endl << endl;
+    if (print_gap)
+        cout << "    -> Gap value = " << final_solution.gap_value << endl;
+    cout << endl;
 
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
