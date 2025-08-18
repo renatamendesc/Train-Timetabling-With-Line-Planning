@@ -182,20 +182,20 @@ void Heuristic::create_maximum_size_candidates(Data &data)
         }
     }
 
-    for (int i = 0; i < candidate_combinations.size(); i++)
-    {
-        cout << "Combination " << i+1 << ": " << endl;
-        for (int j = 0; j < candidate_combinations[i].size(); j++)
-        {
-            cout << "Train " << j << ": ";
-            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
-            {
-                cout << candidate_combinations[i][j][k] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
+    // for (int i = 0; i < candidate_combinations.size(); i++)
+    // {
+    //     cout << "Combination " << i+1 << ": " << endl;
+    //     for (int j = 0; j < candidate_combinations[i].size(); j++)
+    //     {
+    //         cout << "Train " << j << ": ";
+    //         for (int k = 0; k < candidate_combinations[i][j].size(); k++)
+    //         {
+    //             cout << candidate_combinations[i][j][k] << " ";
+    //         }
+    //         cout << endl;
+    //     }
+    //     cout << endl;
+    // }
 }
 
 void Heuristic::create_subsets (Data &data, vector<vector<vector<int>>> &aux_candidates, vector<vector<int>> &current, int max_nb_trips)
@@ -250,37 +250,36 @@ bool Heuristic::remove_trips (Data &data, bool remove_from_all_candiates, vector
         create_subsets(data, aux_candidates, current, data.get_max_nb_trips()-iter);
     }
 
-    cout << "Removing trips..." << endl << endl;
-    for (int i = 0; i < candidate_combinations.size(); i++)
-    {
-        cout << "Combination " << i+1 << ": " << endl;
-        for (int j = 0; j < candidate_combinations[i].size(); j++)
-        {
-            cout << "Train " << j << ": ";
-            for (int k = 0; k < candidate_combinations[i][j].size(); k++)
-            {
-                cout << candidate_combinations[i][j][k] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
+    cout << endl << "Removing trips..." << endl << endl;
+    // for (int i = 0; i < candidate_combinations.size(); i++)
+    // {
+    //     cout << "Combination " << i+1 << ": " << endl;
+    //     for (int j = 0; j < candidate_combinations[i].size(); j++)
+    //     {
+    //         cout << "Train " << j << ": ";
+    //         for (int k = 0; k < candidate_combinations[i][j].size(); k++)
+    //         {
+    //             cout << candidate_combinations[i][j][k] << " ";
+    //         }
+    //         cout << endl;
+    //     }
+    //     cout << endl;
+    // }
 
-    cout << "Removing trips..." << endl << endl;
-    for (int i = 0; i < aux_candidates.size(); i++)
-    {
-        cout << "Combination " << i+1 << ": " << endl;
-        for (int j = 0; j < aux_candidates[i].size(); j++)
-        {
-            cout << "Train " << j << ": ";
-            for (int k = 0; k < aux_candidates[i][j].size(); k++)
-            {
-                cout << aux_candidates[i][j][k] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
+    // for (int i = 0; i < aux_candidates.size(); i++)
+    // {
+    //     cout << "Combination " << i+1 << ": " << endl;
+    //     for (int j = 0; j < aux_candidates[i].size(); j++)
+    //     {
+    //         cout << "Train " << j << ": ";
+    //         for (int k = 0; k < aux_candidates[i][j].size(); k++)
+    //         {
+    //             cout << aux_candidates[i][j][k] << " ";
+    //         }
+    //         cout << endl;
+    //     }
+    //     cout << endl;
+    // }
 
     // if there are no candidates, it means demands were not met
     if (aux_candidates.empty())

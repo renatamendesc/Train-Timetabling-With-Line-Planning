@@ -8,6 +8,7 @@
 #include <cmath>
 #include <algorithm>
 #include <set>
+#include <atomic>
 #include <iomanip>
 
 class Combinations
@@ -57,6 +58,9 @@ private:
     bool check_final_feasibility (Data &data, std::vector<std::vector<int>> &current);
 
     bool verify_overflow(unsigned long long base, unsigned long long exp);
+
+    std::atomic<bool> stop_execution = false;
+
 };
 
 #endif

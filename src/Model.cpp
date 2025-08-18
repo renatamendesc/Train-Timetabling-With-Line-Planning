@@ -824,13 +824,13 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound, 
 
             if (cplex.getObjValue() < best_sol[0].obj_value)
             {
-                cout << "Found new best!" << endl;
+                // cout << "Found new best!" << endl;
                 best_sol.clear();
                 best_sol.push_back(current_sol);
             }
             else if (cplex.getObjValue() == best_sol[0].obj_value) 
             {
-                cout << "Found the same!" << endl;
+                // cout << "Found the same!" << endl;
                 best_sol.push_back(current_sol);
             }
         }
@@ -1178,7 +1178,7 @@ void Model::get_solution (Data &data, bool is_final_solution, bool print_gap)
     solution_script.close();
 
     // display solution on terminal if it's the final solution
-    cout << endl << ">> Printing some results..." << endl << fixed << setprecision(2);
+    cout << ">> Printing some results..." << endl << fixed << setprecision(2);
     cout << "    -> Solution value = " << final_solution.obj_value << " - " << convert_time(final_solution.obj_value) << endl;
     cout << "    -> Total time = " << final_solution.computational_time << endl;
     if (print_gap)

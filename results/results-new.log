@@ -1,70 +1,51 @@
-Results generated on seg 28 jul 2025 10:52:57 -03
+Results generated on seg 18 ago 2025 10:37:31 -03
 Set of instances: instances-small
 Method: heuristic
-Number of threads: 4
+Number of threads: 2
 -------------------------------------------
-t2p10h2.txt:
+t2p10r7h2.txt:
 -> Solution value: 39224
--> Total time: 0.34
+-> Total time: 0.42
+-> Gap value: 
 
-t2p4h1.txt:
+t2p4r2h1.txt:
 -> Solution value: 13205
--> Total time: 0.10
+-> Total time: 0.11
+-> Gap value: 
 
-t2p4h2.txt:
+t2p4r2h2.txt:
 -> Solution value: 6693
--> Total time: 0.10
+-> Total time: 0.13
+-> Gap value: 
 
-t2p4h3.txt:
+t2p4r2h3.txt:
 -> Solution value: 22014
 -> Total time: 0.15
+-> Gap value: 
 
-t2p5h1.txt:
+t2p5r2h1.txt:
 -> Solution value: 5638
 -> Total time: 0.11
+-> Gap value: 
 
-t2p6h2.txt:
+t2p6r2h2.txt:
 -> Solution value: 6329
--> Total time: 0.25
+-> Total time: 0.22
+-> Gap value: 
 
-t3p10h2.txt:
+t3p10r2h2.txt:
 -> Solution value: 9376
--> Total time: 4.87
+-> Total time: 4.85
+-> Gap value: 
 
-t3p3h3.txt:
+t3p3r2h3.txt:
 -> Solution value: 14631
--> Total time: 0.51
+-> Total time: 0.46
+-> Gap value: 
 
-t3p6h1.txt:
+t3p6r2h1.txt:
 -> Solution value: 220
--> Total time: 0.32
+-> Total time: 0.27
+-> Gap value: 
 
-t3p8h2.txt:
--> Solution value: 4807
--> Total time: 4.73
-
-t3p9h1A.txt:
--> Solution value: 202
--> Total time: 0.66
-
-t3p9h1.txt:
--> Solution value: 7409
--> Total time: 12.47
-
-t4p6h1.txt:
--> Solution value: 4766
--> Total time: 0.61
-
-t5p5h4.txt:
--> Solution value: 40125
--> Total time: 3.20
-
-t5p6h1.txt:
--> Solution value: 821
--> Total time: 13.07
-
-t5p6h4.txt:
--> Solution value: 
--> Total time: 
-
-t5p7h1.txt:
+t3p8r2h2.txt:
