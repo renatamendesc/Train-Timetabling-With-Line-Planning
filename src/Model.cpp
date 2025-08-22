@@ -1217,7 +1217,7 @@ void Model::get_solution (Data &data, bool is_final_solution, bool print_gap)
         }
     }
 
-    // get_graph(data);
+    get_graph(data);
 }
 
 void Model::get_graph (Data &data)
