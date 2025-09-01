@@ -16,13 +16,16 @@ void Model::reset (Data &data)
     initialize(data);
 }
 
-void Model::run (Data &data)
+int Model::run (Data &data, bool verify_instance)
 {
+    verify_feasibility = verify_instance;
+
     // create decision variables
     add_variables(data);
 
     // create objective function
-    obj = z_; 
+    if (!verify_feasibility)
+        obj = z_; 
     model.add(IloMinimize(env, obj));
     constraints.add(z_ >= 0);
 
@@ -31,7 +34,7 @@ void Model::run (Data &data)
     model.add(constraints);
 
     // extract solution from the model
-    extract_solution(data, true, __INT_MAX__, 43200);
+    return extract_solution(data, true, __INT_MAX__, 43200);
 }
 
 int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains, int best_bound, int time_limit)
@@ -798,7 +801,8 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound, 
 
     // extract model and .lp file
     cplex.extract(model);
-    cplex.exportModel("cbtu.lp");
+    if (!verify_feasibility)
+        cplex.exportModel("cbtu.lp");
 
     if (!is_final_solution)
     {
@@ -874,7 +878,8 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound, 
         best_sol.clear();
         best_sol.push_back(current_sol);
 
-        get_solution(data, is_final_solution, true);
+        if (!verify_feasibility)
+            get_solution(data, is_final_solution, true);
     }
 
     return 1;

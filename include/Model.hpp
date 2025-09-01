@@ -25,7 +25,8 @@ typedef std::vector<VarValuesMatrix3d> VarValuesMatrix4d;
 typedef std::vector<VarValuesMatrix4d> VarValuesMatrix5d;
 typedef std::vector<VarValuesMatrix5d> VarValuesMatrix6d;
 
-struct Solution {
+struct Solution
+{
     int obj_value = __INT_MAX__;
     double gap_value;
     double computational_time;
@@ -46,7 +47,7 @@ public:
     void initialize (Data &data);
     void reset (Data &data);
 
-    void run (Data &data);
+    int run (Data &data, bool verify_instance = false);
     int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound, int time_limit);
 
     void tie_breaker(Data &data, std::vector<std::vector<std::vector<int>>> &combinations);
@@ -79,6 +80,8 @@ private:
     void get_value_of_variables (Data &data, IloCplex &cplex, bool is_final_solution);
 
     std::string convert_time (int seconds);
+
+    bool verify_feasibility = false;
 };
 
 #endif
