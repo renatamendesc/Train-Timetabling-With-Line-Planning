@@ -20,6 +20,11 @@ int Model::run (Data &data, bool verify_instance)
 {
     verify_feasibility = verify_instance;
 
+    // set time limit
+    int time_limit = 43200;
+    if (verify_feasibility)
+        time_limit = 3600;
+
     // create decision variables
     add_variables(data);
 
@@ -32,9 +37,9 @@ int Model::run (Data &data, bool verify_instance)
     // create constraints
     add_constraints(data);
     model.add(constraints);
-
+    
     // extract solution from the model
-    return extract_solution(data, true, __INT_MAX__, 43200);
+    return extract_solution(data, true, __INT_MAX__, time_limit);
 }
 
 int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains, int best_bound, int time_limit)

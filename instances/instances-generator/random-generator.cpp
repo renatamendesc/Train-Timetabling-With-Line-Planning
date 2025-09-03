@@ -839,6 +839,24 @@ int main(int argc, char *argv[])
     {
         for (int t = trains_range.first; t <= trains_range.second; t++)
         {
+
+            // if instance with points = p and trains = t already exists, skip
+            bool instance_exists = false;
+            string pattern = "t" + to_string(t) + "p" + to_string(p);
+            for (const auto& entry : filesystem::directory_iterator("../experiments/" + set_name)) {
+                if (entry.is_regular_file()) {
+                    string filename = entry.path().filename().string();
+                    if (filename.substr(0, pattern.length()) == pattern) {
+                        instance_exists = true;
+                        break;
+                    }
+                }
+            }
+            if (instance_exists)
+                continue;
+
+            cout << "Generating instance with " << p << " points and " << t << " trains..." << endl;
+
             bool not_feasible = true;
             while (not_feasible)
             {
