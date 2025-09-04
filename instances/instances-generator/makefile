@@ -29,19 +29,22 @@ OBJDIR = ../../obj
 RANDOM_GENERATOR_SRC = random-generator.cpp
 DATA_SRC = $(SRCDIR)/Data.cpp
 MODEL_SRC = $(SRCDIR)/Model.cpp
+COMB_SRC = $(SRCDIR)/Combinations.cpp
+HEURISTIC_SRC = $(SRCDIR)/Heuristic.cpp
 
 # Arquivos objeto
 RANDOM_GENERATOR_OBJ = $(OBJDIR)/random-generator.o
 DATA_OBJ = $(OBJDIR)/Data.o
 MODEL_OBJ = $(OBJDIR)/Model.o
-
+COMB_OBJ = $(OBJDIR)/Combinations.o
+HEURISTIC_OBJ = $(OBJDIR)/Heuristic.o
 # Executável
 TARGET = random-generator
 
 # Regra principal
-$(TARGET): $(RANDOM_GENERATOR_OBJ) $(DATA_OBJ) $(MODEL_OBJ)
+$(TARGET): $(RANDOM_GENERATOR_OBJ) $(DATA_OBJ) $(MODEL_OBJ) $(COMB_OBJ) $(HEURISTIC_OBJ)
 	@echo "Linking $(TARGET)..."
-	$(CPPC) -m64 $(RANDOM_GENERATOR_OBJ) $(DATA_OBJ) $(MODEL_OBJ) -o $@ $(CCLNFLAGS)
+	$(CPPC) -m64 $(RANDOM_GENERATOR_OBJ) $(DATA_OBJ) $(MODEL_OBJ) $(COMB_OBJ) $(HEURISTIC_OBJ) -o $@ $(CCLNFLAGS)
 	@echo "Executável $(TARGET) criado com sucesso!"
 
 # Compilar random-generator.cpp
@@ -54,15 +57,25 @@ $(DATA_OBJ): $(DATA_SRC)
 	@echo "Compilando $(DATA_SRC)..."
 	$(CPPC) $(CCFLAGS) -c $< -o $@
 
+# Compilar Combinations.cpp
+$(COMB_OBJ): $(COMB_SRC)
+	@echo "Compilando $(COMB_SRC)..."
+	$(CPPC) $(CCFLAGS) -c $< -o $@
+
 # Compilar Model.cpp
 $(MODEL_OBJ): $(MODEL_SRC)
 	@echo "Compilando $(MODEL_SRC)..."
 	$(CPPC) $(CCFLAGS) -c $< -o $@
 
+# Compilar Heuristic.cpp
+$(HEURISTIC_OBJ): $(HEURISTIC_SRC)
+	@echo "Compilando $(HEURISTIC_SRC)..."
+	$(CPPC) $(CCFLAGS) -c $< -o $@
+
 # Limpar arquivos gerados
 clean:
 	@echo "Limpando arquivos..."
-	@rm -f $(RANDOM_GENERATOR_OBJ) $(DATA_OBJ) $(MODEL_OBJ) $(TARGET)
+	@rm -f $(RANDOM_GENERATOR_OBJ) $(DATA_OBJ) $(MODEL_OBJ) $(COMB_OBJ) $(HEURISTIC_OBJ) $(TARGET)
 	@echo "Limpeza concluída!"
 
 # Recompilar tudo

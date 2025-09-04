@@ -13,6 +13,7 @@
 
 #include "../../include/Data.hpp"
 #include "../../include/Model.hpp"
+#include "../../include/Combinations.hpp"
 
 using namespace std;
 
@@ -806,6 +807,8 @@ void generate_instance (int p, int t)
 //     throw runtime_error("Todos os sufixos de A a Z já existem!");
 // }
 
+// Usage: ./random-generator <set-name> <threads>
+
 // Create instances according to size: number of points and number of trains
 int main(int argc, char *argv[])
 {
@@ -839,7 +842,6 @@ int main(int argc, char *argv[])
     {
         for (int t = trains_range.first; t <= trains_range.second; t++)
         {
-
             // if instance with points = p and trains = t already exists, skip
             bool instance_exists = false;
             string pattern = "t" + to_string(t) + "p" + to_string(p);
@@ -864,9 +866,17 @@ int main(int argc, char *argv[])
                 Data data("ex-instance.txt");
                 data.print_data();
 
-                Model model;
-                model.initialize(data);        
-                if (model.run(data, true))
+                // // uses model to verify if instance is feasible
+                // Model model;
+                // model.verify_feasibility = true;
+                // model.initialize(data);  
+                // bool solved = model.run(data);
+
+                // uses enumeration to verify if instance is feasible
+                Combinations comb(data, stoi(argv[2]), 0, 3600, true);
+                bool solved = comb.nb_feasible_combinations > 0;
+
+                if (solved)
                 {
                     // save instance on file
                     string origem = "ex-instance.txt";

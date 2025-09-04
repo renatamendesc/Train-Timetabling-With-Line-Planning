@@ -17,7 +17,7 @@ public:
     unsigned long long int total_nb_combinations = 0;
     unsigned long long int nb_feasible_combinations = 0;
 
-    Combinations(Data &data, int threads, int strategy);
+    Combinations(Data &data, int threads, int strategy, int time_limit_complete = 43200, bool creating_instance = false);
 
 private:
 
@@ -60,6 +60,8 @@ private:
     bool verify_overflow(unsigned long long base, unsigned long long exp);
 
     std::atomic<bool> stop_execution = false;
+
+    bool verify_feasibility;
 
 };
 

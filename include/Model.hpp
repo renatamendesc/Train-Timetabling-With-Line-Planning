@@ -41,13 +41,16 @@ struct Solution
 class Model
 {
 public:
+
+    bool verify_feasibility = false;
+
     std::vector<Solution> best_sol;
     Solution current_sol;
 
     void initialize (Data &data);
     void reset (Data &data);
 
-    int run (Data &data, bool verify_instance = false);
+    int run (Data &data);
     int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound, int time_limit);
 
     void tie_breaker(Data &data, std::vector<std::vector<std::vector<int>>> &combinations);
@@ -80,8 +83,6 @@ private:
     void get_value_of_variables (Data &data, IloCplex &cplex, bool is_final_solution);
 
     std::string convert_time (int seconds);
-
-    bool verify_feasibility = false;
 };
 
 #endif

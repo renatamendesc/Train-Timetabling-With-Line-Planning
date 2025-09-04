@@ -2,8 +2,10 @@
 
 using namespace std;
 
-Combinations::Combinations(Data &data, int threads, int strategy)
+Combinations::Combinations(Data &data, int threads, int strategy, int time_limit_complete, bool creating_instance)
 {
+    verify_feasibility = creating_instance;
+
     // start counting time
     start = chrono::steady_clock::now();
 
@@ -11,10 +13,8 @@ Combinations::Combinations(Data &data, int threads, int strategy)
     nb_routes = data.get_nb_routes();
     nb_trains = data.get_nb_trains();
 
-    time_limit_complete = 43200;
-
     // if strategy == 0 -> enumeration, if == 1 -> heuristic
-    if (strategy == 0)      // executing enumeration
+    if (strategy == 0) // executing enumeration
     {
         time_limit_per_combination = 3600;
         execute_enumeration(data);
@@ -52,6 +52,11 @@ Combinations::Combinations(Data &data, int threads, int strategy)
             cout << "\t> Couldn't find feasible solutions with heuristic method!" << endl;
             return;
         }
+    }
+
+    if (verify_feasibility)
+    {
+        return;
     }
 
     // finish counting time
@@ -275,6 +280,13 @@ void Combinations::execute_all_combinations(Data &data)
                             best_thread = model_thread;
                             best_bound = model_thread.best_sol[0].obj_value;
                         }
+                    }
+
+                    if (verify_feasibility)
+                    {
+                        if (!stop_execution.load())
+                            stop_execution.store(true);
+                        continue;
                     }
                 }
             }
