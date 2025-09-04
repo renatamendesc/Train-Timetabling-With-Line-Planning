@@ -281,13 +281,6 @@ void Combinations::execute_all_combinations(Data &data)
                             best_bound = model_thread.best_sol[0].obj_value;
                         }
                     }
-
-                    if (verify_feasibility)
-                    {
-                        if (!stop_execution.load())
-                            stop_execution.store(true);
-                        continue;
-                    }
                 }
             }
             #pragma omp atomic
@@ -296,6 +289,13 @@ void Combinations::execute_all_combinations(Data &data)
             if (counter_solved % aux_progress == 0)
                 cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
         
+            if (verify_feasibility && nb_feasible_combinations > 0)
+            {
+                if (!stop_execution.load())
+                    stop_execution.store(true);
+                continue;
+            }
+
             // verify time limit
             end = chrono::steady_clock::now();
             chrono::duration<double> current_time = end - start;
