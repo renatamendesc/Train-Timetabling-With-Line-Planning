@@ -866,15 +866,15 @@ int main(int argc, char *argv[])
                 Data data("ex-instance.txt");
                 data.print_data();
 
-                // // uses model to verify if instance is feasible
-                // Model model;
-                // model.verify_feasibility = true;
-                // model.initialize(data);  
-                // bool solved = model.run(data);
+                // uses model to verify if instance is feasible
+                Model model;
+                model.verify_feasibility = true;
+                model.initialize(data);  
+                bool solved = model.run(data);
 
-                // uses enumeration to verify if instance is feasible
-                Combinations comb(data, stoi(argv[2]), 0, 3600, true);
-                bool solved = comb.nb_feasible_combinations > 0;
+                // // uses enumeration to verify if instance is feasible
+                // Combinations comb(data, stoi(argv[2]), 0, 3600, true);
+                // bool solved = comb.nb_feasible_combinations > 0;
 
                 if (solved)
                 {
