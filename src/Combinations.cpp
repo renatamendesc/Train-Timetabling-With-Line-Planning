@@ -245,6 +245,8 @@ void Combinations::execute_all_combinations(Data &data)
         {
             // if another thread told to stop execution
             if (stop_execution.load()) continue;
+            
+            cout << "Testing combination " << count << "/" << total_nb_combinations << endl;
 
             Model &model_thread = models[thread_id];
             
@@ -291,6 +293,8 @@ void Combinations::execute_all_combinations(Data &data)
         
             if (verify_feasibility && nb_feasible_combinations > 0)
             {
+                cout << endl << ">> Found feasible!" << endl;
+                        cout << "\tTerminating process!" << endl;
                 if (!stop_execution.load())
                     stop_execution.store(true);
                 continue;
