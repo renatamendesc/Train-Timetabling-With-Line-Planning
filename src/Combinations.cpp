@@ -244,9 +244,13 @@ void Combinations::execute_all_combinations(Data &data)
         for (unsigned long long count = 0; count < total_nb_combinations; count++)
         {
             // if another thread told to stop execution
-            if (stop_execution.load()) continue;
-            
-            cout << "Testing combination " << count << "/" << total_nb_combinations << endl;
+            if (stop_execution.load())
+            {
+                cout << "Stopping execution... - " << count << "/" << total_nb_combinations << endl;
+                continue;
+            } 
+
+            // cout << "Testing combination " << count << "/" << total_nb_combinations << endl;
 
             Model &model_thread = models[thread_id];
             

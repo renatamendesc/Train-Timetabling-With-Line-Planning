@@ -177,6 +177,7 @@ void Model::add_variables (Data &data)
     }
     
     // create variable w - specifies whether train t departs from vertex v after train l departs from vertex k
+    // criar w só para o que precisa!!!!!!!!!!!
     w_ = NumVarMatrix6d(env, data.get_nb_trains());
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
