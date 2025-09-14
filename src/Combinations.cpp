@@ -320,7 +320,17 @@ void Combinations::execute_all_combinations(Data &data)
                         {
                             cout << "\tNo feasible solution was found..." << endl;
                         }
+                        else
+                        {
+                            proved_optimal = false;
+                            cout << "\tCannot prove optimality!" << endl;
+
+                            best_thread.best_sol[0].computational_time = (current_time).count();
+                            best_thread.get_solution(data, true, proved_optimal);
+                        }
                     }
+
+                    exit(0);
                 }
             }
         }
