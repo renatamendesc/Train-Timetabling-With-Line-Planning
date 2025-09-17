@@ -858,7 +858,7 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound, 
                 uniq.insert(pid + "-" + cid);
             }
         }
-        cplex.setParam(IloCplex::Threads, uniq.size());
+        cplex.setParam(IloCplex::Threads, 1);
 
         auto start = chrono::steady_clock::now();
         cplex.solve();

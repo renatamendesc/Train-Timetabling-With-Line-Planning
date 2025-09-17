@@ -1,0 +1,16 @@
+Results generated on qua 17 set 2025 16:26:38 -03
+Set of instances: instances/experiments/5-to-9
+Method: model
+Number of threads: 1
+-------------------------------------------
+t2p5r2h1.txt:
+-> Solution value: 31921
+-> Total time: 0.93
+-> Gap value: 0.00
+
+t2p6r7h3.txt:
+-> Solution value: 42078
+-> Total time: 7.62
+-> Gap value: 0.00
+
+t2p7r8h1.txt:
