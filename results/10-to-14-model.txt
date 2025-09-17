@@ -1,0 +1,86 @@
+Results generated on Mon Sep 15 17:23:56 UTC 2025
+Set of instances: instances/experiments/10-to-14
+Method: model
+Number of threads: 1
+-------------------------------------------
+t3p10r6h3.txt:
+-> Solution value: 37611
+-> Total time: 164.39
+-> Gap value: 0.00
+
+t3p11r2h1.txt:
+-> Solution value: 38039
+-> Total time: 1174.76
+-> Gap value: 0.00
+
+t3p12r2h3.txt:
+-> Solution value: 36985
+-> Total time: 6.14
+-> Gap value: 0.00
+
+t3p13r12h2.txt:
+-> Solution value: 17968
+-> Total time: 1028.54
+-> Gap value: 0.00
+
+t3p14r8h5.txt:
+-> Solution value: 31595
+-> Total time: 11684.07
+-> Gap value: 0.00
+
+t4p10r6h3.txt:
+-> Solution value: 27619
+-> Total time: 4032.48
+-> Gap value: 0.00
+
+t4p11r2h2.txt:
+-> Solution value: 40926
+-> Total time: 43205.67
+-> Gap value: 0.18
+
+t4p12r2h2.txt:
+-> Solution value: 34230
+-> Total time: 1534.76
+-> Gap value: 0.00
+
+t4p13r8h1.txt:
+-> Solution value: 31547
+-> Total time: 9074.78
+-> Gap value: 0.00
+
+t4p14r2h4.txt:
+-> Solution value: 42727
+-> Total time: 700.05
+-> Gap value: 0.00
+
+t5p10r2h4.txt:
+-> Solution value: 31789
+-> Total time: 33371.61
+-> Gap value: 0.00
+
+t5p11r8h3.txt:
+-> Solution value: 38458
+-> Total time: 321.61
+-> Gap value: 0.00
+
+t5p12r2h2.txt:
+-> Solution value: 25186
+-> Total time: 10411.40
+-> Gap value: 0.00
+
+t5p13r2h1.txt:
+-> Solution value: 41254
+-> Total time: 43200.42
+-> Gap value: 0.22
+
+t5p14r2h1.txt:
+-> Solution value: 17305
+-> Total time: 114.65
+-> Gap value: 0.00
+
+t6p10r6h2.txt:
+-> Solution value: 21760
+-> Total time: 11975.43
+-> Gap value: 0.00
+
+t6p11r15h2.txt:
