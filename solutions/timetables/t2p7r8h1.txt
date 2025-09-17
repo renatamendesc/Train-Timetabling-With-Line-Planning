@@ -1,5 +1,9 @@
 -> Solution value = 17570 - 04:52:50
+<<<<<<< HEAD
 -> Total time = 5
+=======
+-> Total time = 1.91953
+>>>>>>> f5e4a7f6a5ddea7d1907e7eb7a0ad2a52863558d
 =============
 Train 0
 =============
