@@ -49,37 +49,93 @@ echo "Method: $METHOD" >> "$LOG_FILE"
 echo "Number of threads: $NB_THREADS" >> "$LOG_FILE"
 echo "-------------------------------------------" >> "$LOG_FILE"
 
-# loop over each instance
+# criar pasta de logs se não existir
+mkdir -p results
+
+# execute all instances in parallel
+# loop sobre cada instância
 for INSTANCE in "$INSTANCES_FOLDER"/*.txt; do
     if [[ -f "$INSTANCE" ]]; then
         INSTANCE_NAME=$(basename "$INSTANCE")
-
         echo -e "\nRunning $INSTANCE_NAME with method '$METHOD' and $NB_THREADS threads..."
 
-        echo "$INSTANCE_NAME:" >> "$LOG_FILE"
+        # nome do log individual
+        LOG_INSTANCE="results/${INSTANCE_NAME}-${METHOD}.log"
 
+        # executar e salvar saída no log individual
         OUTPUT="$($EXECUTABLE "$INSTANCE" "$METHOD" "$NB_THREADS")"
 
-        SOLUTION=$(awk -F'= ' '/-> Solution value =/ {split($2,a," "); print a[1]}' <<< "$OUTPUT")
-        TIME=$(awk -F'= ' '/-> Total time =/ {print $2}' <<< "$OUTPUT")
-        GAP=$(awk -F'= ' '/-> Gap value =/ {print $2}' <<< "$OUTPUT")
-        TOTAL_COMB=$(grep -m1 "Total number of combinations =" <<< "$OUTPUT")
-        FEASIBLE_COMB=$(grep -m1 "were feasible combination" <<< "$OUTPUT")
+        {
+            echo "$INSTANCE_NAME:"
+            SOLUTION=$(awk -F'= ' '/-> Solution value =/ {split($2,a," "); print a[1]}' <<< "$OUTPUT")
+            TIME=$(awk -F'= ' '/-> Total time =/ {print $2}' <<< "$OUTPUT")
+            GAP=$(awk -F'= ' '/-> Gap value =/ {print $2}' <<< "$OUTPUT")
+            TOTAL_COMB=$(grep -m1 "Total number of combinations =" <<< "$OUTPUT")
+            FEASIBLE_COMB=$(grep -m1 "were feasible combination" <<< "$OUTPUT")
 
-        if [[ "$METHOD" == "enum" ]]; then
-            [[ -n "$TOTAL_COMB" ]] && echo "$TOTAL_COMB" >> "$LOG_FILE"
-        fi
+            if [[ "$METHOD" == "enum" && -n "$TOTAL_COMB" ]]; then
+                echo "$TOTAL_COMB"
+            fi
 
-        echo "-> Solution value: $SOLUTION" >> "$LOG_FILE"
-        echo "-> Total time: $TIME" >> "$LOG_FILE"
-        echo "-> Gap value: $GAP" >> "$LOG_FILE"
+            echo "-> Solution value: $SOLUTION"
+            echo "-> Total time: $TIME"
+            echo "-> Gap value: $GAP"
 
-        if [[ "$METHOD" == "enum" ]]; then
-            [[ -n "$FEASIBLE_COMB" ]] && echo "$FEASIBLE_COMB" >> "$LOG_FILE"
-        fi
+            if [[ "$METHOD" == "enum" && -n "$FEASIBLE_COMB" ]]; then
+                echo "$FEASIBLE_COMB"
+            fi
 
-        echo "" >> "$LOG_FILE"
+            echo ""
+        } > "$LOG_INSTANCE" &
     fi
 done
 
+# esperar todos os processos em background terminarem
+wait
+
+# concatenar todos os logs individuais no log final
+LOG_FILE="results/results-${INSTANCES_FOLDER//\//-}-${METHOD}.log"
+echo "Results generated on $(date)" > "$LOG_FILE"
+echo "Set of instances: $INSTANCES_FOLDER" >> "$LOG_FILE"
+echo "Method: $METHOD" >> "$LOG_FILE"
+echo "Number of threads: $NB_THREADS" >> "$LOG_FILE"
+echo "-------------------------------------------" >> "$LOG_FILE"
+cat results/*-${METHOD}.log >> "$LOG_FILE"
+
 echo -e "\nExecution finished! Results saved in $LOG_FILE"
+
+# execute all instances sequentially
+# # loop over each instance
+# for INSTANCE in "$INSTANCES_FOLDER"/*.txt; do
+#     if [[ -f "$INSTANCE" ]]; then
+#         INSTANCE_NAME=$(basename "$INSTANCE")
+
+#         echo -e "\nRunning $INSTANCE_NAME with method '$METHOD' and $NB_THREADS threads..."
+
+#         echo "$INSTANCE_NAME:" >> "$LOG_FILE"
+
+#         OUTPUT="$($EXECUTABLE "$INSTANCE" "$METHOD" "$NB_THREADS")"
+
+#         SOLUTION=$(awk -F'= ' '/-> Solution value =/ {split($2,a," "); print a[1]}' <<< "$OUTPUT")
+#         TIME=$(awk -F'= ' '/-> Total time =/ {print $2}' <<< "$OUTPUT")
+#         GAP=$(awk -F'= ' '/-> Gap value =/ {print $2}' <<< "$OUTPUT")
+#         TOTAL_COMB=$(grep -m1 "Total number of combinations =" <<< "$OUTPUT")
+#         FEASIBLE_COMB=$(grep -m1 "were feasible combination" <<< "$OUTPUT")
+
+#         if [[ "$METHOD" == "enum" ]]; then
+#             [[ -n "$TOTAL_COMB" ]] && echo "$TOTAL_COMB" >> "$LOG_FILE"
+#         fi
+
+#         echo "-> Solution value: $SOLUTION" >> "$LOG_FILE"
+#         echo "-> Total time: $TIME" >> "$LOG_FILE"
+#         echo "-> Gap value: $GAP" >> "$LOG_FILE"
+
+#         if [[ "$METHOD" == "enum" ]]; then
+#             [[ -n "$FEASIBLE_COMB" ]] && echo "$FEASIBLE_COMB" >> "$LOG_FILE"
+#         fi
+
+#         echo "" >> "$LOG_FILE"
+#     fi
+# done
+
+# echo -e "\nExecution finished! Results saved in $LOG_FILE"
