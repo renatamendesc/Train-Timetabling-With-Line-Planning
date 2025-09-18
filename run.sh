@@ -49,7 +49,6 @@ for INSTANCE in "$INSTANCES_FOLDER"/*.txt; do
 
         LOG_INSTANCE="results/${INSTANCE_NAME}-${METHOD}.log"
 
-        # rodar em paralelo e salvar saída diretamente no log
         (
             echo "$INSTANCE_NAME:" > "$LOG_INSTANCE"
             $EXECUTABLE "$INSTANCE" "$METHOD" "$NB_THREADS" >> "$LOG_INSTANCE" 2>&1
@@ -60,25 +59,25 @@ done
 # esperar todos terminarem
 wait
 
-# criar log final consolidado
-LOG_FILE="results/results-${INSTANCES_FOLDER//\//-}-${METHOD}.log"
+# criar log final consolidado (nome diferente para não conflitar)
+FOLDER_NAME=$(basename "$INSTANCES_FOLDER")
+LOG_FILE="results/results-${FOLDER_NAME}-${METHOD}-final.log"
+
 echo "Results generated on $(date)" > "$LOG_FILE"
 echo "Set of instances: $INSTANCES_FOLDER" >> "$LOG_FILE"
 echo "Method: $METHOD" >> "$LOG_FILE"
 echo "Number of threads: $NB_THREADS" >> "$LOG_FILE"
 echo "-------------------------------------------" >> "$LOG_FILE"
 
-# concatenar apenas as últimas 20 linhas de cada log individual
 for LOG_INSTANCE in results/*-${METHOD}.log; do
     echo "----- $(basename "$LOG_INSTANCE") -----" >> "$LOG_FILE"
-    tail -n 20 "$LOG_INSTANCE" >> "$LOG_FILE"
+    tail -n 200 "$LOG_INSTANCE" >> "$LOG_FILE"
 done
 
 # remover logs individuais
 rm results/*-${METHOD}.log
 
 echo -e "\nExecution finished! Results saved in $LOG_FILE"
-
 
 # execute all instances sequentially
 # # loop over each instance
