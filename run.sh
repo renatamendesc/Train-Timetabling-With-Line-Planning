@@ -74,8 +74,8 @@ for LOG_INSTANCE in results/*-${METHOD}.log; do
     tail -n 200 "$LOG_INSTANCE" >> "$LOG_FILE"
 done
 
-# remover logs individuais
-rm results/*-${METHOD}.log
+# # remover logs individuais
+# rm results/*-${METHOD}.log
 
 echo -e "\nExecution finished! Results saved in $LOG_FILE"
 
