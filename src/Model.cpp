@@ -823,7 +823,16 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound, 
 
         bool solved = cplex.solve();
         if (!solved)
-            return 0;
+        {
+            if(cplex.getCplexStatus() == IloCplex::AbortTimeLim)
+            {
+                return 3;
+            }
+            else
+            {
+                return 0;
+            }
+        }
 
         if (cplex.getObjValue() <= best_sol[0].obj_value)
         {
@@ -842,6 +851,11 @@ int Model::extract_solution(Data &data, bool is_final_solution, int best_bound, 
                 best_sol.push_back(current_sol);
             }
         }
+
+        if (cplex.getCplexStatus() == IloCplex::AbortTimeLim)
+            {
+                return 2;
+            }
     }
     else
     {

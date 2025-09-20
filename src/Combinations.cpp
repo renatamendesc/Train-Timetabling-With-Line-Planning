@@ -19,7 +19,7 @@ Combinations::Combinations(Data &data, int threads, int strategy, int time_limit
         time_limit_per_combination = 3600;
         execute_enumeration(data);
 
-        if (!stop_execution.load())
+        if (!stop_execution.load() && proved_optimal)
         {
             cout << "All combination(s) tested!" << endl;
 
@@ -30,6 +30,12 @@ Combinations::Combinations(Data &data, int threads, int strategy, int time_limit
         {
             proved_optimal = false;
             cout << "\tCannot prove optimality!" << endl;
+
+            if (nb_feasible_combinations == 0)
+            {
+                cout << "\tNo feasible solution was found..." << endl;
+                exit(0);
+            }
         }
     }
     else if (strategy == 1) // executing heuristic
@@ -271,9 +277,14 @@ void Combinations::execute_all_combinations(Data &data)
             if (check_final_feasibility(data, current))
             {
                 model_thread.reset(data);
-                bool feasible = model_thread.run_with_routes_constraints(data, current, best_bound, time_limit_per_combination);
+                int feasible = model_thread.run_with_routes_constraints(data, current, best_bound, time_limit_per_combination);
 
-                if (feasible)
+                if (feasible == 2 || feasible == 3)
+                {
+                    proved_optimal = false;
+                }
+
+                if (feasible == 1 || feasible == 2)
                 {
                     #pragma omp atomic
                     nb_feasible_combinations++;
@@ -366,9 +377,9 @@ bool Combinations::execute_candidate_combinations (Data &data)
             if (normalize_combination(data, current))
             {
                 model_thread.reset(data);
-                bool feasible = model_thread.run_with_routes_constraints(data, current, best_bound, time_limit_per_combination);
+                int feasible = model_thread.run_with_routes_constraints(data, current, best_bound, time_limit_per_combination);
 
-                if (feasible)
+                if (feasible == 1 || feasible == 2)
                 {
                     #pragma omp atomic
                     nb_feasible_combinations++;
