@@ -1,5 +1,5 @@
 -> Solution value = 19385 - 05:23:05
--> Total time = 2.61985
+-> Total time = 3.18627
 =============
 Train 0
 =============

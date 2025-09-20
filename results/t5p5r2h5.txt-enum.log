@@ -1,0 +1,220 @@
+t5p5r2h5.txt:
+   > Trying to open the instance file...
+   > Reading number of trains...
+   > Reading maximum number of trips per train...
+   > Reading time intervals...
+   > Reading number of points...
+   > Reading stations...
+   > Reading crossings...
+   > Reading depots...
+   > Reading initial point...
+   > Reading routes...
+   > Reading distance and distance and service...
+   > Reading demands...
+   > Reading maximum time...
+   > Reading alpha...
+
+--------------------------------
+ Printing instance
+--------------------------------
+number of trains = 5
+	max trips per trains: 3     3     3     3     3
+number of intervals = 5
+	(0,  10077)	(10078,  20154)	(20155,  30231)	(30232,  40308)	(40309,  50387)
+number of points = 5
+	initial point: 4
+	stations: 0     1     2     3     4
+	crossings: 0     4
+	depots: 0     4
+number of vertices = 10
+	total vertices: 0     1     2     3     4     5     6     7     8     9
+	upper vertices: 0     1     2     3     4
+	lower vertices: 5     6     7     8     9
+	vertices of point #0: (0, 5)
+	vertices of point #1: (1, 6)
+	vertices of point #2: (2, 7)
+	vertices of point #3: (3, 8)
+	vertices of point #4: (4, 9)
+
+arcs...
+	total arcs: 
+		arc #0: (0, 1)
+		arc #1: (0, 5)
+		arc #2: (5, 0)
+		arc #3: (1, 2)
+		arc #4: (6, 5)
+		arc #5: (2, 3)
+		arc #6: (7, 6)
+		arc #7: (3, 4)
+		arc #8: (8, 7)
+		arc #9: (9, 8)
+		arc #10: (4, 9)
+		arc #11: (9, 4)
+
+	reverse arcs: 
+		arc #1: (0, 5)
+		arc #2: (5, 0)
+		arc #10: (4, 9)
+		arc #11: (9, 4)
+
+
+incompatible points...
+	(0, 3, 9, (3, 4))	(9, 6, 0, (6, 5))
+
+number of routes = 2
+vertices of routes...
+	route #0: 0     1     2     3     4     9     8     7     6     5     0
+	route #1: 9     8     7     6     5     0     1     2     3     4     9
+arcs of routes...
+	route #0: 0     3     5     7    10     9     8     6     4     2
+	route #1: 9     8     6     4     2     0     3     5     7    10
+
+incompatible routes...
+	(0, 1)    	(1, 0)
+
+vertices that can be adjacent in consecutive trips...
+	(0, 0)    	(9, 9)
+non cyclical routes: 
+
+
+routes of trip...
+	routes that train #0 can complete at trip #0: 1
+	routes that train #0 can complete at trip #1: 0       1
+	routes that train #0 can complete at trip #2: 0       1
+
+	routes that train #1 can complete at trip #0: 1
+	routes that train #1 can complete at trip #1: 0       1
+	routes that train #1 can complete at trip #2: 0       1
+
+	routes that train #2 can complete at trip #0: 1
+	routes that train #2 can complete at trip #1: 0       1
+	routes that train #2 can complete at trip #2: 0       1
+
+	routes that train #3 can complete at trip #0: 1
+	routes that train #3 can complete at trip #1: 0       1
+	routes that train #3 can complete at trip #2: 0       1
+
+	routes that train #4 can complete at trip #0: 1
+	routes that train #4 can complete at trip #1: 0       1
+	routes that train #4 can complete at trip #2: 0       1
+
+ cost...
+	arc #0 [0][1]: 849
+	arc #1 [0][5]: 0
+	arc #2 [5][0]: 0
+	arc #3 [1][2]: 851
+	arc #4 [6][5]: 849
+	arc #5 [2][3]: 871
+	arc #6 [7][6]: 851
+	arc #7 [3][4]: 858
+	arc #8 [8][7]: 871
+	arc #9 [9][8]: 858
+	arc #10 [4][9]: 0
+	arc #11 [9][4]: 0
+
+cost with minimum service...
+	arc #0 [0][1]: 939
+	arc #1 [0][5]: 0
+	arc #2 [5][0]: 0
+	arc #3 [1][2]: 941
+	arc #4 [6][5]: 1019
+	arc #5 [2][3]: 961
+	arc #6 [7][6]: 941
+	arc #7 [3][4]: 1028
+	arc #8 [8][7]: 961
+	arc #9 [9][8]: 948
+	arc #10 [4][9]: 0
+	arc #11 [9][4]: 0
+
+cost with maximum service...
+	arc #0 [0][1]: 1399
+	arc #1 [0][5]: 550
+	arc #2 [5][0]: 550
+	arc #3 [1][2]: 1401
+	arc #4 [6][5]: 1399
+	arc #5 [2][3]: 1421
+	arc #6 [7][6]: 1401
+	arc #7 [3][4]: 1408
+	arc #8 [8][7]: 1421
+	arc #9 [9][8]: 1408
+	arc #10 [4][9]: 550
+	arc #11 [9][4]: 550
+
+demands...
+	demands of vertex 0 at time interval: 2     2     2     2     2
+	demands of vertex 1 at time interval: 2     2     2     2     2
+	demands of vertex 2 at time interval: 2     2     2     2     2
+	demands of vertex 3 at time interval: 2     2     2     2     2
+	demands of vertex 4 at time interval: 0     0     0     0     0
+	demands of vertex 5 at time interval: 0     0     0     0     0
+	demands of vertex 6 at time interval: 2     2     2     2     2
+	demands of vertex 7 at time interval: 2     2     2     2     2
+	demands of vertex 8 at time interval: 2     2     2     2     2
+	demands of vertex 9 at time interval: 2     2     2     2     2
+
+maximum time = 50387
+alpha = 77
+Starting to test combinations... - Total number of combinations = 243
+Found new best - 1/243
+10% done - 25/243 combination(s) tested! (Thread 0)
+20% done - 50/243 combination(s) tested! (Thread 0)
+30% done - 75/243 combination(s) tested! (Thread 0)
+40% done - 100/243 combination(s) tested! (Thread 0)
+50% done - 125/243 combination(s) tested! (Thread 0)
+60% done - 150/243 combination(s) tested! (Thread 0)
+70% done - 175/243 combination(s) tested! (Thread 0)
+80% done - 200/243 combination(s) tested! (Thread 0)
+90% done - 225/243 combination(s) tested! (Thread 0)
+All combination(s) tested!
+1/243 were feasible combination(s)! - (0.412%)
+
+>> Printing some results...
+    -> Solution value = 37452 - 10:24:12
+    -> Total time = 3606.85
+    -> Gap value = 0.00
+
+=============
+Train 0
+=============
+> Trip 0
+   9(time 13054 - 03:37:34)(time 13912 - 03:51:52) ->    8(time 14002 - 03:53:22)(time 14873 - 04:07:53) ->    7(time 14963 - 04:09:23)(time 15814 - 04:23:34) ->    6(time 15904 - 04:25:04)(time 16753 - 04:39:13) ->    5(time 17303 - 04:48:23)(time 17303 - 04:48:23) ->    0(time 17853 - 04:57:33)(time 18702 - 05:11:42) ->    1(time 19252 - 05:20:52)(time 20103 - 05:35:03) ->    2(time 20653 - 05:44:13)(time 21524 - 05:58:44) ->    3(time 21614 - 06:00:14)(time 22472 - 06:14:32) ->    4(time 22812 - 06:20:12)(time 22812 - 06:20:12) -> 9
+> Trip 1
+   9(time 22812 - 06:20:12)(time 23670 - 06:34:30) ->    8(time 23760 - 06:36:00)(time 24631 - 06:50:31) ->    7(time 24721 - 06:52:01)(time 25572 - 07:06:12) ->    6(time 25662 - 07:07:42)(time 26511 - 07:21:51) ->    5(time 26851 - 07:27:31)(time 26851 - 07:27:31) ->    0(time 26851 - 07:27:31)(time 27700 - 07:41:40) ->    1(time 27790 - 07:43:10)(time 28641 - 07:57:21) ->    2(time 28731 - 07:58:51)(time 29602 - 08:13:22) ->    3(time 29692 - 08:14:52)(time 30550 - 08:29:10) ->    4(time 30720 - 08:32:00)(time 30720 - 08:32:00) -> 9
+> Trip 2
+   9(time 40309 - 11:11:49)(time 41167 - 11:26:07) ->    8(time 41257 - 11:27:37)(time 42128 - 11:42:08) ->    7(time 42218 - 11:43:38)(time 43069 - 11:57:49) ->    6(time 43159 - 11:59:19)(time 44008 - 12:13:28) ->    5(time 44178 - 12:16:18)(time 44178 - 12:16:18) ->    0(time 44348 - 12:19:08)(time 45197 - 12:33:17) ->    1(time 45287 - 12:34:47)(time 46138 - 12:48:58) ->    2(time 46228 - 12:50:28)(time 47099 - 13:04:59) ->    3(time 47189 - 13:06:29)(time 48047 - 13:20:47) ->    4(time 48217 - 13:23:37)(time 48217 - 13:23:37) -> 9
+=============
+Train 1
+=============
+> Trip 0
+   9(time 3367 - 00:56:07)(time 4225 - 01:10:25) ->    8(time 4315 - 01:11:55)(time 5186 - 01:26:26) ->    7(time 5276 - 01:27:56)(time 6127 - 01:42:07) ->    6(time 6217 - 01:43:37)(time 7066 - 01:57:46) ->    5(time 7236 - 02:00:36)(time 7236 - 02:00:36) ->    0(time 7786 - 02:09:46)(time 8635 - 02:23:55) ->    1(time 8725 - 02:25:25)(time 9576 - 02:39:36) ->    2(time 9666 - 02:41:06)(time 10537 - 02:55:37) ->    3(time 10627 - 02:57:07)(time 11485 - 03:11:25) ->    4(time 11655 - 03:14:15)(time 11655 - 03:14:15) -> 9
+> Trip 1
+   9(time 22642 - 06:17:22)(time 23500 - 06:31:40) ->    8(time 23590 - 06:33:10)(time 24461 - 06:47:41) ->    7(time 24551 - 06:49:11)(time 25402 - 07:03:22) ->    6(time 25492 - 07:04:52)(time 26341 - 07:19:01) ->    5(time 26511 - 07:21:51)(time 26511 - 07:21:51) ->    0(time 26681 - 07:24:41)(time 27530 - 07:38:50) ->    1(time 27620 - 07:40:20)(time 28471 - 07:54:31) ->    2(time 28561 - 07:56:01)(time 29432 - 08:10:32) ->    3(time 29522 - 08:12:02)(time 30380 - 08:26:20) ->    4(time 30550 - 08:29:10)(time 30550 - 08:29:10) -> 9
+> Trip 2
+   9(time 30550 - 08:29:10)(time 31408 - 08:43:28) ->    8(time 31498 - 08:44:58)(time 32369 - 08:59:29) ->    7(time 32459 - 09:00:59)(time 33310 - 09:15:10) ->    6(time 33400 - 09:16:40)(time 34249 - 09:30:49) ->    5(time 34419 - 09:33:39)(time 34419 - 09:33:39) ->    0(time 34969 - 09:42:49)(time 35818 - 09:56:58) ->    1(time 35908 - 09:58:28)(time 36759 - 10:12:39) ->    2(time 36849 - 10:14:09)(time 37720 - 10:28:40) ->    3(time 37810 - 10:30:10)(time 38668 - 10:44:28) ->    4(time 38838 - 10:47:18)(time 38838 - 10:47:18) -> 9
+=============
+Train 2
+=============
+> Trip 0
+   9(time 3197 - 00:53:17)(time 4055 - 01:07:35) ->    8(time 4145 - 01:09:05)(time 5016 - 01:23:36) ->    7(time 5106 - 01:25:06)(time 5957 - 01:39:17) ->    6(time 6047 - 01:40:47)(time 6896 - 01:54:56) ->    5(time 7066 - 01:57:46)(time 7066 - 01:57:46) ->    0(time 7236 - 02:00:36)(time 8085 - 02:14:45) ->    1(time 8175 - 02:16:15)(time 9026 - 02:30:26) ->    2(time 9116 - 02:31:56)(time 9987 - 02:46:27) ->    3(time 10077 - 02:47:57)(time 10935 - 03:02:15) ->    4(time 11105 - 03:05:05)(time 11105 - 03:05:05) -> 9
+> Trip 1
+   9(time 12424 - 03:27:04)(time 13282 - 03:41:22) ->    8(time 13372 - 03:42:52)(time 14243 - 03:57:23) ->    7(time 14793 - 04:06:33)(time 15644 - 04:20:44) ->    6(time 15734 - 04:22:14)(time 16583 - 04:36:23) ->    5(time 16753 - 04:39:13)(time 16753 - 04:39:13) ->    0(time 16843 - 04:40:43)(time 17692 - 04:54:52) ->    1(time 17782 - 04:56:22)(time 18633 - 05:10:33) ->    2(time 19183 - 05:19:43)(time 20054 - 05:34:14) ->    3(time 20144 - 05:35:44)(time 21002 - 05:50:02) ->    4(time 21552 - 05:59:12)(time 21552 - 05:59:12) -> 9
+> Trip 2
+   9(time 30640 - 08:30:40)(time 31498 - 08:44:58) ->    8(time 31588 - 08:46:28)(time 32459 - 09:00:59) ->    7(time 32629 - 09:03:49)(time 33480 - 09:18:00) ->    6(time 33570 - 09:19:30)(time 34419 - 09:33:39) ->    5(time 34969 - 09:42:49)(time 34969 - 09:42:49) ->    0(time 35139 - 09:45:39)(time 35988 - 09:59:48) ->    1(time 36078 - 10:01:18)(time 36929 - 10:15:29) ->    2(time 37019 - 10:16:59)(time 37890 - 10:31:30) ->    3(time 37980 - 10:33:00)(time 38838 - 10:47:18) ->    4(time 39008 - 10:50:08)(time 39008 - 10:50:08) -> 9
+=============
+Train 3
+=============
+> Trip 0
+   9(time 11494 - 03:11:34)(time 12352 - 03:25:52) ->    8(time 12442 - 03:27:22)(time 13313 - 03:41:53) ->    7(time 13403 - 03:43:23)(time 14254 - 03:57:34) ->    6(time 14804 - 04:06:44)(time 15653 - 04:20:53) ->    5(time 16203 - 04:30:03)(time 16203 - 04:30:03) ->    0(time 16753 - 04:39:13)(time 17602 - 04:53:22) ->    1(time 17692 - 04:54:52)(time 18543 - 05:09:03) ->    2(time 18633 - 05:10:33)(time 19504 - 05:25:04) ->    3(time 19594 - 05:26:34)(time 20452 - 05:40:52) ->    4(time 21002 - 05:50:02)(time 21002 - 05:50:02) -> 9
+> Trip 1
+   9(time 30810 - 08:33:30)(time 31668 - 08:47:48) ->    8(time 31758 - 08:49:18)(time 32629 - 09:03:49) ->    7(time 33179 - 09:12:59)(time 34030 - 09:27:10) ->    6(time 34120 - 09:28:40)(time 34969 - 09:42:49) ->    5(time 35519 - 09:51:59)(time 35519 - 09:51:59) ->    0(time 35519 - 09:51:59)(time 36368 - 10:06:08) ->    1(time 36918 - 10:15:18)(time 37769 - 10:29:29) ->    2(time 37859 - 10:30:59)(time 38730 - 10:45:30) ->    3(time 39280 - 10:54:40)(time 40138 - 11:08:58) ->    4(time 40308 - 11:11:48)(time 40308 - 11:11:48) -> 9
+> Trip 2
+   9(time 40479 - 11:14:39)(time 41337 - 11:28:57) ->    8(time 41427 - 11:30:27)(time 42298 - 11:44:58) ->    7(time 42388 - 11:46:28)(time 43239 - 12:00:39) ->    6(time 43329 - 12:02:09)(time 44178 - 12:16:18) ->    5(time 44348 - 12:19:08)(time 44348 - 12:19:08) ->    0(time 44518 - 12:21:58)(time 45367 - 12:36:07) ->    1(time 45457 - 12:37:37)(time 46308 - 12:51:48) ->    2(time 46398 - 12:53:18)(time 47269 - 13:07:49) ->    3(time 47359 - 13:09:19)(time 48217 - 13:23:37) ->    4(time 48387 - 13:26:27)(time 48387 - 13:26:27) -> 9
+=============
+Train 4
+=============
+> Trip 0
+   9(time 3027 - 00:50:27)(time 3885 - 01:04:45) ->    8(time 3975 - 01:06:15)(time 4846 - 01:20:46) ->    7(time 4936 - 01:22:16)(time 5787 - 01:36:27) ->    6(time 5877 - 01:37:57)(time 6726 - 01:52:06) ->    5(time 6896 - 01:54:56)(time 6896 - 01:54:56) ->    0(time 7066 - 01:57:46)(time 7915 - 02:11:55) ->    1(time 8005 - 02:13:25)(time 8856 - 02:27:36) ->    2(time 8946 - 02:29:06)(time 9817 - 02:43:37) ->    3(time 9907 - 02:45:07)(time 10765 - 02:59:25) ->    4(time 10935 - 03:02:15)(time 10935 - 03:02:15) -> 9
+> Trip 1
+   9(time 22472 - 06:14:32)(time 23330 - 06:28:50) ->    8(time 23420 - 06:30:20)(time 24291 - 06:44:51) ->    7(time 24381 - 06:46:21)(time 25232 - 07:00:32) ->    6(time 25322 - 07:02:02)(time 26171 - 07:16:11) ->    5(time 26341 - 07:19:01)(time 26341 - 07:19:01) ->    0(time 26511 - 07:21:51)(time 27360 - 07:36:00) ->    1(time 27450 - 07:37:30)(time 28301 - 07:51:41) ->    2(time 28391 - 07:53:11)(time 29262 - 08:07:42) ->    3(time 29352 - 08:09:12)(time 30210 - 08:23:30) ->    4(time 30380 - 08:26:20)(time 30380 - 08:26:20) -> 9
+> Trip 2
+   9(time 40139 - 11:08:59)(time 40997 - 11:23:17) ->    8(time 41087 - 11:24:47)(time 41958 - 11:39:18) ->    7(time 42048 - 11:40:48)(time 42899 - 11:54:59) ->    6(time 42989 - 11:56:29)(time 43838 - 12:10:38) ->    5(time 44008 - 12:13:28)(time 44008 - 12:13:28) ->    0(time 44178 - 12:16:18)(time 45027 - 12:30:27) ->    1(time 45117 - 12:31:57)(time 45968 - 12:46:08) ->    2(time 46058 - 12:47:38)(time 46929 - 13:02:09) ->    3(time 47019 - 13:03:39)(time 47877 - 13:17:57) ->    4(time 48047 - 13:20:47)(time 48047 - 13:20:47) -> 9
