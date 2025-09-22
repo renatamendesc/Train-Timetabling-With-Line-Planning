@@ -1,0 +1,561 @@
+t4p19r15h1.txt:
+   > Trying to open the instance file...
+   > Reading number of trains...
+   > Reading maximum number of trips per train...
+   > Reading time intervals...
+   > Reading number of points...
+   > Reading stations...
+   > Reading crossings...
+   > Reading depots...
+   > Reading initial point...
+   > Reading routes...
+   > Reading distance and distance and service...
+   > Reading demands...
+   > Reading maximum time...
+   > Reading alpha...
+
+--------------------------------
+ Printing instance
+--------------------------------
+number of trains = 4
+	max trips per trains: 2     2     2     2
+number of intervals = 1
+	(0,   5988)
+number of points = 19
+	initial point: 11
+	stations: 0     1     2     4     5     6     7     8     9    10    11    12    13    14    15    16    17    18
+	crossings: 0     3     4     7     8    11    13    18
+	depots: 0     7    11    18
+number of vertices = 38
+	total vertices: 0     1     2     3     4     5     6     7     8     9    10    11    12    13    14    15    16    17    18    19    20    21    22    23    24    25    26    27    28    29    30    31    32    33    34    35    36    37
+	upper vertices: 0     1     2     3     4     5     6     7     8     9    10    11    12    13    14    15    16    17    18
+	lower vertices: 19    20    21    22    23    24    25    26    27    28    29    30    31    32    33    34    35    36    37
+	vertices of point #0: (0, 19)
+	vertices of point #1: (1, 20)
+	vertices of point #2: (2, 21)
+	vertices of point #3: (3, 22)
+	vertices of point #4: (4, 23)
+	vertices of point #5: (5, 24)
+	vertices of point #6: (6, 25)
+	vertices of point #7: (7, 26)
+	vertices of point #8: (8, 27)
+	vertices of point #9: (9, 28)
+	vertices of point #10: (10, 29)
+	vertices of point #11: (11, 30)
+	vertices of point #12: (12, 31)
+	vertices of point #13: (13, 32)
+	vertices of point #14: (14, 33)
+	vertices of point #15: (15, 34)
+	vertices of point #16: (16, 35)
+	vertices of point #17: (17, 36)
+	vertices of point #18: (18, 37)
+
+arcs...
+	total arcs: 
+		arc #0: (0, 1)
+		arc #1: (0, 19)
+		arc #2: (19, 0)
+		arc #3: (1, 2)
+		arc #4: (20, 19)
+		arc #5: (2, 3)
+		arc #6: (21, 20)
+		arc #7: (3, 4)
+		arc #8: (22, 21)
+		arc #9: (4, 5)
+		arc #10: (23, 22)
+		arc #11: (5, 6)
+		arc #12: (24, 23)
+		arc #13: (6, 7)
+		arc #14: (25, 24)
+		arc #15: (7, 8)
+		arc #16: (26, 25)
+		arc #17: (7, 26)
+		arc #18: (26, 7)
+		arc #19: (8, 9)
+		arc #20: (27, 26)
+		arc #21: (9, 10)
+		arc #22: (28, 27)
+		arc #23: (10, 11)
+		arc #24: (29, 28)
+		arc #25: (11, 12)
+		arc #26: (30, 29)
+		arc #27: (11, 30)
+		arc #28: (30, 11)
+		arc #29: (12, 13)
+		arc #30: (31, 30)
+		arc #31: (13, 14)
+		arc #32: (32, 31)
+		arc #33: (14, 15)
+		arc #34: (33, 32)
+		arc #35: (15, 16)
+		arc #36: (34, 33)
+		arc #37: (16, 17)
+		arc #38: (35, 34)
+		arc #39: (17, 18)
+		arc #40: (36, 35)
+		arc #41: (37, 36)
+		arc #42: (18, 37)
+		arc #43: (37, 18)
+
+	reverse arcs: 
+		arc #1: (0, 19)
+		arc #2: (19, 0)
+		arc #17: (7, 26)
+		arc #18: (26, 7)
+		arc #27: (11, 30)
+		arc #28: (30, 11)
+		arc #42: (18, 37)
+		arc #43: (37, 18)
+
+
+incompatible points...
+	(0, 2, 22, (2, 3))	(22, 20, 0, (20, 19))	(3, 3, 23, (3, 4))	(23, 23, 3, (23, 22))	(4, 6, 26, (6, 7))	(26, 24, 4, (24, 23))	(7, 7, 27, (7, 8))	(27, 27, 7, (27, 26))	(8, 10, 30, (10, 11))	(30, 28, 8, (28, 27))	(11, 12, 32, (12, 13))	(32, 31, 11, (31, 30))	(13, 17, 37, (17, 18))	(37, 33, 13, (33, 32))
+
+number of routes = 15
+vertices of routes...
+	route #0: 0     1     2     3     4     5     6     7     8     9    10    11    12    13    14    15    16    17    18    37    36    35    34    33    32    31    30    29    28    27    26    25    24    23    22    21    20    19     0
+	route #1: 37    36    35    34    33    32    31    30    29    28    27    26    25    24    23    22    21    20    19     0     1     2     3     4     5     6     7     8     9    10    11    12    13    14    15    16    17    18    37
+	route #2: 7     8     9    10    11    12    13    14    15    16    17    18
+	route #3: 26    25    24    23    22    21    20    19
+	route #4: 0     1     2     3     4     5     6     7
+	route #5: 37    36    35    34    33    32    31    30    29    28    27    26
+	route #6: 11    12    13    14    15    16    17    18
+	route #7: 30    29    28    27    26    25    24    23    22    21    20    19
+	route #8: 0     1     2     3     4     5     6     7     8     9    10    11
+	route #9: 37    36    35    34    33    32    31    30
+	route #10: 30    29    28    27    26
+	route #11: 30    29    28    27    26    25    24    23    22    21    20    19     0     1     2     3     4     5     6     7     8     9    10    11    30
+	route #12: 11    12    13    14    15    16    17    18    37    36    35    34    33    32    31    30    11
+	route #13: 7     8     9    10    11
+	route #14: 26    25    24    23    22    21    20    19     0     1     2     3     4     5     6     7    26
+arcs of routes...
+	route #0: 0     3     5     7     9    11    13    15    19    21    23    25    29    31    33    35    37    39    42    41    40    38    36    34    32    30    26    24    22    20    16    14    12    10     8     6     4     2
+	route #1: 41    40    38    36    34    32    30    26    24    22    20    16    14    12    10     8     6     4     2     0     3     5     7     9    11    13    15    19    21    23    25    29    31    33    35    37    39    42
+	route #2: 15    19    21    23    25    29    31    33    35    37    39
+	route #3: 16    14    12    10     8     6     4
+	route #4: 0     3     5     7     9    11    13
+	route #5: 41    40    38    36    34    32    30    26    24    22    20
+	route #6: 25    29    31    33    35    37    39
+	route #7: 26    24    22    20    16    14    12    10     8     6     4
+	route #8: 0     3     5     7     9    11    13    15    19    21    23
+	route #9: 41    40    38    36    34    32    30
+	route #10: 26    24    22    20
+	route #11: 26    24    22    20    16    14    12    10     8     6     4     2     0     3     5     7     9    11    13    15    19    21    23    27
+	route #12: 25    29    31    33    35    37    39    42    41    40    38    36    34    32    30    28
+	route #13: 15    19    21    23
+	route #14: 16    14    12    10     8     6     4     2     0     3     5     7     9    11    13    17
+
+incompatible routes...
+	(0, 1)    	(0, 2)    	(0, 3)    	(0, 5)    	(0, 6)    	(0, 7)    	(0, 9)    	(0, 10)    	(0, 11)    	(0, 12)    	(0, 13)    	(0, 14)    	(1, 0)    	(1, 2)    	(1, 3)    	(1, 4)    	(1, 6)    	(1, 7)    	(1, 8)    	(1, 10)    	(1, 11)    	(1, 12)    	(1, 13)    	(1, 14)    	(2, 0)    	(2, 2)    	(2, 3)    	(2, 4)    	(2, 6)    	(2, 7)    	(2, 8)    	(2, 10)    	(2, 11)    	(2, 12)    	(2, 13)    	(2, 14)    	(3, 1)    	(3, 2)    	(3, 3)    	(3, 5)    	(3, 6)    	(3, 7)    	(3, 9)    	(3, 10)    	(3, 11)    	(3, 12)    	(3, 13)    	(3, 14)    	(4, 0)    	(4, 1)    	(4, 4)    	(4, 5)    	(4, 6)    	(4, 7)    	(4, 8)    	(4, 9)    	(4, 10)    	(4, 11)    	(4, 12)    	(5, 0)    	(5, 1)    	(5, 4)    	(5, 5)    	(5, 6)    	(5, 7)    	(5, 8)    	(5, 9)    	(5, 10)    	(5, 11)    	(5, 12)    	(6, 0)    	(6, 2)    	(6, 3)    	(6, 4)    	(6, 6)    	(6, 7)    	(6, 8)    	(6, 10)    	(6, 11)    	(6, 12)    	(6, 13)    	(6, 14)    	(7, 1)    	(7, 2)    	(7, 3)    	(7, 5)    	(7, 6)    	(7, 7)    	(7, 9)    	(7, 10)    	(7, 11)    	(7, 12)    	(7, 13)    	(7, 14)    	(8, 0)    	(8, 1)    	(8, 2)    	(8, 3)    	(8, 4)    	(8, 5)    	(8, 8)    	(8, 9)    	(8, 13)    	(8, 14)    	(9, 0)    	(9, 1)    	(9, 2)    	(9, 3)    	(9, 4)    	(9, 5)    	(9, 8)    	(9, 9)    	(9, 13)    	(9, 14)    	(10, 0)    	(10, 1)    	(10, 4)    	(10, 5)    	(10, 6)    	(10, 7)    	(10, 8)    	(10, 9)    	(10, 10)    	(10, 11)    	(10, 12)    	(11, 0)    	(11, 1)    	(11, 2)    	(11, 3)    	(11, 4)    	(11, 5)    	(11, 8)    	(11, 9)    	(11, 13)    	(11, 14)    	(12, 0)    	(12, 1)    	(12, 2)    	(12, 3)    	(12, 4)    	(12, 5)    	(12, 8)    	(12, 9)    	(12, 13)    	(12, 14)    	(13, 0)    	(13, 1)    	(13, 2)    	(13, 3)    	(13, 4)    	(13, 5)    	(13, 8)    	(13, 9)    	(13, 13)    	(13, 14)    	(14, 0)    	(14, 1)    	(14, 4)    	(14, 5)    	(14, 6)    	(14, 7)    	(14, 8)    	(14, 9)    	(14, 10)    	(14, 11)    	(14, 12)
+
+vertices that can be adjacent in consecutive trips...
+	(0, 0)    	(7, 7)    	(7, 26)    	(11, 11)    	(11, 30)    	(18, 37)    	(19, 0)    	(26, 7)    	(26, 26)    	(30, 11)    	(30, 30)    	(37, 37)
+non cyclical routes: 
+       2       3       4       5       6       7       8       9      10      13
+
+routes of trip...
+	routes that train #0 can complete at trip #0: 6       7      10      11      12
+	routes that train #0 can complete at trip #1: 0       1       2       3       4       5       6       7       8       9      10      11      12      13      14
+
+	routes that train #1 can complete at trip #0: 6       7      10      11      12
+	routes that train #1 can complete at trip #1: 0       1       2       3       4       5       6       7       8       9      10      11      12      13      14
+
+	routes that train #2 can complete at trip #0: 6       7      10      11      12
+	routes that train #2 can complete at trip #1: 0       1       2       3       4       5       6       7       8       9      10      11      12      13      14
+
+	routes that train #3 can complete at trip #0: 6       7      10      11      12
+	routes that train #3 can complete at trip #1: 0       1       2       3       4       5       6       7       8       9      10      11      12      13      14
+
+ cost...
+	arc #0 [0][1]: 70
+	arc #1 [0][19]: 0
+	arc #2 [19][0]: 0
+	arc #3 [1][2]: 60
+	arc #4 [20][19]: 70
+	arc #5 [2][3]: 70
+	arc #6 [21][20]: 60
+	arc #7 [3][4]: 69
+	arc #8 [22][21]: 70
+	arc #9 [4][5]: 67
+	arc #10 [23][22]: 69
+	arc #11 [5][6]: 65
+	arc #12 [24][23]: 67
+	arc #13 [6][7]: 67
+	arc #14 [25][24]: 65
+	arc #15 [7][8]: 67
+	arc #16 [26][25]: 67
+	arc #17 [7][26]: 0
+	arc #18 [26][7]: 0
+	arc #19 [8][9]: 63
+	arc #20 [27][26]: 67
+	arc #21 [9][10]: 67
+	arc #22 [28][27]: 63
+	arc #23 [10][11]: 65
+	arc #24 [29][28]: 67
+	arc #25 [11][12]: 64
+	arc #26 [30][29]: 65
+	arc #27 [11][30]: 0
+	arc #28 [30][11]: 0
+	arc #29 [12][13]: 72
+	arc #30 [31][30]: 64
+	arc #31 [13][14]: 72
+	arc #32 [32][31]: 72
+	arc #33 [14][15]: 62
+	arc #34 [33][32]: 72
+	arc #35 [15][16]: 66
+	arc #36 [34][33]: 62
+	arc #37 [16][17]: 65
+	arc #38 [35][34]: 66
+	arc #39 [17][18]: 72
+	arc #40 [36][35]: 65
+	arc #41 [37][36]: 72
+	arc #42 [18][37]: 0
+	arc #43 [37][18]: 0
+
+cost with minimum service...
+	arc #0 [0][1]: 135
+	arc #1 [0][19]: 0
+	arc #2 [19][0]: 0
+	arc #3 [1][2]: 125
+	arc #4 [20][19]: 168
+	arc #5 [2][3]: 118
+	arc #6 [21][20]: 125
+	arc #7 [3][4]: 134
+	arc #8 [22][21]: 135
+	arc #9 [4][5]: 132
+	arc #10 [23][22]: 117
+	arc #11 [5][6]: 130
+	arc #12 [24][23]: 132
+	arc #13 [6][7]: 165
+	arc #14 [25][24]: 130
+	arc #15 [7][8]: 132
+	arc #16 [26][25]: 132
+	arc #17 [7][26]: 0
+	arc #18 [26][7]: 0
+	arc #19 [8][9]: 128
+	arc #20 [27][26]: 165
+	arc #21 [9][10]: 132
+	arc #22 [28][27]: 128
+	arc #23 [10][11]: 163
+	arc #24 [29][28]: 132
+	arc #25 [11][12]: 129
+	arc #26 [30][29]: 130
+	arc #27 [11][30]: 0
+	arc #28 [30][11]: 0
+	arc #29 [12][13]: 137
+	arc #30 [31][30]: 162
+	arc #31 [13][14]: 137
+	arc #32 [32][31]: 137
+	arc #33 [14][15]: 127
+	arc #34 [33][32]: 137
+	arc #35 [15][16]: 131
+	arc #36 [34][33]: 127
+	arc #37 [16][17]: 130
+	arc #38 [35][34]: 131
+	arc #39 [17][18]: 170
+	arc #40 [36][35]: 130
+	arc #41 [37][36]: 137
+	arc #42 [18][37]: 0
+	arc #43 [37][18]: 0
+
+cost with maximum service...
+	arc #0 [0][1]: 416
+	arc #1 [0][19]: 346
+	arc #2 [19][0]: 346
+	arc #3 [1][2]: 406
+	arc #4 [20][19]: 416
+	arc #5 [2][3]: 416
+	arc #6 [21][20]: 406
+	arc #7 [3][4]: 415
+	arc #8 [22][21]: 416
+	arc #9 [4][5]: 413
+	arc #10 [23][22]: 415
+	arc #11 [5][6]: 411
+	arc #12 [24][23]: 413
+	arc #13 [6][7]: 413
+	arc #14 [25][24]: 411
+	arc #15 [7][8]: 413
+	arc #16 [26][25]: 413
+	arc #17 [7][26]: 346
+	arc #18 [26][7]: 346
+	arc #19 [8][9]: 409
+	arc #20 [27][26]: 413
+	arc #21 [9][10]: 413
+	arc #22 [28][27]: 409
+	arc #23 [10][11]: 411
+	arc #24 [29][28]: 413
+	arc #25 [11][12]: 410
+	arc #26 [30][29]: 411
+	arc #27 [11][30]: 346
+	arc #28 [30][11]: 346
+	arc #29 [12][13]: 418
+	arc #30 [31][30]: 410
+	arc #31 [13][14]: 418
+	arc #32 [32][31]: 418
+	arc #33 [14][15]: 408
+	arc #34 [33][32]: 418
+	arc #35 [15][16]: 412
+	arc #36 [34][33]: 408
+	arc #37 [16][17]: 411
+	arc #38 [35][34]: 412
+	arc #39 [17][18]: 418
+	arc #40 [36][35]: 411
+	arc #41 [37][36]: 418
+	arc #42 [18][37]: 346
+	arc #43 [37][18]: 346
+
+demands...
+	demands of vertex 0 at time interval: 4
+	demands of vertex 1 at time interval: 4
+	demands of vertex 2 at time interval: 4
+	demands of vertex 3 at time interval: 0
+	demands of vertex 4 at time interval: 4
+	demands of vertex 5 at time interval: 4
+	demands of vertex 6 at time interval: 4
+	demands of vertex 7 at time interval: 4
+	demands of vertex 8 at time interval: 4
+	demands of vertex 9 at time interval: 4
+	demands of vertex 10 at time interval: 4
+	demands of vertex 11 at time interval: 4
+	demands of vertex 12 at time interval: 4
+	demands of vertex 13 at time interval: 4
+	demands of vertex 14 at time interval: 4
+	demands of vertex 15 at time interval: 4
+	demands of vertex 16 at time interval: 4
+	demands of vertex 17 at time interval: 4
+	demands of vertex 18 at time interval: 0
+	demands of vertex 19 at time interval: 0
+	demands of vertex 20 at time interval: 4
+	demands of vertex 21 at time interval: 4
+	demands of vertex 22 at time interval: 0
+	demands of vertex 23 at time interval: 4
+	demands of vertex 24 at time interval: 4
+	demands of vertex 25 at time interval: 4
+	demands of vertex 26 at time interval: 4
+	demands of vertex 27 at time interval: 4
+	demands of vertex 28 at time interval: 4
+	demands of vertex 29 at time interval: 4
+	demands of vertex 30 at time interval: 4
+	demands of vertex 31 at time interval: 4
+	demands of vertex 32 at time interval: 4
+	demands of vertex 33 at time interval: 4
+	demands of vertex 34 at time interval: 4
+	demands of vertex 35 at time interval: 4
+	demands of vertex 36 at time interval: 4
+	demands of vertex 37 at time interval: 4
+
+maximum time = 5988
+alpha = 71
+
+>> Solving...
+Version identifier: 20.1.0.0 | 2020-11-10 | 9bedb6d68
+CPXPARAM_Threads                                 1
+CPXPARAM_TimeLimit                               43200
+Tried aggregator 3 times.
+MIP Presolve eliminated 53593 rows and 7064 columns.
+MIP Presolve modified 32540 coefficients.
+Aggregator did 496 substitutions.
+Reduced MIP has 167030 rows, 63145 columns, and 408684 nonzeros.
+Reduced MIP has 62608 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 9.90 sec. (3114.52 ticks)
+Probing fixed 4 vars, tightened 32 bounds.
+Probing time = 14.21 sec. (1005.54 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Elapsed time for symmetry detection = 6.99 sec. (10002.70 ticks)
+Found 4.503239e+35521 symmetric permutations.
+MIP Presolve eliminated 727 rows and 118 columns.
+MIP Presolve modified 1372 coefficients.
+Reduced MIP has 166303 rows, 63027 columns, and 405988 nonzeros.
+Reduced MIP has 62490 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 16.59 sec. (17476.54 ticks)
+Probing fixed 0 vars, tightened 22 bounds.
+Probing time = 9.74 sec. (622.97 ticks)
+Clique table members: 271030.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Root relaxation solution time = 314.22 sec. (18531.73 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+      0     0        0.0000  9028                      0.0000    28338         
+      0     0        0.8225   296                  Cuts: 3742    86410         
+      0     0       35.5000   567                  Cuts: 1791   101185         
+      0     0       35.5000   484                  Cuts: 2523   103822         
+      0     0       35.5000   755                  Cuts: 2730   106079         
+      0     0       35.5000   729                   Cuts: 903   106784         
+
+Repeating presolve.
+Tried aggregator 1 time.
+MIP Presolve eliminated 127576 rows and 51050 columns.
+MIP Presolve modified 833 coefficients.
+Reduced MIP has 38727 rows, 11977 columns, and 99750 nonzeros.
+Reduced MIP has 11440 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 1.73 sec. (590.05 ticks)
+Probing fixed 0 vars, tightened 10 bounds.
+Probing time = 2.00 sec. (160.62 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+MIP Presolve eliminated 37 rows and 30 columns.
+MIP Presolve modified 263 coefficients.
+Reduced MIP has 38690 rows, 11947 columns, and 99568 nonzeros.
+Reduced MIP has 11410 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 1.16 sec. (887.74 ticks)
+Represolve time = 5.54 sec. (1909.13 ticks)
+Probing time = 0.18 sec. (11.60 ticks)
+Clique table members: 62328.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Root relaxation solution time = 11.88 sec. (3515.91 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+      0     0       35.5000  2695                     35.5000   131282         
+      0     0       41.9545  3057                   Cuts: 960   136152         
+      0     0       49.7000   338                   Cuts: 739   136993         
+      0     0       49.7000   639                   Cuts: 714   137627         
+      0     0       49.7000   397                  Cuts: 1745   138001         
+      0     0       49.7000   402                  Cuts: 1321   138483         
+
+Repeating presolve.
+Tried aggregator 1 time.
+MIP Presolve eliminated 18355 rows and 7342 columns.
+MIP Presolve modified 124 coefficients.
+Reduced MIP has 20335 rows, 4605 columns, and 55516 nonzeros.
+Reduced MIP has 4068 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.19 sec. (119.00 ticks)
+Probing time = 0.07 sec. (7.65 ticks)
+Cover probing fixed 0 vars, tightened 25 bounds.
+Tried aggregator 1 time.
+Detecting symmetries...
+MIP Presolve modified 597 coefficients.
+Reduced MIP has 20335 rows, 4605 columns, and 55516 nonzeros.
+Reduced MIP has 4068 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.20 sec. (117.40 ticks)
+Represolve time = 0.65 sec. (351.21 ticks)
+Probing time = 0.07 sec. (7.78 ticks)
+Clique table members: 31802.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Root relaxation solution time = 1.13 sec. (1050.85 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+      0     0       49.7000  1198                     49.7000   144917         
+      0     0       49.7000   264                  Cuts: 1402   148313         
+      0     0       49.7000   953                   Cuts: 514   148696         
+      0     0       54.6154  1190                   Cuts: 561   154763         
+      0     0       54.6154  1140                   Cuts: 887   157702         
+      0     0       54.6154   499                   Cuts: 599   158073         
+      0     0       54.6154  1136                   Cuts: 544   160585         
+*     0+    0                         5922.0000       54.6154            99.08%
+      0     2       54.6154  1103     5922.0000       54.6154   160585   99.08%
+Elapsed time = 2928.50 sec. (433242.61 ticks, tree = 0.01 MB, solutions = 1)
+      1     3      437.5206  1167     5922.0000       54.6154   164609   99.08%
+      2     4      486.0022  1192     5922.0000      462.5261   167544   92.19%
+      4     6     4910.0000   477     5922.0000      750.0185   170256   87.34%
+      5     7     4910.0000   537     5922.0000      750.0185   171565   87.34%
+     10    12     5773.0000   172     5922.0000      750.0185   173059   87.34%
+     16    14     1543.1635  1023     5922.0000      799.0000   176192   86.51%
+     17    15     4910.0000   672     5922.0000      799.0000   179531   86.51%
+     18    16     5773.0000   259     5922.0000      799.0000   182403   86.51%
+     25    19     5773.0000   144     5922.0000      799.0000   182971   86.51%
+     48    24     2825.0000  1014     5922.0000      922.8970   193934   84.42%
+Elapsed time = 2939.56 sec. (442400.09 ticks, tree = 0.22 MB, solutions = 1)
+     77    33     2825.0000   906     5922.0000     1331.0000   198660   77.52%
+*    84    38      integral     0     5910.0000     1331.0000   203462   77.48%
+     85    38     2825.0000   884     5910.0000     1760.0000   205124   70.22%
+     99    44     5773.0000   481     5910.0000     1760.0000   213310   70.22%
+    104    45     2825.0000   913     5910.0000     2825.0000   219303   52.20%
+    107    48     5773.0000   243     5910.0000     2825.0000   224932   52.20%
+    110    47        cutoff           5910.0000     2825.0000   230405   52.20%
+    128    52     5773.0000   380     5910.0000     2825.0000   235882   52.20%
+*   166    55      integral     0     5864.0000     2825.0000   241462   51.82%
+    169    58     4910.0000   910     5864.0000     2825.0000   248448   51.82%
+*   180+   65                         5854.0000     2825.0000            51.74%
+    187    70     5773.0000   154     5854.0000     2825.0000   258045   51.74%
+Elapsed time = 2955.45 sec. (453348.44 ticks, tree = 0.63 MB, solutions = 4)
+*   200+   77                         5827.0000     2825.0000            51.52%
+*   200+   57                         5813.0000     2825.0000            51.40%
+    203    57        cutoff           5813.0000     3682.0000   265279   36.66%
+    212    52        cutoff           5813.0000     4910.0000   271901   15.53%
+    246    71        cutoff           5813.0000     4910.0000   276199   15.53%
+    300    93     4910.0000   254     5813.0000     4910.0000   280126   15.53%
+    335   112     4910.0000   762     5813.0000     4910.0000   284777   15.53%
+    350   119     4910.0000   492     5813.0000     4910.0000   289903   15.53%
+    375   112     4910.0000   852     5813.0000     4910.0000   298780   15.53%
+    396   133     4981.0000   605     5813.0000     4910.0000   304762   15.53%
+    403   136     4981.0000   572     5813.0000     4910.0000   313998   15.53%
+*   440+  105                         5400.0000     4910.0000             9.07%
+    455   108        cutoff           5400.0000     4910.0000   318472    9.07%
+Elapsed time = 2971.03 sec. (464392.22 ticks, tree = 0.59 MB, solutions = 7)
+    483   123     5204.0000   128     5400.0000     4910.0000   322953    9.07%
+    530   149     5106.0000   122     5400.0000     4910.0000   326774    9.07%
+*   540+  129                         5302.0000     4910.0000             7.39%
+    574   128     5106.0000   123     5302.0000     4981.0000   329012    6.05%
+    609   131    infeasible           5302.0000     4981.0000   334998    6.05%
+    620   131     5079.0000   136     5302.0000     4981.0000   341286    6.05%
+    681   144     5144.0000   160     5302.0000     4981.0000   344668    6.05%
+    770   193     5106.0000   215     5302.0000     5008.0000   345647    5.55%
+    872   227     5008.0000    42     5302.0000     5008.0000   347458    5.55%
+    989   270     5106.0000    41     5302.0000     5008.0000   348597    5.55%
+*  1020+  235                         5213.0000     5008.0000             3.93%
+*  1029    43      integral     0     5069.0000     5008.0000   348848    1.20%
+*  1050+    1                         5008.0000     5008.0000             0.00%
+
+Clique cuts applied:  19
+Cover cuts applied:  1
+Implied bound cuts applied:  1268
+Flow cuts applied:  35
+Mixed integer rounding cuts applied:  43
+Zero-half cuts applied:  552
+Lift and project cuts applied:  2
+Gomory fractional cuts applied:  5
+
+Root node processing (before b&c):
+  Real time             = 2928.10 sec. (432823.84 ticks)
+Sequential b&c:
+  Real time             =   60.54 sec. (40849.67 ticks)
+                          ------------
+Total (root+branch&cut) = 2988.64 sec. (473673.51 ticks)
+Optimal
+
+>> Printing some results...
+    -> Solution value = 5007 - 01:23:27
+    -> Total time = 2988.64
+    -> Gap value = 0.00
+
+=============
+Train 0
+=============
+> Trip 0
+   11(time 118 - 00:01:58)(time 182 - 00:03:02) ->    12(time 247 - 00:04:07)(time 319 - 00:05:19) ->    13(time 384 - 00:06:24)(time 456 - 00:07:36) ->    14(time 521 - 00:08:41)(time 583 - 00:09:43) ->    15(time 648 - 00:10:48)(time 714 - 00:11:54) ->    16(time 779 - 00:12:59)(time 844 - 00:14:04) ->    17(time 909 - 00:15:09)(time 981 - 00:16:21) ->    18(time 1079 - 00:17:59)(time 1079 - 00:17:59) ->    37(time 1079 - 00:17:59)(time 1151 - 00:19:11) ->    36(time 1216 - 00:20:16)(time 1281 - 00:21:21) ->    35(time 1346 - 00:22:26)(time 1412 - 00:23:32) ->    34(time 1477 - 00:24:37)(time 1539 - 00:25:39) ->    33(time 1604 - 00:26:44)(time 1676 - 00:27:56) ->    32(time 1741 - 00:29:01)(time 1813 - 00:30:13) ->    31(time 1878 - 00:31:18)(time 1942 - 00:32:22) ->    30(time 2040 - 00:34:00)(time 2040 - 00:34:00) -> 11
+> Trip 1
+   30(time 2040 - 00:34:00)(time 2105 - 00:35:05) ->    29(time 2170 - 00:36:10)(time 2237 - 00:37:17) ->    28(time 2302 - 00:38:22)(time 2365 - 00:39:25) ->    27(time 2430 - 00:40:30)(time 2497 - 00:41:37) ->    26(time 2595 - 00:43:15)(time 2662 - 00:44:22) ->    25(time 2727 - 00:45:27)(time 2792 - 00:46:32) ->    24(time 2857 - 00:47:37)(time 2924 - 00:48:44) ->    23(time 2989 - 00:49:49)(time 3058 - 00:50:58) ->    22(time 3106 - 00:51:46)(time 3176 - 00:52:56) ->    21(time 3241 - 00:54:01)(time 3301 - 00:55:01) ->    20(time 3366 - 00:56:06)(time 3436 - 00:57:16) ->    19(time 3534 - 00:58:54)(time 3534 - 00:58:54) ->    0(time 3534 - 00:58:54)(time 3604 - 01:00:04) ->    1(time 3669 - 01:01:09)(time 3729 - 01:02:09) ->    2(time 3794 - 01:03:14)(time 3864 - 01:04:24) ->    3(time 3912 - 01:05:12)(time 3981 - 01:06:21) ->    4(time 4046 - 01:07:26)(time 4113 - 01:08:33) ->    5(time 4178 - 01:09:38)(time 4243 - 01:10:43) ->    6(time 4308 - 01:11:48)(time 4375 - 01:12:55) ->    7(time 4473 - 01:14:33)(time 4540 - 01:15:40) ->    8(time 4605 - 01:16:45)(time 4668 - 01:17:48) ->    9(time 4733 - 01:18:53)(time 4800 - 01:20:00) ->    10(time 4865 - 01:21:05)(time 4930 - 01:22:10) ->    11(time 5028 - 01:23:48)(time 5028 - 01:23:48) -> 30
+=============
+Train 1
+=============
+> Trip 0
+   30(time 233 - 00:03:53)(time 298 - 00:04:58) ->    29(time 390 - 00:06:30)(time 457 - 00:07:37) ->    28(time 522 - 00:08:42)(time 585 - 00:09:45) ->    27(time 650 - 00:10:50)(time 717 - 00:11:57) ->    26(time 815 - 00:13:35)(time 882 - 00:14:42) ->    25(time 947 - 00:15:47)(time 1012 - 00:16:52) ->    24(time 1077 - 00:17:57)(time 1144 - 00:19:04) ->    23(time 1209 - 00:20:09)(time 1278 - 00:21:18) ->    22(time 1326 - 00:22:06)(time 1396 - 00:23:16) ->    21(time 1461 - 00:24:21)(time 1521 - 00:25:21) ->    20(time 1586 - 00:26:26)(time 1656 - 00:27:36) ->    19(time 1754 - 00:29:14)(time 1754 - 00:29:14) ->    0(time 1754 - 00:29:14)(time 1824 - 00:30:24) ->    1(time 1889 - 00:31:29)(time 1949 - 00:32:29) ->    2(time 2014 - 00:33:34)(time 2084 - 00:34:44) ->    3(time 2132 - 00:35:32)(time 2201 - 00:36:41) ->    4(time 2266 - 00:37:46)(time 2333 - 00:38:53) ->    5(time 2398 - 00:39:58)(time 2463 - 00:41:03) ->    6(time 2528 - 00:42:08)(time 2595 - 00:43:15) ->    7(time 2693 - 00:44:53)(time 2760 - 00:46:00) ->    8(time 2825 - 00:47:05)(time 2888 - 00:48:08) ->    9(time 2953 - 00:49:13)(time 3020 - 00:50:20) ->    10(time 3085 - 00:51:25)(time 3150 - 00:52:30) ->    11(time 3248 - 00:54:08)(time 3248 - 00:54:08) -> 30
+> Trip 1
+   11(time 3248 - 00:54:08)(time 3312 - 00:55:12) ->    12(time 3377 - 00:56:17)(time 3449 - 00:57:29) ->    13(time 3514 - 00:58:34)(time 3586 - 00:59:46) ->    14(time 3651 - 01:00:51)(time 3713 - 01:01:53) ->    15(time 3778 - 01:02:58)(time 3844 - 01:04:04) ->    16(time 3909 - 01:05:09)(time 3974 - 01:06:14) ->    17(time 4039 - 01:07:19)(time 4111 - 01:08:31) ->    18(time 4209 - 01:10:09)(time 4209 - 01:10:09) ->    37(time 4209 - 01:10:09)(time 4281 - 01:11:21) ->    36(time 4346 - 01:12:26)(time 4411 - 01:13:31) ->    35(time 4476 - 01:14:36)(time 4542 - 01:15:42) ->    34(time 4607 - 01:16:47)(time 4669 - 01:17:49) ->    33(time 4734 - 01:18:54)(time 4806 - 01:20:06) ->    32(time 4871 - 01:21:11)(time 4943 - 01:22:23) ->    31(time 5008 - 01:23:28)(time 5072 - 01:24:32) ->    30(time 5170 - 01:26:10)(time 5170 - 01:26:10) -> 11
+=============
+Train 2
+=============
+> Trip 0
+   30(time 162 - 00:02:42)(time 227 - 00:03:47) ->    29(time 292 - 00:04:52)(time 359 - 00:05:59) ->    28(time 424 - 00:07:04)(time 487 - 00:08:07) ->    27(time 552 - 00:09:12)(time 619 - 00:10:19) ->    26(time 717 - 00:11:57)(time 784 - 00:13:04) ->    25(time 849 - 00:14:09)(time 914 - 00:15:14) ->    24(time 979 - 00:16:19)(time 1046 - 00:17:26) ->    23(time 1111 - 00:18:31)(time 1180 - 00:19:40) ->    22(time 1228 - 00:20:28)(time 1298 - 00:21:38) ->    21(time 1363 - 00:22:43)(time 1423 - 00:23:43) ->    20(time 1488 - 00:24:48)(time 1558 - 00:25:58) ->    19(time 1656 - 00:27:36)(time 1656 - 00:27:36) ->    0(time 1656 - 00:27:36)(time 1726 - 00:28:46) ->    1(time 1791 - 00:29:51)(time 1851 - 00:30:51) ->    2(time 1916 - 00:31:56)(time 1986 - 00:33:06) ->    3(time 2034 - 00:33:54)(time 2103 - 00:35:03) ->    4(time 2168 - 00:36:08)(time 2235 - 00:37:15) ->    5(time 2300 - 00:38:20)(time 2365 - 00:39:25) ->    6(time 2430 - 00:40:30)(time 2497 - 00:41:37) ->    7(time 2595 - 00:43:15)(time 2662 - 00:44:22) ->    8(time 2727 - 00:45:27)(time 2790 - 00:46:30) ->    9(time 2855 - 00:47:35)(time 2922 - 00:48:42) ->    10(time 2987 - 00:49:47)(time 3052 - 00:50:52) ->    11(time 3150 - 00:52:30)(time 3150 - 00:52:30) -> 30
+> Trip 1
+   11(time 3150 - 00:52:30)(time 3214 - 00:53:34) ->    12(time 3279 - 00:54:39)(time 3351 - 00:55:51) ->    13(time 3416 - 00:56:56)(time 3488 - 00:58:08) ->    14(time 3553 - 00:59:13)(time 3615 - 01:00:15) ->    15(time 3680 - 01:01:20)(time 3746 - 01:02:26) ->    16(time 3811 - 01:03:31)(time 3876 - 01:04:36) ->    17(time 3941 - 01:05:41)(time 4013 - 01:06:53) ->    18(time 4111 - 01:08:31)(time 4111 - 01:08:31) ->    37(time 4111 - 01:08:31)(time 4183 - 01:09:43) ->    36(time 4248 - 01:10:48)(time 4313 - 01:11:53) ->    35(time 4378 - 01:12:58)(time 4444 - 01:14:04) ->    34(time 4509 - 01:15:09)(time 4571 - 01:16:11) ->    33(time 4636 - 01:17:16)(time 4708 - 01:18:28) ->    32(time 4773 - 01:19:33)(time 4845 - 01:20:45) ->    31(time 4910 - 01:21:50)(time 4974 - 01:22:54) ->    30(time 5072 - 01:24:32)(time 5072 - 01:24:32) -> 11
+=============
+Train 3
+=============
+> Trip 0
+   11(time 189 - 00:03:09)(time 253 - 00:04:13) ->    12(time 318 - 00:05:18)(time 390 - 00:06:30) ->    13(time 455 - 00:07:35)(time 527 - 00:08:47) ->    14(time 592 - 00:09:52)(time 654 - 00:10:54) ->    15(time 719 - 00:11:59)(time 785 - 00:13:05) ->    16(time 850 - 00:14:10)(time 915 - 00:15:15) ->    17(time 1007 - 00:16:47)(time 1079 - 00:17:59) ->    18(time 1177 - 00:19:37)(time 1177 - 00:19:37) ->    37(time 1177 - 00:19:37)(time 1249 - 00:20:49) ->    36(time 1314 - 00:21:54)(time 1379 - 00:22:59) ->    35(time 1444 - 00:24:04)(time 1510 - 00:25:10) ->    34(time 1575 - 00:26:15)(time 1637 - 00:27:17) ->    33(time 1702 - 00:28:22)(time 1774 - 00:29:34) ->    32(time 1839 - 00:30:39)(time 1911 - 00:31:51) ->    31(time 1976 - 00:32:56)(time 2040 - 00:34:00) ->    30(time 2138 - 00:35:38)(time 2138 - 00:35:38) -> 11
+> Trip 1
+   30(time 2138 - 00:35:38)(time 2203 - 00:36:43) ->    29(time 2268 - 00:37:48)(time 2335 - 00:38:55) ->    28(time 2400 - 00:40:00)(time 2463 - 00:41:03) ->    27(time 2528 - 00:42:08)(time 2595 - 00:43:15) ->    26(time 2693 - 00:44:53)(time 2760 - 00:46:00) ->    25(time 2825 - 00:47:05)(time 2890 - 00:48:10) ->    24(time 2955 - 00:49:15)(time 3022 - 00:50:22) ->    23(time 3087 - 00:51:27)(time 3156 - 00:52:36) ->    22(time 3204 - 00:53:24)(time 3274 - 00:54:34) ->    21(time 3339 - 00:55:39)(time 3399 - 00:56:39) ->    20(time 3464 - 00:57:44)(time 3534 - 00:58:54) ->    19(time 3632 - 01:00:32)(time 3632 - 01:00:32) ->    0(time 3632 - 01:00:32)(time 3702 - 01:01:42) ->    1(time 3767 - 01:02:47)(time 3827 - 01:03:47) ->    2(time 3892 - 01:04:52)(time 3962 - 01:06:02) ->    3(time 4010 - 01:06:50)(time 4079 - 01:07:59) ->    4(time 4144 - 01:09:04)(time 4211 - 01:10:11) ->    5(time 4276 - 01:11:16)(time 4341 - 01:12:21) ->    6(time 4406 - 01:13:26)(time 4473 - 01:14:33) ->    7(time 4571 - 01:16:11)(time 4638 - 01:17:18) ->    8(time 4703 - 01:18:23)(time 4766 - 01:19:26) ->    9(time 4831 - 01:20:31)(time 4898 - 01:21:38) ->    10(time 4963 - 01:22:43)(time 5028 - 01:23:48) ->    11(time 5126 - 01:25:26)(time 5126 - 01:25:26) -> 30
