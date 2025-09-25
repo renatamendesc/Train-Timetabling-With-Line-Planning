@@ -82,10 +82,10 @@ for t, train in enumerate(trains):
 
         plt.plot(total_times, total_stations, color=color_train[t]) 
 
-plt.xlabel('Horário')
-# plt.xlabel('Time')
-plt.ylabel('Estação')
-# plt.ylabel('Stopping Point')
+# plt.xlabel('Horário')
+plt.xlabel('Time')
+# plt.ylabel('Estação')
+plt.ylabel('Stopping Point')
 
 ax = plt.gca()
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
