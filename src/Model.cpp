@@ -21,7 +21,7 @@ int Model::run (Data &data)
     // set time limit
     int time_limit = 43200;
     if (verify_feasibility)
-        time_limit = 3600;
+        time_limit = 43200;
 
     // create decision variables
     add_variables(data);
