@@ -812,58 +812,59 @@ void generate_instance (int p, int t)
 // Create instances according to size: number of points and number of trains
 int main(int argc, char *argv[])
 {
-    set_name = argv[1]; // 5-to-9, 10-to-14, 15-to-19, 20-to-24...
+    // set_name = argv[1]; // 5-to-9, 10-to-14, 15-to-19, 20-to-24...
 
-    pair <int, int> trains_range;
-    pair <int, int> points_range;
+    // pair <int, int> trains_range;
+    // pair <int, int> points_range;
 
-    if (set_name == "5-to-9")
-    {
-        trains_range = {2, 5};
-        points_range = {5, 9};
-    }
-    else if (set_name == "10-to-14")
-    {
-        trains_range = {3, 6};
-        points_range = {10, 14};
-    }
-    else if (set_name == "15-to-19")
-    {
-        trains_range = {3, 6};
-        points_range = {15, 19};
-    }
-    else if (set_name == "20-to-24")
-    {
-        trains_range = {3, 6};  
-        points_range = {20, 24};
-    }
+    // if (set_name == "5-to-9")
+    // {
+    //     trains_range = {2, 5};
+    //     points_range = {5, 9};
+    // }
+    // else if (set_name == "10-to-14")
+    // {
+    //     trains_range = {3, 6};
+    //     points_range = {10, 14};
+    // }
+    // else if (set_name == "15-to-19")
+    // {
+    //     trains_range = {3, 6};
+    //     points_range = {15, 19};
+    // }
+    // else if (set_name == "20-to-24")
+    // {
+    //     trains_range = {3, 6};  
+    //     points_range = {20, 24};
+    // }
 
-    for (int p = points_range.first; p <= points_range.second; p++)
-    {
-        for (int t = trains_range.first; t <= trains_range.second; t++)
-        {
-            // if instance with points = p and trains = t already exists, skip
-            bool instance_exists = false;
-            string pattern = "t" + to_string(t) + "p" + to_string(p);
-            for (const auto& entry : filesystem::directory_iterator("../experiments/" + set_name)) {
-                if (entry.is_regular_file()) {
-                    string filename = entry.path().filename().string();
-                    if (filename.substr(0, pattern.length()) == pattern) {
-                        instance_exists = true;
-                        break;
-                    }
-                }
-            }
-            if (instance_exists)
-                continue;
+    // for (int p = points_range.first; p <= points_range.second; p++)
+    // {
+    //     for (int t = trains_range.first; t <= trains_range.second; t++)
+    //     {
+    //         // if instance with points = p and trains = t already exists, skip
+    //         bool instance_exists = false;
+    //         string pattern = "t" + to_string(t) + "p" + to_string(p);
+    //         for (const auto& entry : filesystem::directory_iterator("../experiments/" + set_name)) {
+    //             if (entry.is_regular_file()) {
+    //                 string filename = entry.path().filename().string();
+    //                 if (filename.substr(0, pattern.length()) == pattern) {
+    //                     instance_exists = true;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //         if (instance_exists)
+    //             continue;
 
-            cout << "Generating instance with " << p << " points and " << t << " trains..." << endl;
+    //         cout << "Generating instance with " << p << " points and " << t << " trains..." << endl;
 
-            bool not_feasible = true;
-            while (not_feasible)
-            {
-                generate_instance(p, t);
-                Data data("ex-instance.txt");
+    //         bool not_feasible = true;
+    //         while (not_feasible)
+    //         {
+    //             generate_instance(p, t);
+                // Data data("ex-instance.txt");
+                Data data(argv[1]);
                 data.print_data();
 
                 // uses model to verify if instance is feasible
@@ -871,39 +872,40 @@ int main(int argc, char *argv[])
                 model.verify_feasibility = true;
                 model.initialize(data);  
                 bool solved = model.run(data);
+                cout << "Resolveu: " << solved << endl;
 
                 // // uses enumeration to verify if instance is feasible
                 // Combinations comb(data, stoi(argv[2]), 0, 3600, true);
                 // bool solved = comb.nb_feasible_combinations > 0;
 
-                if (solved)
-                {
-                    // save instance on file
-                    string origem = "ex-instance.txt";
-                    ostringstream nome_destino;
-                    nome_destino << "t" << data.get_nb_trains() << "p" << data.get_nb_points()
-                                 << "r" << data.get_nb_routes() <<  "h" << data.get_nb_intervals();
+    //             if (solved)
+    //             {
+    //                 // save instance on file
+    //                 string origem = "ex-instance.txt";
+    //                 ostringstream nome_destino;
+    //                 nome_destino << "t" << data.get_nb_trains() << "p" << data.get_nb_points()
+    //                              << "r" << data.get_nb_routes() <<  "h" << data.get_nb_intervals();
                     
-                    // create directory if it doesn't exist
-                    string dir_path = "../experiments/" + set_name;
-                    if (!filesystem::exists(dir_path))
-                        filesystem::create_directories(dir_path);
-                    string destino = dir_path + "/" + nome_destino.str() + ".txt";
+    //                 // create directory if it doesn't exist
+    //                 string dir_path = "../experiments/" + set_name;
+    //                 if (!filesystem::exists(dir_path))
+    //                     filesystem::create_directories(dir_path);
+    //                 string destino = dir_path + "/" + nome_destino.str() + ".txt";
                             
-                    try
-                    {
-                        not_feasible = false;
-                        filesystem::copy(origem, destino, filesystem::copy_options::overwrite_existing);
-                        cout << "Instância criada com sucesso! - " << p << ", " << t << endl;
-                    }
-                    catch (filesystem::filesystem_error& e)
-                    {
-                        cerr << "Erro ao copiar: " << e.what() << endl;
-                    }
-                }
-            }
-        }    
-    }
+    //                 try
+    //                 {
+    //                     not_feasible = false;
+    //                     filesystem::copy(origem, destino, filesystem::copy_options::overwrite_existing);
+    //                     cout << "Instância criada com sucesso! - " << p << ", " << t << endl;
+    //                 }
+    //                 catch (filesystem::filesystem_error& e)
+    //                 {
+    //                     cerr << "Erro ao copiar: " << e.what() << endl;
+    //                 }
+    //             }
+    //         }
+    //     }    
+    // }
 
     return 0;
 }
