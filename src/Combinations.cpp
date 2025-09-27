@@ -16,7 +16,7 @@ Combinations::Combinations(Data &data, int threads, int strategy, int time_limit
     // if strategy == 0 -> enumeration, if == 1 -> heuristic
     if (strategy == 0) // executing enumeration
     {
-        time_limit_per_combination = 3600;
+        time_limit_per_combination = 7200;
         execute_enumeration(data);
 
         if (!stop_execution.load() && proved_optimal)
@@ -40,7 +40,7 @@ Combinations::Combinations(Data &data, int threads, int strategy, int time_limit
     }
     else if (strategy == 1) // executing heuristic
     {
-        time_limit_per_combination = 1200;
+        time_limit_per_combination = 2400;
         execute_heuristic(data);
         proved_optimal = false;
     }
