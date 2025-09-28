@@ -17,7 +17,7 @@ public:
     unsigned long long int total_nb_combinations = 0;
     unsigned long long int nb_feasible_combinations = 0;
 
-    Combinations(Data &data, int threads, int strategy, int time_limit_complete = 43200, bool creating_instance = false);
+    Combinations(Data &data, int threads, int strategy, int time_limit_complete = 86400, bool creating_instance = false);
 
 private:
 
@@ -25,7 +25,7 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> end;
 
     int time_limit_per_combination;
-    int time_limit_complete = 43200;
+    int time_limit_complete = 86400;
 
     bool proved_optimal = true;
 
