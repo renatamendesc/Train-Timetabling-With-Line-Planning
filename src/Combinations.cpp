@@ -2,10 +2,8 @@
 
 using namespace std;
 
-Combinations::Combinations(Data &data, int threads, int strategy, int time_limit_complete, bool creating_instance)
+Combinations::Combinations(Data &data, int threads, string method, int time_limit_complete)
 {
-    verify_feasibility = creating_instance;
-
     // start counting time
     start = chrono::steady_clock::now();
 
@@ -13,13 +11,12 @@ Combinations::Combinations(Data &data, int threads, int strategy, int time_limit
     nb_routes = data.get_nb_routes();
     nb_trains = data.get_nb_trains();
 
-    // if strategy == 0 -> enumeration, if == 1 -> heuristic
-    if (strategy == 0) // executing enumeration
+    if (method == "enum") // executing enumeration
     {
         time_limit_per_combination = 7200;
         execute_enumeration(data);
 
-        if (!stop_execution.load() && proved_optimal)
+        if (proved_optimal)
         {
             cout << "All combination(s) tested!" << endl;
 
@@ -37,32 +34,26 @@ Combinations::Combinations(Data &data, int threads, int strategy, int time_limit
                 exit(0);
             }
         }
-    }
-    else if (strategy == 1) // executing heuristic
-    {
-        time_limit_per_combination = 2400;
-        execute_heuristic(data);
-        proved_optimal = false;
-    }
 
-    // verify whether feasible solution was found
-    if (nb_feasible_combinations == 0)
-    {
-        if (strategy == 0)
+        // verify whether feasible solution was found
+        if (nb_feasible_combinations == 0)
         {
             cout << "\t> Instance is infeasible!" << endl;
             return;
         }
-        else
+    }
+    else if (method == "heuristic") // executing heuristic
+    {
+        time_limit_per_combination = 2400;
+        execute_heuristic(data);
+        proved_optimal = false;
+
+        // verify whether feasible solution was found
+        if (nb_feasible_combinations == 0)
         {
             cout << "\t> Couldn't find feasible solutions with heuristic method!" << endl;
             return;
         }
-    }
-
-    if (verify_feasibility)
-    {
-        return;
     }
 
     // finish counting time
@@ -70,13 +61,8 @@ Combinations::Combinations(Data &data, int threads, int strategy, int time_limit
     chrono::duration<double> time = end-start;
     best_thread.best_sol[0].computational_time = (time).count();
 
-    // // get the time that it took to find the optimal solution
-    // double time_till_optimal = (chrono::duration<double>(best_thread.best_sol.time_found-start)).count();
-    // cout << fixed << setprecision(2) << "    -> Optimal was found = " << time_till_optimal << endl;
-
     // get optimal solution
-    best_thread.get_solution(data, true, proved_optimal);
-
+    best_thread.get_solution(data, proved_optimal);
 }
 
 void Combinations::execute_enumeration(Data &data)
@@ -224,7 +210,8 @@ void Combinations::execute_heuristic (Data &data)
     heuristic.change_trips(data, false, current[0]);
     best_thread.best_sol.push_back(best_thread.current_sol);
     best_thread.initialize(data);
-    best_thread.run_with_routes_constraints(data, current[0], best_bound, time_limit_per_combination);
+    bool reached_time_limit = false;
+    best_thread.run_with_routes_constraints(data, current[0], best_bound, time_limit_per_combination, reached_time_limit);
 
     best_thread.get_best_combinations(data, current);
 }
@@ -236,8 +223,8 @@ void Combinations::execute_all_combinations(Data &data)
     if (aux_progress == 0)
         aux_progress = 1;
 
-    // vectors with models for each thread
-    vector<Model> models(nb_threads);
+    // vectors with model objects for each thread
+    vector <Model> models(nb_threads);
 
     #pragma omp parallel num_threads(nb_threads)
     {
@@ -246,16 +233,8 @@ void Combinations::execute_all_combinations(Data &data)
         models[thread_id].initialize(data);
 
         #pragma omp for schedule(dynamic)
-        // #pragma omp for
         for (unsigned long long count = 0; count < total_nb_combinations; count++)
         {
-            // if another thread told to stop execution
-            if (stop_execution.load())
-            {
-                cout << "Stopping execution... - " << count << "/" << total_nb_combinations << endl;
-                continue;
-            } 
-
             // cout << "Testing combination " << count << "/" << total_nb_combinations << endl;
 
             Model &model_thread = models[thread_id];
@@ -274,17 +253,19 @@ void Combinations::execute_all_combinations(Data &data)
                 current.push_back(trips_combinations[k][indices[k]]);
             }
 
+            // check feasibility before calling for model to solve the combination
             if (check_final_feasibility(data, current))
             {
                 model_thread.reset(data);
-                int feasible = model_thread.run_with_routes_constraints(data, current, best_bound, time_limit_per_combination);
 
-                if (feasible == 2 || feasible == 3)
-                {
+                // call for model 
+                bool reached_time_limit = false;
+                int feasible = model_thread.run_with_routes_constraints(data, current, best_bound, time_limit_per_combination, reached_time_limit);
+                if (reached_time_limit)
                     proved_optimal = false;
-                }
-
-                if (feasible == 1 || feasible == 2)
+                
+                // verify if feasible solution was found
+                if (feasible)
                 {
                     #pragma omp atomic
                     nb_feasible_combinations++;
@@ -305,42 +286,28 @@ void Combinations::execute_all_combinations(Data &data)
 
             if (counter_solved % aux_progress == 0)
                 cout << counter_solved/aux_progress * 10 << "%" << " done - " << counter_solved << "/" << total_nb_combinations << " combination(s) tested! (Thread " << thread_id << ")" << endl;
-        
-            if (verify_feasibility && nb_feasible_combinations > 0)
-            {
-                cout << endl << ">> Found feasible!" << endl;
-                        cout << "\tTerminating process!" << endl;
-                if (!stop_execution.load())
-                    stop_execution.store(true);
-                continue;
-            }
 
             // verify time limit
-            end = chrono::steady_clock::now();
-            chrono::duration<double> current_time = end - start;
+            std::chrono::time_point<std::chrono::steady_clock> now = chrono::steady_clock::now();
+            chrono::duration<double> current_time = now - start;
             if (current_time.count() >= time_limit_complete)
             {
                 #pragma omp critical
                 {
-                    if (!stop_execution.load())
+                    cout << endl << ">> Reached time limit!" << endl;
+                    cout << "\tTerminating process!" << endl;
+                    if (nb_feasible_combinations == 0)
                     {
-                        stop_execution.store(true);
-                        cout << endl << ">> Reached time limit!" << endl;
-                        cout << "\tTerminating process!" << endl;
-                        if (nb_feasible_combinations == 0)
-                        {
-                            cout << "\tNo feasible solution was found..." << endl;
-                        }
-                        else
-                        {
-                            proved_optimal = false;
-                            cout << "\tCannot prove optimality!" << endl;
-
-                            best_thread.best_sol[0].computational_time = (current_time).count();
-                            best_thread.get_solution(data, true, proved_optimal);
-                        }
+                        cout << "\tNo feasible solution was found..." << endl;
                     }
+                    else
+                    {
+                        proved_optimal = false;
+                        cout << "\tCannot prove optimality!" << endl;
 
+                        best_thread.best_sol[0].computational_time = (current_time).count();
+                        best_thread.get_solution(data, proved_optimal);
+                    }
                     exit(0);
                 }
             }
@@ -377,9 +344,10 @@ bool Combinations::execute_candidate_combinations (Data &data)
             if (normalize_combination(data, current))
             {
                 model_thread.reset(data);
-                int feasible = model_thread.run_with_routes_constraints(data, current, best_bound, time_limit_per_combination);
+                bool reached_time_limit = false;
+                int feasible = model_thread.run_with_routes_constraints(data, current, best_bound, time_limit_per_combination, reached_time_limit);
 
-                if (feasible == 1 || feasible == 2)
+                if (feasible)
                 {
                     #pragma omp atomic
                     nb_feasible_combinations++;
@@ -413,22 +381,24 @@ bool Combinations::execute_candidate_combinations (Data &data)
             }
 
             // verify time limit
-            end = chrono::steady_clock::now();
-            chrono::duration<double> current_time = end - start;
+            std::chrono::time_point<std::chrono::steady_clock> now = chrono::steady_clock::now();
+            chrono::duration<double> current_time = now - start;
             if (current_time.count() >= time_limit_complete)
             {
                 #pragma omp critical
                 {
-                    if (!stop_execution.load())
+                    cout << endl << ">> Reached time limit!" << endl;
+                    cout << "\tTerminating process!" << endl;
+                    if (nb_feasible_combinations == 0)
                     {
-                        stop_execution.store(true);
-                        cout << endl << ">> Reached time limit!" << endl;
-                        cout << "\tTerminating process!" << endl;
-                        if (nb_feasible_combinations == 0)
-                        {
-                            cout << "\tNo feasible solution was found..." << endl;
-                        }
+                        cout << "\tNo feasible solution was found..." << endl;
                     }
+                    else
+                    {
+                        best_thread.best_sol[0].computational_time = (current_time).count();
+                        best_thread.get_solution(data, proved_optimal);
+                    }
+                    exit(0);
                 }
             }
         }

@@ -3,7 +3,7 @@
 using namespace std;
 
 void Model::initialize (Data &data)
-{
+{    
     env = IloEnv();
     model = IloModel(env);
     constraints = IloConstraintArray(env);
@@ -16,8 +16,10 @@ void Model::reset (Data &data)
     initialize(data);
 }
 
-int Model::run (Data &data)
+int Model::run (Data &data, int threads)
 {
+    nb_threads = threads; // maximum number of threads to be used
+    
     // set time limit
     int time_limit = 43200;
     if (verify_feasibility)
@@ -37,10 +39,10 @@ int Model::run (Data &data)
     model.add(constraints);
     
     // extract solution from the model
-    return extract_solution(data, true, data.get_max_time(), time_limit);
+    return extract_solution(data, time_limit);
 }
 
-int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains, int best_bound, int time_limit)
+int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_of_trains, int best_bound, int time_limit, bool &reached_time_limit)
 {
     // create decision variables
     add_variables(data);
@@ -68,7 +70,6 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
                     for (int r = 0; r < data.get_nb_routes(); r++)
                     {
                         // make sure that route exists for the first trip
-                        // instead of adding the condition we could prohibit combinations where train does not complete any trips
                         if (data.is_valid_route(t, i, r))
                             constraints.add(lambda_[t][i][r] == 0);
                     }
@@ -84,7 +85,7 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
     model.add(constraints);
 
     // extract solution from the model
-    return extract_solution(data, false, best_bound, time_limit);
+    return extract_solution_for_combination(data, best_bound, time_limit, reached_time_limit);
 }
 
 void Model::add_variables (Data &data)
@@ -793,117 +794,105 @@ void Model::add_constraints (Data &data)
     // constraints.add(lambda_[2][2][0] == 0); constraints.add(lambda_[2][2][1] == 0); constraints.add(lambda_[2][2][2] == 0); constraints.add(lambda_[2][2][3] == 0); constraints.add(lambda_[2][2][5] == 0);
 }
 
-int Model::extract_solution(Data &data, bool is_final_solution, int best_bound, int time_limit)
+int Model::extract_solution_for_combination(Data &data, int best_bound, int time_limit, bool &reached_time_limit)
 {
     IloCplex cplex(env);
 
-    // set parameters
-    cplex.setParam(IloCplex::ClockType, 2);
-    cplex.setParam(IloCplex::TiLim, time_limit); // set time limit minutes (12 hours for model)
+    // extract model and .lp file
+    cplex.extract(model);
+    cplex.exportModel("cbtu.lp");
 
-    cplex.setWarning(env.getNullStream()); // silence warnings
+    cplex.setParam(IloCplex::ClockType, 2);
+    cplex.setParam(IloCplex::TiLim, time_limit); // set time limit
+    cplex.setParam(IloCplex::Threads, 1);        // using single thread to solve the model
+    cplex.setParam(IloCplex::ParallelMode, 0);   // no parallel mode
+    cplex.setParam(IloCplex::CutUp, best_bound); // set best integer solution already known
+
+    // remove outputs
+    cplex.setOut(env.getNullStream());     
+    cplex.setError(env.getNullStream());
+    cplex.setWarning(env.getNullStream());       // silence warnings
+
+    bool solved = cplex.solve();
+    if (!solved)
+    {
+        // verify if time limit was reached
+        if(cplex.getCplexStatus() == IloCplex::AbortTimeLim)
+            reached_time_limit = true;
+        return 0;
+    }
+
+    if (cplex.getObjValue() <= best_sol[0].obj_value)
+    {
+        current_sol.obj_value = cplex.getObjValue();
+        get_value_of_variables(data, cplex);
+
+        if (cplex.getObjValue() < best_sol[0].obj_value)
+        {
+            // cout << "Found new best!" << endl;
+            best_sol.clear();
+            best_sol.push_back(current_sol);
+        }
+        else if (cplex.getObjValue() == best_sol[0].obj_value) 
+        {
+            // to-do: add tie breaker
+
+            // cout << "Found the same!" << endl;
+            best_sol.push_back(current_sol);
+        }
+    }
+
+    // verify if time limit was reached
+    if (cplex.getCplexStatus() == IloCplex::AbortTimeLim)
+        reached_time_limit = true;
+
+    return 1;
+}
+
+int Model::extract_solution(Data &data, int time_limit)
+{
+    IloCplex cplex(env);
 
     // extract model and .lp file
     cplex.extract(model);
     if (!verify_feasibility)
         cplex.exportModel("cbtu.lp");
 
-    if (!is_final_solution)
+    cplex.setParam(IloCplex::ClockType, 2);
+    cplex.setParam(IloCplex::TiLim, time_limit);   // set time limit (12 hours for the model)
+    cplex.setWarning(env.getNullStream());         // silence warnings
+    cplex.setParam(IloCplex::Threads, nb_threads); // set number of threads
+
+    cout << ">> Solving..." << endl;
+    auto start = chrono::steady_clock::now();
+    cplex.solve();
+    auto end = chrono::steady_clock::now();
+
+    // verifying feasibility
+    cout << cplex.getStatus() << endl;
+    if (cplex.getStatus() == IloCplex::Infeasible)
     {
-        // using single thread to solve the model
-        cplex.setParam(IloCplex::Threads, 1);
-        cplex.setParam(IloCplex::ParallelMode, 0);
-
-        // set best integer solution already known
-        cplex.setParam(IloCplex::CutUp, best_bound);
-
-        // remove outputs
-        cplex.setOut(env.getNullStream());     
-        cplex.setError(env.getNullStream());    
-
-        bool solved = cplex.solve();
-        if (!solved)
-        {
-            if(cplex.getCplexStatus() == IloCplex::AbortTimeLim)
-            {
-                return 3;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        if (cplex.getObjValue() <= best_sol[0].obj_value)
-        {
-            current_sol.obj_value = cplex.getObjValue();
-            get_value_of_variables(data, cplex, is_final_solution);
-
-            if (cplex.getObjValue() < best_sol[0].obj_value)
-            {
-                // cout << "Found new best!" << endl;
-                best_sol.clear();
-                best_sol.push_back(current_sol);
-            }
-            else if (cplex.getObjValue() == best_sol[0].obj_value) 
-            {
-                // cout << "Found the same!" << endl;
-                best_sol.push_back(current_sol);
-            }
-        }
-
-        if (cplex.getCplexStatus() == IloCplex::AbortTimeLim)
-            {
-                return 2;
-            }
+        cerr << "Error: Infeasible!\n";
+        return 0;
     }
-    else
-    {
-        cout << endl << ">> Solving..." << endl;
 
-        // get number of physical cores
-        ifstream f("/proc/cpuinfo");
-        string line, pid, cid;
-        set<string> uniq;
-        while (std::getline(f, line)) {
-            if (line.rfind("physical id", 0) == 0) pid = line.substr(line.find(":") + 2);
-            else if (line.rfind("core id", 0) == 0) {
-                cid = line.substr(line.find(":") + 2);
-                uniq.insert(pid + "-" + cid);
-            }
-        }
-        cplex.setParam(IloCplex::Threads, 1);
+    // get time taken to solve the model
+    chrono::duration<double> time = end-start;
+    current_sol.computational_time = (time).count();
 
-        auto start = chrono::steady_clock::now();
-        cplex.solve();
-        auto end = chrono::steady_clock::now();
-
-        chrono::duration<double> time = end-start;
-        current_sol.computational_time = (time).count();
-
-        cout << cplex.getStatus() << endl;
-        if (cplex.getStatus() == IloCplex::Infeasible)
-        {
-            cerr << "Error: Instance is infeasible\n";
-            return 0;
-        }
-
-        current_sol.obj_value = cplex.getObjValue();
-        current_sol.gap_value = cplex.getMIPRelativeGap();
-
-        get_value_of_variables(data, cplex, is_final_solution);
-
-        best_sol.clear();
-        best_sol.push_back(current_sol);
-
-        if (!verify_feasibility)
-            get_solution(data, is_final_solution, true);
-    }
+    // get solution - value, variables and gap
+    current_sol.obj_value = cplex.getObjValue();
+    current_sol.gap_value = cplex.getMIPRelativeGap();
+    get_value_of_variables(data, cplex);
+    best_sol.clear();
+    best_sol.push_back(current_sol);
+    if (!verify_feasibility)
+        get_solution(data, true);
 
     return 1;
 }
 
-void Model::get_value_of_variables(Data &data, IloCplex &cplex, bool is_final_solution)
+void Model::get_value_of_variables(Data &data, IloCplex &cplex)
 {
     VarValuesMatrix3d y_values;
     VarValuesMatrix3d y_bar_values;
@@ -1139,7 +1128,7 @@ void Model::get_best_combinations (Data &data, vector<vector<vector<int>>> &comb
     }
 }
 
-void Model::get_solution (Data &data, bool is_final_solution, bool print_gap)
+void Model::get_solution (Data &data, bool print_gap)
 {   
     Solution final_solution = best_sol[0];
 

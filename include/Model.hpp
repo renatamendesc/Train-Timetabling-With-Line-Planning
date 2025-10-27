@@ -40,49 +40,53 @@ struct Solution
 
 class Model
 {
-public:
+    public:
 
-    bool verify_feasibility = false;
+        bool verify_feasibility = false;
 
-    std::vector<Solution> best_sol;
-    Solution current_sol;
+        std::vector<Solution> best_sol;
+        Solution current_sol;
 
-    void initialize (Data &data);
-    void reset (Data &data);
+        void initialize (Data &data);
+        void reset (Data &data);
 
-    int run (Data &data);
-    int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound, int time_limit);
+        int run (Data &data, int threads);
+        int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound, int time_limit, bool &reached_time_limit);
 
-    void tie_breaker(Data &data, std::vector<std::vector<std::vector<int>>> &combinations);
+        void tie_breaker(Data &data, std::vector<std::vector<std::vector<int>>> &combinations);
 
-    void get_solution (Data &data, bool is_final_solution, bool print_gap);
-    void get_best_combinations (Data &data, std::vector<std::vector<std::vector<int>>> &combination);
-    void get_graph (Data &data);
+        void get_solution (Data &data, bool print_gap);
+        void get_best_combinations (Data &data, std::vector<std::vector<std::vector<int>>> &combination);
+        void get_graph (Data &data);
 
-private:
-    IloEnv env;
-    IloModel model;
-    IloConstraintArray constraints;
-    IloExpr obj;
+    private:
 
-    NumVarMatrix3d x_;
-    NumVarMatrix4d x_bar_;
-    NumVarMatrix3d y_;
-    NumVarMatrix3d y_bar;
-    NumVarMatrix3d lambda_;
-    NumVarMatrix2d beta_;
-    IloNumVar z_;
-    NumVarMatrix6d w_;
-    NumVarMatrix5d u_;
+        int nb_threads;
 
-    void add_variables (Data &data);
-    void add_constraints (Data &data);
+        IloEnv env;
+        IloModel model;
+        IloConstraintArray constraints;
+        IloExpr obj;
 
-    int extract_solution (Data &data, bool is_final_solution, int best_bound, int time_limit);
+        NumVarMatrix3d x_;
+        NumVarMatrix4d x_bar_;
+        NumVarMatrix3d y_;
+        NumVarMatrix3d y_bar;
+        NumVarMatrix3d lambda_;
+        NumVarMatrix2d beta_;
+        IloNumVar z_;
+        NumVarMatrix6d w_;
+        NumVarMatrix5d u_;
 
-    void get_value_of_variables (Data &data, IloCplex &cplex, bool is_final_solution);
+        void add_variables (Data &data);
+        void add_constraints (Data &data);
 
-    std::string convert_time (int seconds);
+        int extract_solution (Data &data, int time_limit);
+        int extract_solution_for_combination (Data &data, int best_bound, int time_limit, bool &reached_time_limit);
+
+        void get_value_of_variables (Data &data, IloCplex &cplex);
+
+        std::string convert_time (int seconds);
 };
 
 #endif

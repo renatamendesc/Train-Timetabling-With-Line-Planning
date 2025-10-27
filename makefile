@@ -1,22 +1,27 @@
-CPLEX_VERSION = 2211
+# CPLEX_VERSION = 2211
 
-#detecta se o sistema é de 32 ou 64 bits
+# detecta se o sistema é de 32 ou 64 bits
 BITS_OPTION = -m64
 
 ####diretorios com as libs do cplex
 ####diretorios com as libs do cplex
-ifeq ($(shell uname),Darwin) # If OS X
-	CPLEXDIR  = ~/Applications/IBM/ILOG/CPLEX_Studio201/cplex
-	CONCERTDIR = ~/Applications/IBM/ILOG/CPLEX_Studio201/concert
+
+ifeq ($(shell uname),Darwin) # if OS X
+
+	CPLEXDIR  = ~/Applications/IBM/ILOG/CPLEX_Studio1210/cplex
+	CONCERTDIR = ~/Applications/IBM/ILOG/CPLEX_Studio1210/concert
 	
 	CPLEXLIBDIR   = $(CPLEXDIR)/lib/x86-64_osx/static_pic
 	CONCERTLIBDIR = $(CONCERTDIR)/lib/x86-64_osx/static_pic
-else # Other unix
-	CPLEXDIR  = /opt/ibm/ILOG/CPLEX_Studio201/cplex
-	CONCERTDIR = /opt/ibm/ILOG/CPLEX_Studio201/concert
+
+else # other unix
+
+	CPLEXDIR  = /opt/ibm/ILOG/CPLEX_Studio1210/cplex
+	CONCERTDIR = /opt/ibm/ILOG/CPLEX_Studio1210/concert
 	
 	CPLEXLIBDIR   = $(CPLEXDIR)/lib/x86-64_linux/static_pic
 	CONCERTLIBDIR = $(CONCERTDIR)/lib/x86-64_linux/static_pic
+
 endif
 
 # CPLEXDIR  = /Applications/CPLEX_Studio$(CPLEX_VERSION)/cplex
@@ -56,11 +61,11 @@ cbtu: $(OBJS)
 	$(CPPC) $(BITS_OPTION) $(OBJS) -o $@ $(CCLNFLAGS)
 ############################
 
-#inclui os arquivos de dependencias
+# inclui os arquivos de dependencias
 -include $(OBJS:.o=.d)
 
-#regra para cada arquivo objeto: compila e gera o arquivo de dependencias do arquivo objeto
-#cada arquivo objeto depende do .c e dos headers (informacao dos header esta no arquivo de dependencias gerado pelo compiler)
+# regra para cada arquivo objeto: compila e gera o arquivo de dependencias do arquivo objeto
+# cada arquivo objeto depende do .c e dos headers (informacao dos header esta no arquivo de dependencias gerado pelo compiler)
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@echo  "\033[31m \nCompiling $<: \033[0m"
 	$(CPPC) $(CCFLAGS) -c $< -o $@
@@ -70,7 +75,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
 	@rm -f $(basename $@).d.tmp
 
-#delete objetos e arquivos de dependencia
+# delete objetos e arquivos de dependencia
 clean:
 	@echo "\033[31mcleaning obj directory \033[0m"
 	@rm cbtu -f $(OBJDIR)/*.o $(OBJDIR)/*.d
