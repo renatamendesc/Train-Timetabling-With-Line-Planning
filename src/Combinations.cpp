@@ -123,7 +123,7 @@ void Combinations::execute_all_combinations(Data &data)
             }
 
             // verify if combination is valid before calling for model to solve the combination
-            if (is_valid_combiantion(data, current))
+            if (is_valid_combination(data, current))
             {
                 model_thread.reset(data);
 

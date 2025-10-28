@@ -32,19 +32,22 @@ int main(int argc, char *argv[])
     {
         std::cout << "Number of threads not provided! - Using default number of threads: 1" << std::endl;
     }
-    threads = std::stoi(argv[3]);
-    // verify whether number of threads is valid (surpasses capacity of the machine or is less than 1)
-    if (threads > omp_get_max_threads() || threads < 1)
+    else
     {
-        std::cout << "Error: Number of threads is not valid!" << std::endl;
-        return 1;
+        threads = std::stoi(argv[3]);
+        // verify whether number of threads is valid (surpasses capacity of the machine or is less than 1)
+        if (threads > omp_get_max_threads() || threads < 1)
+        {
+            std::cout << "Error: Number of threads is not valid!" << std::endl;
+            return 1;
+        }
     }
 
     // display instance, method and number of threads
     std::cout << std::endl << "\t================================================================" << std::endl;
-    std::cout << "\tSolving instance " << data._instance_name << " with " << method << " and " << threads << " thread(s)..." << std::endl;
+    std::cout << "\tSolving instance " << data.get_instance_name() << " with " << method << " and " << threads << " thread(s)..." << std::endl;
     std::cout << "\t================================================================" << std::endl;
-    std::cout << "\t>> Instance: " << data._instance_name << std::endl;
+    std::cout << "\t>> Instance: " << data.get_instance_name() << std::endl;
     std::cout << "\t>> Method: " << method << std::endl;
     std::cout << "\t>> Number of threads: " << threads << std::endl << std::endl;
 
@@ -61,7 +64,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        std::cout << "Not a valid method was provided!" << std::endl;
+        std::cout << "Did not provide a valid method!" << std::endl;
         return 1;
     }
 

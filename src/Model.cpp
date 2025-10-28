@@ -796,6 +796,8 @@ int Model::extract_solution_for_combination(Data &data, int best_bound, int time
 {
     IloCplex cplex(env);
 
+    cplex.setWarning(env.getNullStream());       // silence warnings
+
     // extract model and .lp file
     cplex.extract(model);
     cplex.exportModel("cbtu.lp");
@@ -809,7 +811,7 @@ int Model::extract_solution_for_combination(Data &data, int best_bound, int time
     // remove outputs
     cplex.setOut(env.getNullStream());     
     cplex.setError(env.getNullStream());
-    cplex.setWarning(env.getNullStream());       // silence warnings
+
 
     bool solved = cplex.solve();
     if (!solved)
@@ -1139,7 +1141,7 @@ void Model::get_solution (Data &data, bool print_gap)
     ofstream solution_file, solution_script;
 
     // create files to register the solution given by the model
-    solution_file.open("solutions/timetables/" + data.get_instance_name() + ".txt", ios::out | ios::trunc); // file to register the timetable
+    solution_file.open("benchmarking/results/timetable/" + data.get_instance_name() + ".txt", ios::out | ios::trunc); // file to register the timetable
     solution_script.open("script-solution.txt", ios::out | ios::trunc);                                     // file to execute python script to generate the graphs of the timetable
 
     solution_file << "-> Solution value = " << final_solution.obj_value << " - " << convert_time(final_solution.obj_value) << endl;
