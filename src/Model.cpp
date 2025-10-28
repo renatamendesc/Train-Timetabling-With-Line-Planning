@@ -22,8 +22,6 @@ int Model::run (Data &data, int threads)
     
     // set time limit
     int time_limit = 43200;
-    if (verify_feasibility)
-        time_limit = 86400;
 
     // create decision variables
     add_variables(data);
@@ -830,14 +828,16 @@ int Model::extract_solution_for_combination(Data &data, int best_bound, int time
         if (cplex.getObjValue() < best_sol[0].obj_value)
         {
             // cout << "Found new best!" << endl;
+
             best_sol.clear();
             best_sol.push_back(current_sol);
         }
         else if (cplex.getObjValue() == best_sol[0].obj_value) 
         {
+            // cout << "Found the same!" << endl;
+
             // to-do: add tie breaker
 
-            // cout << "Found the same!" << endl;
             best_sol.push_back(current_sol);
         }
     }

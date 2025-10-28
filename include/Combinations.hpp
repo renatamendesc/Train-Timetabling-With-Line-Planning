@@ -41,6 +41,8 @@ class Combinations
         int aux_progress;
         int counter_solved = 0;
 
+        void calculate_trips_combinations(Data &data);
+
         void execute_enumeration(Data &data);
         void execute_heuristic (Data &data);
 
@@ -55,7 +57,7 @@ class Combinations
 
         bool normalize_combination (Data &data, std::vector<std::vector<int>> &current);
         bool check_trips_feasibility (Data &data, std::vector<int> &current);
-        bool check_final_feasibility (Data &data, std::vector<std::vector<int>> &current);
+        bool is_valid_combiantion (Data &data, std::vector<std::vector<int>> &current);
 
         bool verify_overflow(unsigned long long base, unsigned long long exp);
 
