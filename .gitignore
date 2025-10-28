@@ -48,4 +48,8 @@ combinations/
 # File to generate graphs
 script-solution.txt
 
+# useful scripts
+latex-table.py
+rename-instances.py
+
 HiGHS.log

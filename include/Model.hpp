@@ -2,9 +2,13 @@
 #define MODEL_HPP
 
 #include "Data.hpp"
+#include <omp.h>
 #include <ctime>
 #include <sstream>
+#include <algorithm>
 #include <filesystem>
+#include <fstream>
+#include <set>
 #include <ilcplex/ilocplex.h>
 
 #define BIG_M 100000
@@ -21,8 +25,9 @@ typedef std::vector<VarValuesMatrix3d> VarValuesMatrix4d;
 typedef std::vector<VarValuesMatrix4d> VarValuesMatrix5d;
 typedef std::vector<VarValuesMatrix5d> VarValuesMatrix6d;
 
-struct Solution {
-    double obj_value = __DBL_MAX__;
+struct Solution
+{
+    int obj_value = __INT_MAX__;
     double gap_value;
     double computational_time;
 
@@ -35,44 +40,53 @@ struct Solution {
 
 class Model
 {
-public:
-    Solution best_sol;
-    Solution current_sol;
+    public:
 
-    void initialize (Data &data);
-    void reset (Data &data);
+        bool verify_feasibility = false;
 
-    void run (Data &data);
-    int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound);
+        std::vector<Solution> best_sol;
+        Solution current_sol;
 
-    void get_solution (Data &data, bool is_final_solution);
-    void get_combination (Data &data, std::vector<std::vector<int>> &combination);
-    void get_graph (Data &data);
+        void initialize (Data &data);
+        void reset (Data &data);
 
-private:
-    IloEnv env;
-    IloModel model;
-    IloConstraintArray constraints;
-    IloExpr obj;
+        int run (Data &data, int threads);
+        int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound, int time_limit, bool &reached_time_limit);
 
-    NumVarMatrix3d x_;
-    NumVarMatrix4d x_bar_;
-    NumVarMatrix3d y_;
-    NumVarMatrix3d y_bar;
-    NumVarMatrix3d lambda_;
-    NumVarMatrix2d beta_;
-    IloNumVar z_;
-    NumVarMatrix6d w_;
-    NumVarMatrix5d u_;
+        void tie_breaker(Data &data, std::vector<std::vector<std::vector<int>>> &combinations);
 
-    void add_variables (Data &data);
-    void add_constraints (Data &data);
+        void get_solution (Data &data, bool print_gap);
+        void get_best_combinations (Data &data, std::vector<std::vector<std::vector<int>>> &combination);
+        void get_graph (Data &data);
 
-    int extract_solution (Data &data, bool is_final_solution, int best_bound);
+    private:
 
-    void get_value_of_variables (Data &data, IloCplex &cplex, bool is_final_solution);
+        int nb_threads;
 
-    std::string convert_time (int seconds);
+        IloEnv env;
+        IloModel model;
+        IloConstraintArray constraints;
+        IloExpr obj;
+
+        NumVarMatrix3d x_;
+        NumVarMatrix4d x_bar_;
+        NumVarMatrix3d y_;
+        NumVarMatrix3d y_bar;
+        NumVarMatrix3d lambda_;
+        NumVarMatrix2d beta_;
+        IloNumVar z_;
+        NumVarMatrix6d w_;
+        NumVarMatrix5d u_;
+
+        void add_variables (Data &data);
+        void add_constraints (Data &data);
+
+        int extract_solution (Data &data, int time_limit);
+        int extract_solution_for_combination (Data &data, int best_bound, int time_limit, bool &reached_time_limit);
+
+        void get_value_of_variables (Data &data, IloCplex &cplex);
+
+        std::string convert_time (int seconds);
 };
 
 #endif

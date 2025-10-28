@@ -1,0 +1,216 @@
+t2p5r1h1A.txt:
+   > Trying to open the instance file...
+   > Reading number of trains...
+   > Reading maximum number of trips per train...
+   > Reading time intervals...
+   > Reading number of points...
+   > Reading stations...
+   > Reading crossings...
+   > Reading depots...
+   > Reading initial point...
+   > Reading routes...
+   > Reading distance and distance and service...
+   > Reading demands...
+   > Reading maximum time...
+   > Reading alpha...
+
+--------------------------------
+ Printing instance
+--------------------------------
+number of trains = 2
+	max trips per trains: 1     1
+number of intervals = 1
+	(0,   8000)
+number of points = 5
+	initial point: 0
+	stations: 0     1     2     3     4
+	crossings: 0     2     4
+	depots: 0     2     4
+number of vertices = 10
+	total vertices: 0     1     2     3     4     5     6     7     8     9
+	upper vertices: 0     1     2     3     4
+	lower vertices: 5     6     7     8     9
+	vertices of point #0: (0, 5)
+	vertices of point #1: (1, 6)
+	vertices of point #2: (2, 7)
+	vertices of point #3: (3, 8)
+	vertices of point #4: (4, 9)
+
+arcs...
+	total arcs: 
+		arc #0: (0, 1)
+		arc #1: (0, 5)
+		arc #2: (5, 0)
+		arc #3: (1, 2)
+		arc #4: (6, 5)
+		arc #5: (2, 3)
+		arc #6: (7, 6)
+		arc #7: (2, 7)
+		arc #8: (7, 2)
+		arc #9: (3, 4)
+		arc #10: (8, 7)
+		arc #11: (9, 8)
+		arc #12: (4, 9)
+		arc #13: (9, 4)
+
+	reverse arcs: 
+		arc #1: (0, 5)
+		arc #2: (5, 0)
+		arc #7: (2, 7)
+		arc #8: (7, 2)
+		arc #12: (4, 9)
+		arc #13: (9, 4)
+
+
+incompatible points...
+	(0, 1, 7, (1, 2))	(7, 6, 0, (6, 5))	(2, 3, 9, (3, 4))	(9, 8, 2, (8, 7))
+
+number of routes = 1
+vertices of routes...
+	route #0: 0     1     2     3     4     9     8     7     6     5     0
+arcs of routes...
+	route #0: 0     3     5     9    12    11    10     6     4     2
+
+incompatible routes...
+
+
+vertices that can be adjacent in consecutive trips...
+	(0, 0)
+non cyclical routes: 
+
+
+routes of trip...
+	routes that train #0 can complete at trip #0: 0
+
+	routes that train #1 can complete at trip #0: 0
+
+ cost...
+	arc #0 [0][1]: 100
+	arc #1 [0][5]: 0
+	arc #2 [5][0]: 0
+	arc #3 [1][2]: 100
+	arc #4 [6][5]: 100
+	arc #5 [2][3]: 100
+	arc #6 [7][6]: 100
+	arc #7 [2][7]: 0
+	arc #8 [7][2]: 0
+	arc #9 [3][4]: 100
+	arc #10 [8][7]: 100
+	arc #11 [9][8]: 100
+	arc #12 [4][9]: 0
+	arc #13 [9][4]: 0
+
+cost with minimum service...
+	arc #0 [0][1]: 160
+	arc #1 [0][5]: 0
+	arc #2 [5][0]: 0
+	arc #3 [1][2]: 160
+	arc #4 [6][5]: 160
+	arc #5 [2][3]: 160
+	arc #6 [7][6]: 160
+	arc #7 [2][7]: 0
+	arc #8 [7][2]: 0
+	arc #9 [3][4]: 160
+	arc #10 [8][7]: 160
+	arc #11 [9][8]: 160
+	arc #12 [4][9]: 0
+	arc #13 [9][4]: 0
+
+cost with maximum service...
+	arc #0 [0][1]: 700
+	arc #1 [0][5]: 600
+	arc #2 [5][0]: 600
+	arc #3 [1][2]: 700
+	arc #4 [6][5]: 700
+	arc #5 [2][3]: 700
+	arc #6 [7][6]: 700
+	arc #7 [2][7]: 600
+	arc #8 [7][2]: 600
+	arc #9 [3][4]: 700
+	arc #10 [8][7]: 700
+	arc #11 [9][8]: 700
+	arc #12 [4][9]: 600
+	arc #13 [9][4]: 600
+
+demands...
+	demands of vertex 0 at time interval: 2
+	demands of vertex 1 at time interval: 2
+	demands of vertex 2 at time interval: 1
+	demands of vertex 3 at time interval: 1
+	demands of vertex 4 at time interval: 0
+	demands of vertex 5 at time interval: 0
+	demands of vertex 6 at time interval: 2
+	demands of vertex 7 at time interval: 2
+	demands of vertex 8 at time interval: 1
+	demands of vertex 9 at time interval: 1
+
+maximum time = 8000
+alpha = 60
+
+>> Solving...
+Version identifier: 20.1.0.0 | 2020-11-10 | 9bedb6d68
+CPXPARAM_Threads                                 1
+CPXPARAM_TimeLimit                               43200
+Tried aggregator 2 times.
+MIP Presolve eliminated 791 rows and 230 columns.
+MIP Presolve modified 344 coefficients.
+Aggregator did 34 substitutions.
+Reduced MIP has 104 rows, 35 columns, and 276 nonzeros.
+Reduced MIP has 14 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.98 ticks)
+Found incumbent of value 6720.000000 after 0.01 sec. (1.31 ticks)
+Probing time = 0.00 sec. (0.08 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 104 rows, 35 columns, and 276 nonzeros.
+Reduced MIP has 14 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.15 ticks)
+Probing time = 0.00 sec. (0.08 ticks)
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Root relaxation solution time = 0.00 sec. (0.13 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                         6720.0000        0.0000           100.00%
+      0     0        0.0000    10     6720.0000        0.0000       12  100.00%
+*     0+    0                           60.0000        0.0000           100.00%
+      0     0        0.0000    10       60.0000      Cuts: 36       44  100.00%
+      0     0       30.0000    10       60.0000      Cuts: 41       54   50.00%
+Detecting symmetries...
+      0     1       30.0000    10       60.0000       40.0000       54   33.33%
+Elapsed time = 0.02 sec. (4.87 ticks, tree = 0.01 MB, solutions = 2)
+
+Flow cuts applied:  18
+Mixed integer rounding cuts applied:  49
+Gomory fractional cuts applied:  10
+
+Root node processing (before b&c):
+  Real time             =    0.02 sec. (4.88 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.05 ticks)
+                          ------------
+Total (root+branch&cut) =    0.02 sec. (4.93 ticks)
+Optimal
+
+>> Printing some results...
+    -> Solution value = 60 - 00:01:00
+    -> Total time = 0.02
+    -> Gap value = 0.00
+
+=============
+Train 0
+=============
+> Trip 0
+   0(time 60 - 00:01:00)(time 160 - 00:02:40) ->    1(time 220 - 00:03:40)(time 320 - 00:05:20) ->    2(time 380 - 00:06:20)(time 480 - 00:08:00) ->    3(time 540 - 00:09:00)(time 640 - 00:10:40) ->    4(time 700 - 00:11:40)(time 700 - 00:11:40) ->    9(time 700 - 00:11:40)(time 800 - 00:13:20) ->    8(time 860 - 00:14:20)(time 960 - 00:16:00) ->    7(time 1020 - 00:17:00)(time 1120 - 00:18:40) ->    6(time 1180 - 00:19:40)(time 1280 - 00:21:20) ->    5(time 1340 - 00:22:20)(time 1340 - 00:22:20) -> 0
+=============
+Train 1
+=============
+> Trip 0
+   0(time 0 - 00:00:00)(time 100 - 00:01:40) ->    1(time 160 - 00:02:40)(time 260 - 00:04:20) ->    2(time 320 - 00:05:20)(time 420 - 00:07:00) ->    3(time 480 - 00:08:00)(time 580 - 00:09:40) ->    4(time 640 - 00:10:40)(time 640 - 00:10:40) ->    9(time 640 - 00:10:40)(time 740 - 00:12:20) ->    8(time 800 - 00:13:20)(time 900 - 00:15:00) ->    7(time 960 - 00:16:00)(time 1060 - 00:17:40) ->    6(time 1120 - 00:18:40)(time 1220 - 00:20:20) ->    5(time 1280 - 00:21:20)(time 1280 - 00:21:20) -> 0
+Traceback (most recent call last):
+  File "script.py", line 99, in <module>
+    os.remove(file_name)
+FileNotFoundError: [Errno 2] No such file or directory: 'script-solution.txt'

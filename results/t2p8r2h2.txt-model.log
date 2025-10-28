@@ -1,0 +1,338 @@
+t2p8r2h2.txt:
+   > Trying to open the instance file...
+   > Reading number of trains...
+   > Reading maximum number of trips per train...
+   > Reading time intervals...
+   > Reading number of points...
+   > Reading stations...
+   > Reading crossings...
+   > Reading depots...
+   > Reading initial point...
+   > Reading routes...
+   > Reading distance and distance and service...
+   > Reading demands...
+   > Reading maximum time...
+   > Reading alpha...
+
+--------------------------------
+ Printing instance
+--------------------------------
+number of trains = 2
+	max trips per trains: 4     4
+number of intervals = 2
+	(0,  18328)	(18329,  36657)
+number of points = 8
+	initial point: 7
+	stations: 0     1     2     3     4     5     6     7
+	crossings: 0     4     7
+	depots: 0     7
+number of vertices = 16
+	total vertices: 0     1     2     3     4     5     6     7     8     9    10    11    12    13    14    15
+	upper vertices: 0     1     2     3     4     5     6     7
+	lower vertices: 8     9    10    11    12    13    14    15
+	vertices of point #0: (0, 8)
+	vertices of point #1: (1, 9)
+	vertices of point #2: (2, 10)
+	vertices of point #3: (3, 11)
+	vertices of point #4: (4, 12)
+	vertices of point #5: (5, 13)
+	vertices of point #6: (6, 14)
+	vertices of point #7: (7, 15)
+
+arcs...
+	total arcs: 
+		arc #0: (0, 1)
+		arc #1: (0, 8)
+		arc #2: (8, 0)
+		arc #3: (1, 2)
+		arc #4: (9, 8)
+		arc #5: (2, 3)
+		arc #6: (10, 9)
+		arc #7: (3, 4)
+		arc #8: (11, 10)
+		arc #9: (4, 5)
+		arc #10: (12, 11)
+		arc #11: (5, 6)
+		arc #12: (13, 12)
+		arc #13: (6, 7)
+		arc #14: (14, 13)
+		arc #15: (15, 14)
+		arc #16: (7, 15)
+		arc #17: (15, 7)
+
+	reverse arcs: 
+		arc #1: (0, 8)
+		arc #2: (8, 0)
+		arc #16: (7, 15)
+		arc #17: (15, 7)
+
+
+incompatible points...
+	(0, 3, 12, (3, 4))	(12, 9, 0, (9, 8))	(4, 6, 15, (6, 7))	(15, 13, 4, (13, 12))
+
+number of routes = 2
+vertices of routes...
+	route #0: 0     1     2     3     4     5     6     7    15    14    13    12    11    10     9     8     0
+	route #1: 15    14    13    12    11    10     9     8     0     1     2     3     4     5     6     7    15
+arcs of routes...
+	route #0: 0     3     5     7     9    11    13    16    15    14    12    10     8     6     4     2
+	route #1: 15    14    12    10     8     6     4     2     0     3     5     7     9    11    13    16
+
+incompatible routes...
+	(0, 1)    	(1, 0)
+
+vertices that can be adjacent in consecutive trips...
+	(0, 0)    	(15, 15)
+non cyclical routes: 
+
+
+routes of trip...
+	routes that train #0 can complete at trip #0: 1
+	routes that train #0 can complete at trip #1: 0       1
+	routes that train #0 can complete at trip #2: 0       1
+	routes that train #0 can complete at trip #3: 0       1
+
+	routes that train #1 can complete at trip #0: 1
+	routes that train #1 can complete at trip #1: 0       1
+	routes that train #1 can complete at trip #2: 0       1
+	routes that train #1 can complete at trip #3: 0       1
+
+ cost...
+	arc #0 [0][1]: 376
+	arc #1 [0][8]: 0
+	arc #2 [8][0]: 0
+	arc #3 [1][2]: 386
+	arc #4 [9][8]: 376
+	arc #5 [2][3]: 380
+	arc #6 [10][9]: 386
+	arc #7 [3][4]: 332
+	arc #8 [11][10]: 380
+	arc #9 [4][5]: 386
+	arc #10 [12][11]: 332
+	arc #11 [5][6]: 326
+	arc #12 [13][12]: 386
+	arc #13 [6][7]: 328
+	arc #14 [14][13]: 326
+	arc #15 [15][14]: 328
+	arc #16 [7][15]: 0
+	arc #17 [15][7]: 0
+
+cost with minimum service...
+	arc #0 [0][1]: 491
+	arc #1 [0][8]: 0
+	arc #2 [8][0]: 0
+	arc #3 [1][2]: 501
+	arc #4 [9][8]: 498
+	arc #5 [2][3]: 495
+	arc #6 [10][9]: 501
+	arc #7 [3][4]: 447
+	arc #8 [11][10]: 495
+	arc #9 [4][5]: 501
+	arc #10 [12][11]: 447
+	arc #11 [5][6]: 441
+	arc #12 [13][12]: 501
+	arc #13 [6][7]: 450
+	arc #14 [14][13]: 441
+	arc #15 [15][14]: 443
+	arc #16 [7][15]: 0
+	arc #17 [15][7]: 0
+
+cost with maximum service...
+	arc #0 [0][1]: 743
+	arc #1 [0][8]: 367
+	arc #2 [8][0]: 367
+	arc #3 [1][2]: 753
+	arc #4 [9][8]: 743
+	arc #5 [2][3]: 747
+	arc #6 [10][9]: 753
+	arc #7 [3][4]: 699
+	arc #8 [11][10]: 747
+	arc #9 [4][5]: 753
+	arc #10 [12][11]: 699
+	arc #11 [5][6]: 693
+	arc #12 [13][12]: 753
+	arc #13 [6][7]: 695
+	arc #14 [14][13]: 693
+	arc #15 [15][14]: 695
+	arc #16 [7][15]: 367
+	arc #17 [15][7]: 367
+
+demands...
+	demands of vertex 0 at time interval: 3     3
+	demands of vertex 1 at time interval: 3     3
+	demands of vertex 2 at time interval: 3     3
+	demands of vertex 3 at time interval: 3     3
+	demands of vertex 4 at time interval: 3     3
+	demands of vertex 5 at time interval: 3     3
+	demands of vertex 6 at time interval: 3     3
+	demands of vertex 7 at time interval: 0     0
+	demands of vertex 8 at time interval: 0     0
+	demands of vertex 9 at time interval: 3     3
+	demands of vertex 10 at time interval: 3     3
+	demands of vertex 11 at time interval: 3     3
+	demands of vertex 12 at time interval: 3     3
+	demands of vertex 13 at time interval: 3     3
+	demands of vertex 14 at time interval: 3     3
+	demands of vertex 15 at time interval: 3     3
+
+maximum time = 36657
+alpha = 90
+
+>> Solving...
+Version identifier: 20.1.0.0 | 2020-11-10 | 9bedb6d68
+CPXPARAM_Threads                                 1
+CPXPARAM_TimeLimit                               43200
+Tried aggregator 6 times.
+MIP Presolve eliminated 9873 rows and 1910 columns.
+MIP Presolve modified 20833 coefficients.
+Aggregator did 256 substitutions.
+Reduced MIP has 18680 rows, 6729 columns, and 46320 nonzeros.
+Reduced MIP has 6600 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 1.37 sec. (868.08 ticks)
+Probing fixed 186 vars, tightened 257 bounds.
+Probing time = 0.81 sec. (551.18 ticks)
+Cover probing fixed 0 vars, tightened 334 bounds.
+Tried aggregator 2 times.
+MIP Presolve eliminated 7176 rows and 1019 columns.
+MIP Presolve modified 2106 coefficients.
+Aggregator did 2904 substitutions.
+Reduced MIP has 8600 rows, 2806 columns, and 21818 nonzeros.
+Reduced MIP has 2677 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.28 sec. (169.28 ticks)
+Probing fixed 1 vars, tightened 34 bounds.
+Probing time = 0.15 sec. (102.87 ticks)
+Cover probing fixed 0 vars, tightened 44 bounds.
+Tried aggregator 2 times.
+MIP Presolve eliminated 1293 rows and 18 columns.
+MIP Presolve modified 494 coefficients.
+Aggregator did 751 substitutions.
+Reduced MIP has 6556 rows, 2037 columns, and 16834 nonzeros.
+Reduced MIP has 1908 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.19 sec. (110.65 ticks)
+Probing time = 0.01 sec. (5.52 ticks)
+Cover probing fixed 0 vars, tightened 12 bounds.
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 6556 rows, 2037 columns, and 16834 nonzeros.
+Reduced MIP has 1908 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.10 sec. (74.27 ticks)
+Probing time = 0.01 sec. (5.59 ticks)
+Cover probing fixed 0 vars, tightened 12 bounds.
+Clique table members: 12249.
+Tightened 12 constraints.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Root relaxation solution time = 0.10 sec. (109.99 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+      0     0     9907.0000   572                   9907.0000     1477         
+      0     0    10928.9883   985                   Cuts: 797     2432         
+      0     0    13304.0000   932                   Cuts: 339     2533         
+      0     0    13304.0000   968                   Cuts: 146     2640         
+*     0+    0                        35271.0000    13304.0000            62.28%
+*     0+    0                        32501.0000    13304.0000            59.07%
+      0     0  -1.00000e+75     0    32501.0000    13304.0000     2640   59.07%
+      0     0    13304.0000   955    32501.0000     Cuts: 307     2891   59.07%
+      0     0    13304.0000   970    32501.0000     Cuts: 541     3114   59.07%
+*     0+    0                        31755.0000    13304.0000            58.10%
+*     0+    0                        31633.0000    13304.0000            57.94%
+
+Repeating presolve.
+Tried aggregator 1 time.
+MIP Presolve eliminated 3587 rows and 1417 columns.
+Reduced MIP has 2969 rows, 620 columns, and 8198 nonzeros.
+Reduced MIP has 491 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.03 sec. (16.53 ticks)
+Probing fixed 37 vars, tightened 56 bounds.
+Probing changed sense of 22 constraints.
+Probing time = 0.23 sec. (160.53 ticks)
+Tried aggregator 2 times.
+MIP Presolve eliminated 149 rows and 37 columns.
+MIP Presolve modified 3960 coefficients.
+Aggregator did 38 substitutions.
+Reduced MIP has 2782 rows, 545 columns, and 7676 nonzeros.
+Reduced MIP has 416 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.04 sec. (22.87 ticks)
+Probing fixed 27 vars, tightened 378 bounds.
+Probing changed sense of 8 constraints.
+Probing time = 0.18 sec. (113.91 ticks)
+Tried aggregator 2 times.
+MIP Presolve eliminated 1219 rows and 68 columns.
+MIP Presolve modified 2324 coefficients.
+Aggregator did 112 substitutions.
+Reduced MIP has 1451 rows, 365 columns, and 4004 nonzeros.
+Reduced MIP has 236 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.01 sec. (4.79 ticks)
+Probing fixed 0 vars, tightened 4 bounds.
+Probing time = 0.04 sec. (20.81 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 1451 rows, 365 columns, and 4004 nonzeros.
+Reduced MIP has 236 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (2.05 ticks)
+Represolve time = 0.56 sec. (351.86 ticks)
+Probing time = 0.01 sec. (5.43 ticks)
+Clique table members: 2641.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Root relaxation solution time = 0.01 sec. (11.26 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                        31633.0000    15047.0000            52.43%
+      0     0    19956.0000    82    31633.0000    19956.0000     3425   36.91%
+*     0+    0                        23960.0000    19956.0000            16.71%
+      0     0    19957.4634    68    23960.0000     Cuts: 161     3545   16.71%
+*     0+    0                        20078.0000    19957.4634             0.60%
+      0     0        cutoff          20078.0000                   3571    0.00%
+Elapsed time = 5.93 sec. (3975.67 ticks, tree = 0.01 MB, solutions = 6)
+
+Clique cuts applied:  27
+Flow cuts applied:  15
+Mixed integer rounding cuts applied:  6
+Gomory fractional cuts applied:  53
+
+Root node processing (before b&c):
+  Real time             =    5.93 sec. (3976.23 ticks)
+Sequential b&c:
+  Real time             =    0.00 sec. (0.00 ticks)
+                          ------------
+Total (root+branch&cut) =    5.93 sec. (3976.23 ticks)
+Optimal
+
+>> Printing some results...
+    -> Solution value = 20077 - 05:34:37
+    -> Total time = 5.93
+    -> Gap value = 0.00
+
+=============
+Train 0
+=============
+> Trip 0
+   15(time 5352 - 01:29:12)(time 5680 - 01:34:40) ->    14(time 5795 - 01:36:35)(time 6121 - 01:42:01) ->    13(time 6236 - 01:43:56)(time 6622 - 01:50:22) ->    12(time 6737 - 01:52:17)(time 7069 - 01:57:49) ->    11(time 7184 - 01:59:44)(time 7564 - 02:06:04) ->    10(time 7679 - 02:07:59)(time 8065 - 02:14:25) ->    9(time 8180 - 02:16:20)(time 8556 - 02:22:36) ->    8(time 8678 - 02:24:38)(time 8678 - 02:24:38) ->    0(time 8678 - 02:24:38)(time 9054 - 02:30:54) ->    1(time 9169 - 02:32:49)(time 9555 - 02:39:15) ->    2(time 9670 - 02:41:10)(time 10050 - 02:47:30) ->    3(time 10165 - 02:49:25)(time 10497 - 02:54:57) ->    4(time 10612 - 02:56:52)(time 10998 - 03:03:18) ->    5(time 11113 - 03:05:13)(time 11439 - 03:10:39) ->    6(time 11554 - 03:12:34)(time 11882 - 03:18:02) ->    7(time 12004 - 03:20:04)(time 12004 - 03:20:04) -> 15
+> Trip 1
+   15(time 12004 - 03:20:04)(time 12332 - 03:25:32) ->    14(time 12447 - 03:27:27)(time 12773 - 03:32:53) ->    13(time 12888 - 03:34:48)(time 13274 - 03:41:14) ->    12(time 13389 - 03:43:09)(time 13721 - 03:48:41) ->    11(time 13836 - 03:50:36)(time 14216 - 03:56:56) ->    10(time 14331 - 03:58:51)(time 14717 - 04:05:17) ->    9(time 14832 - 04:07:12)(time 15208 - 04:13:28) ->    8(time 15330 - 04:15:30)(time 15330 - 04:15:30) ->    0(time 15330 - 04:15:30)(time 15706 - 04:21:46) ->    1(time 15821 - 04:23:41)(time 16207 - 04:30:07) ->    2(time 16322 - 04:32:02)(time 16702 - 04:38:22) ->    3(time 16817 - 04:40:17)(time 17149 - 04:45:49) ->    4(time 17264 - 04:47:44)(time 17650 - 04:54:10) ->    5(time 17765 - 04:56:05)(time 18091 - 05:01:31) ->    6(time 18206 - 05:03:26)(time 18534 - 05:08:54) ->    7(time 18656 - 05:10:56)(time 18656 - 05:10:56) -> 15
+> Trip 2
+   15(time 18656 - 05:10:56)(time 18984 - 05:16:24) ->    14(time 19099 - 05:18:19)(time 19425 - 05:23:45) ->    13(time 19540 - 05:25:40)(time 19926 - 05:32:06) ->    12(time 20041 - 05:34:01)(time 20373 - 05:39:33) ->    11(time 20488 - 05:41:28)(time 20868 - 05:47:48) ->    10(time 20983 - 05:49:43)(time 21369 - 05:56:09) ->    9(time 21484 - 05:58:04)(time 21860 - 06:04:20) ->    8(time 21982 - 06:06:22)(time 21982 - 06:06:22) ->    0(time 21982 - 06:06:22)(time 22358 - 06:12:38) ->    1(time 22473 - 06:14:33)(time 22859 - 06:20:59) ->    2(time 22974 - 06:22:54)(time 23354 - 06:29:14) ->    3(time 23469 - 06:31:09)(time 23801 - 06:36:41) ->    4(time 23916 - 06:38:36)(time 24302 - 06:45:02) ->    5(time 24417 - 06:46:57)(time 24743 - 06:52:23) ->    6(time 24858 - 06:54:18)(time 25186 - 06:59:46) ->    7(time 25308 - 07:01:48)(time 25308 - 07:01:48) -> 15
+> Trip 3
+   15(time 25308 - 07:01:48)(time 25636 - 07:07:16) ->    14(time 25751 - 07:09:11)(time 26077 - 07:14:37) ->    13(time 26192 - 07:16:32)(time 26578 - 07:22:58) ->    12(time 26693 - 07:24:53)(time 27025 - 07:30:25) ->    11(time 27140 - 07:32:20)(time 27520 - 07:38:40) ->    10(time 27635 - 07:40:35)(time 28021 - 07:47:01) ->    9(time 28136 - 07:48:56)(time 28512 - 07:55:12) ->    8(time 28634 - 07:57:14)(time 28634 - 07:57:14) ->    0(time 28634 - 07:57:14)(time 29010 - 08:03:30) ->    1(time 29125 - 08:05:25)(time 29511 - 08:11:51) ->    2(time 29626 - 08:13:46)(time 30006 - 08:20:06) ->    3(time 30121 - 08:22:01)(time 30453 - 08:27:33) ->    4(time 30568 - 08:29:28)(time 30954 - 08:35:54) ->    5(time 31069 - 08:37:49)(time 31395 - 08:43:15) ->    6(time 31510 - 08:45:10)(time 31838 - 08:50:38) ->    7(time 31960 - 08:52:40)(time 31960 - 08:52:40) -> 15
+=============
+Train 1
+=============
+> Trip 0
+   15(time 5467 - 01:31:07)(time 5795 - 01:36:35) ->    14(time 5917 - 01:38:37)(time 6243 - 01:44:03) ->    13(time 6358 - 01:45:58)(time 6744 - 01:52:24) ->    12(time 6859 - 01:54:19)(time 7191 - 01:59:51) ->    11(time 7306 - 02:01:46)(time 7686 - 02:08:06) ->    10(time 7801 - 02:10:01)(time 8187 - 02:16:27) ->    9(time 8302 - 02:18:22)(time 8678 - 02:24:38) ->    8(time 8800 - 02:26:40)(time 8800 - 02:26:40) ->    0(time 8800 - 02:26:40)(time 9176 - 02:32:56) ->    1(time 9291 - 02:34:51)(time 9677 - 02:41:17) ->    2(time 9792 - 02:43:12)(time 10172 - 02:49:32) ->    3(time 10287 - 02:51:27)(time 10619 - 02:56:59) ->    4(time 10734 - 02:58:54)(time 11120 - 03:05:20) ->    5(time 11235 - 03:07:15)(time 11561 - 03:12:41) ->    6(time 11676 - 03:14:36)(time 12004 - 03:20:04) ->    7(time 12126 - 03:22:06)(time 12126 - 03:22:06) -> 15
+> Trip 1
+   15(time 12126 - 03:22:06)(time 12454 - 03:27:34) ->    14(time 12569 - 03:29:29)(time 12895 - 03:34:55) ->    13(time 13010 - 03:36:50)(time 13396 - 03:43:16) ->    12(time 13511 - 03:45:11)(time 13843 - 03:50:43) ->    11(time 13958 - 03:52:38)(time 14338 - 03:58:58) ->    10(time 14453 - 04:00:53)(time 14839 - 04:07:19) ->    9(time 14954 - 04:09:14)(time 15330 - 04:15:30) ->    8(time 15452 - 04:17:32)(time 15452 - 04:17:32) ->    0(time 15452 - 04:17:32)(time 15828 - 04:23:48) ->    1(time 15943 - 04:25:43)(time 16329 - 04:32:09) ->    2(time 16444 - 04:34:04)(time 16824 - 04:40:24) ->    3(time 16939 - 04:42:19)(time 17271 - 04:47:51) ->    4(time 17386 - 04:49:46)(time 17772 - 04:56:12) ->    5(time 17887 - 04:58:07)(time 18213 - 05:03:33) ->    6(time 18328 - 05:05:28)(time 18656 - 05:10:56) ->    7(time 18778 - 05:12:58)(time 18778 - 05:12:58) -> 15
+> Trip 2
+   15(time 18778 - 05:12:58)(time 19106 - 05:18:26) ->    14(time 19221 - 05:20:21)(time 19547 - 05:25:47) ->    13(time 19662 - 05:27:42)(time 20048 - 05:34:08) ->    12(time 20163 - 05:36:03)(time 20495 - 05:41:35) ->    11(time 20610 - 05:43:30)(time 20990 - 05:49:50) ->    10(time 21105 - 05:51:45)(time 21491 - 05:58:11) ->    9(time 21606 - 06:00:06)(time 21982 - 06:06:22) ->    8(time 22104 - 06:08:24)(time 22104 - 06:08:24) ->    0(time 22104 - 06:08:24)(time 22480 - 06:14:40) ->    1(time 22595 - 06:16:35)(time 22981 - 06:23:01) ->    2(time 23096 - 06:24:56)(time 23476 - 06:31:16) ->    3(time 23591 - 06:33:11)(time 23923 - 06:38:43) ->    4(time 24038 - 06:40:38)(time 24424 - 06:47:04) ->    5(time 24539 - 06:48:59)(time 24865 - 06:54:25) ->    6(time 24980 - 06:56:20)(time 25308 - 07:01:48) ->    7(time 25430 - 07:03:50)(time 25430 - 07:03:50) -> 15
+> Trip 3
+   15(time 25430 - 07:03:50)(time 25758 - 07:09:18) ->    14(time 25873 - 07:11:13)(time 26199 - 07:16:39) ->    13(time 26314 - 07:18:34)(time 26700 - 07:25:00) ->    12(time 26815 - 07:26:55)(time 27147 - 07:32:27) ->    11(time 27262 - 07:34:22)(time 27642 - 07:40:42) ->    10(time 27757 - 07:42:37)(time 28143 - 07:49:03) ->    9(time 28258 - 07:50:58)(time 28634 - 07:57:14) ->    8(time 28756 - 07:59:16)(time 28756 - 07:59:16) ->    0(time 28756 - 07:59:16)(time 29132 - 08:05:32) ->    1(time 29247 - 08:07:27)(time 29633 - 08:13:53) ->    2(time 29748 - 08:15:48)(time 30128 - 08:22:08) ->    3(time 30243 - 08:24:03)(time 30575 - 08:29:35) ->    4(time 30690 - 08:31:30)(time 31076 - 08:37:56) ->    5(time 31191 - 08:39:51)(time 31517 - 08:45:17) ->    6(time 31632 - 08:47:12)(time 31960 - 08:52:40) ->    7(time 32082 - 08:54:42)(time 32082 - 08:54:42) -> 15
+Traceback (most recent call last):
+  File "/home/renata/Train-Timetabling/script.py", line 99, in <module>
+    os.remove(file_name)
+FileNotFoundError: [Errno 2] No such file or directory: 'script-solution.txt'
