@@ -62,7 +62,7 @@ Combinations::Combinations(Data &data, int threads, string method, int time_limi
     best_thread.best_sol[0].computational_time = (time).count();
 
     // get optimal solution
-    best_thread.get_solution(data, proved_optimal);
+    best_thread.get_solution(data, proved_optimal, method);
 }
 
 /*******************************************************************/
@@ -99,7 +99,7 @@ void Combinations::execute_all_combinations(Data &data)
     {
         int thread_id = omp_get_thread_num();
         models[thread_id].best_sol.push_back(models[thread_id].current_sol);
-        models[thread_id].initialize(data);
+        models[thread_id].initialize(data, nb_threads);
 
         #pragma omp for schedule(dynamic)
         for (unsigned long long count = 0; count < total_nb_combinations; count++)
@@ -125,7 +125,7 @@ void Combinations::execute_all_combinations(Data &data)
             // verify if combination is valid before calling for model to solve the combination
             if (is_valid_combination(data, current))
             {
-                model_thread.reset(data);
+                model_thread.reset(data, nb_threads);
 
                 // call for model 
                 bool reached_time_limit = false;
@@ -175,7 +175,7 @@ void Combinations::execute_all_combinations(Data &data)
                         cout << "\tCannot prove optimality!" << endl;
 
                         best_thread.best_sol[0].computational_time = (current_time).count();
-                        best_thread.get_solution(data, proved_optimal);
+                        best_thread.get_solution(data, proved_optimal, "enum");
                     }
                     exit(0);
                 }
@@ -434,7 +434,7 @@ void Combinations::execute_heuristic (Data &data)
     // allow model to choose the last trips completed by the trains
     heuristic.change_trips(data, false, current[0]);
     best_thread.best_sol.push_back(best_thread.current_sol);
-    best_thread.initialize(data);
+    best_thread.initialize(data, nb_threads);
     bool reached_time_limit = false;
     best_thread.run_with_routes_constraints(data, current[0], best_bound, time_limit_per_combination, reached_time_limit);
 
@@ -455,7 +455,7 @@ bool Combinations::execute_candidate_combinations (Data &data)
     {
         int thread_id = omp_get_thread_num();
         models[thread_id].best_sol.push_back(models[thread_id].current_sol);
-        models[thread_id].initialize(data);
+        models[thread_id].initialize(data, nb_threads);
 
         #pragma omp for schedule(dynamic)
         // #pragma omp for
@@ -469,7 +469,7 @@ bool Combinations::execute_candidate_combinations (Data &data)
 
             if (normalize_combination(data, current))
             {
-                model_thread.reset(data);
+                model_thread.reset(data, nb_threads);
                 bool reached_time_limit = false;
                 int feasible = model_thread.run_with_routes_constraints(data, current, best_bound, time_limit_per_combination, reached_time_limit);
 
@@ -522,7 +522,7 @@ bool Combinations::execute_candidate_combinations (Data &data)
                     else
                     {
                         best_thread.best_sol[0].computational_time = (current_time).count();
-                        best_thread.get_solution(data, proved_optimal);
+                        best_thread.get_solution(data, proved_optimal, "heuristic");
                     }
                     exit(0);
                 }

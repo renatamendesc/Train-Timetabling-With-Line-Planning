@@ -2,24 +2,24 @@
 
 using namespace std;
 
-void Model::initialize (Data &data)
+void Model::initialize (Data &data, int threads)
 {    
+    nb_threads = threads; // maximum number of threads to be used
+
     env = IloEnv();
     model = IloModel(env);
     constraints = IloConstraintArray(env);
     obj = IloExpr(env);
 }
 
-void Model::reset (Data &data)
+void Model::reset (Data &data, int threads)
 {
     env.end();
-    initialize(data);
+    initialize(data, threads);
 }
 
-int Model::run (Data &data, int threads)
-{
-    nb_threads = threads; // maximum number of threads to be used
-    
+int Model::run (Data &data)
+{   
     // set time limit
     int time_limit = 43200;
 
@@ -889,7 +889,7 @@ int Model::extract_solution(Data &data, int time_limit)
     best_sol.clear();
     best_sol.push_back(current_sol);
     if (!verify_feasibility)
-        get_solution(data, true);
+        get_solution(data, true, "model");
 
     return 1;
 }
@@ -1130,7 +1130,7 @@ void Model::get_best_combinations (Data &data, vector<vector<vector<int>>> &comb
     }
 }
 
-void Model::get_solution (Data &data, bool print_gap)
+void Model::get_solution (Data &data, bool print_gap, string method)
 {   
     Solution final_solution = best_sol[0];
 
@@ -1141,8 +1141,11 @@ void Model::get_solution (Data &data, bool print_gap)
     ofstream solution_file, solution_script;
 
     // create files to register the solution given by the model
-    solution_file.open("benchmarking/results/timetable/" + data.get_instance_name() + ".txt", ios::out | ios::trunc); // file to register the timetable
-    solution_script.open("script-solution.txt", ios::out | ios::trunc);                                     // file to execute python script to generate the graphs of the timetable
+    // ensure the directory exists
+    std::string results_dir = "benchmarking/" + data.get_instance_set() + "/" + method + "_" + to_string(nb_threads) + "/" + data.get_instance_name();
+    std::filesystem::create_directories(results_dir);
+    solution_file.open(results_dir + "/timetable.txt", ios::out | ios::trunc); // file to register the timetable
+    solution_script.open("script-solution.txt", ios::out | ios::trunc);        // file to execute python script to generate the graphs of the timetable
 
     solution_file << "-> Solution value = " << final_solution.obj_value << " - " << convert_time(final_solution.obj_value) << endl;
     solution_file << "-> Total time = " << final_solution.computational_time << endl;
@@ -1231,16 +1234,16 @@ void Model::get_solution (Data &data, bool print_gap)
         }
     }
 
-    get_graph(data);
+    get_graph(data, method);
 }
 
-void Model::get_graph (Data &data)
+void Model::get_graph (Data &data, string method)
 {
     // calls python script to generate graph of the solution
     string command = "python3 ";
-    string file_name = "script.py ";
-    string instance_name = "\"" + data.get_instance_name() + "\"";
-    command += (file_name + instance_name);
+    string file_name = "script-graph.py ";
+    string instance = "\"" + data.get_instance_set() + "/" + method + "_" + to_string(nb_threads) + "/" + data.get_instance_name() + "\"";
+    command += (file_name + instance);
     system(command.c_str());
 }
 

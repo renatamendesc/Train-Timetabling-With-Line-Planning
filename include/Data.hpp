@@ -21,6 +21,8 @@ class Data
 {
     private:
         std::string _instance_path;
+        std::string _instance_name;
+        std::string _instance_set;
 
         int _nb_trains;
         int _nb_points;
@@ -75,7 +77,6 @@ class Data
 
     public:
         int _initial_point;
-        std::string _instance_name;
         
         Data(std::string instance_path);
 
@@ -95,6 +96,11 @@ class Data
         std::string get_instance_name()
         {
             return _instance_name;
+        }
+
+        std::string get_instance_set()
+        {
+            return _instance_set;
         }
 
         int get_nb_trains()

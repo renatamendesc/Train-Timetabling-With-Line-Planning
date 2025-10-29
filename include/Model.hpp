@@ -47,17 +47,17 @@ class Model
         std::vector<Solution> best_sol;
         Solution current_sol;
 
-        void initialize (Data &data);
-        void reset (Data &data);
+        void initialize (Data &data, int threads);
+        void reset (Data &data, int threads);
 
-        int run (Data &data, int threads);
+        int run (Data &data);
         int run_with_routes_constraints (Data &data, std::vector<std::vector<int>> &routes_of_trains, int best_bound, int time_limit, bool &reached_time_limit);
 
         void tie_breaker(Data &data, std::vector<std::vector<std::vector<int>>> &combinations);
 
-        void get_solution (Data &data, bool print_gap);
+        void get_solution (Data &data, bool print_gap, std::string method);
         void get_best_combinations (Data &data, std::vector<std::vector<std::vector<int>>> &combination);
-        void get_graph (Data &data);
+        void get_graph (Data &data, std::string method);
 
     private:
 

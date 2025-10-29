@@ -39,12 +39,6 @@ cbtu.lp
 # Vscode settings
 .vscode/
 
-# Folder with solutions
-# solutions/
-
-# Folder with combinations
-combinations/
-
 # File to generate graphs
 script-solution.txt
 
@@ -52,4 +46,5 @@ script-solution.txt
 latex-table.py
 rename-instances.py
 
-HiGHS.log
+# files .log
+*.log

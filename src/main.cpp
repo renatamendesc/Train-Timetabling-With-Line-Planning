@@ -55,8 +55,8 @@ int main(int argc, char *argv[])
     if (method == "model")
     {
         Model model;
-        model.initialize(data);
-        model.run(data, threads);
+        model.initialize(data, threads);
+        model.run(data);
     }
     else if (method == "enum" || method == "heuristic")
     {

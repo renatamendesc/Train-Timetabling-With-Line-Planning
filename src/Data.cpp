@@ -22,6 +22,24 @@ Data::Data(string instance_path)
         _instance_name.erase(_instance_name.size() - 4);
     }
 
+    // extracting the set of the instance (folder name)
+    std::stringstream ss_set(_instance_path);
+    std::string token;
+    std::vector<std::string> path_parts;
+    while (std::getline(ss_set, token, '/'))
+    {
+        path_parts.push_back(token);
+    }
+    // path format: Train-Timetabling/instances/<set>/<instance>.txt
+    if (path_parts.size() >= 2)
+    {
+        _instance_set = path_parts[path_parts.size() - 2];
+    }
+    else
+    {
+        _instance_set = "unknown";
+    }
+
     // try to open the instance file
     cout << "   > Trying to open the instance file..." << endl;
     ifstream instance_file;
