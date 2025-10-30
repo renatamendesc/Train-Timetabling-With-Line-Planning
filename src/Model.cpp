@@ -2,9 +2,13 @@
 
 using namespace std;
 
+/*--------------------------------------------------------------------------*/
+/*----------------- methods initiliaze and reset the model -----------------*/
+/*--------------------------------------------------------------------------*/
+
 void Model::initialize (Data &data, int threads)
 {    
-    nb_threads = threads; // maximum number of threads to be used
+    nb_threads = threads; // set maximum number of threads to be used
 
     env = IloEnv();
     model = IloModel(env);
@@ -17,6 +21,10 @@ void Model::reset (Data &data, int threads)
     env.end();
     initialize(data, threads);
 }
+
+/*-------------------------------------------------------------------------*/
+/*---------------- methods to create and execute the model ----------------*/
+/*-------------------------------------------------------------------------*/
 
 int Model::run (Data &data)
 {   
@@ -85,6 +93,10 @@ int Model::run_with_routes_constraints (Data &data, vector<vector<int>> &routes_
     // extract solution from the model
     return extract_solution_for_combination(data, best_bound, time_limit, reached_time_limit);
 }
+
+/*-------------------------------------------------------------------------*/
+/*-------------- methods to create variables and constraints --------------*/
+/*-------------------------------------------------------------------------*/
 
 void Model::add_variables (Data &data)
 {
@@ -189,14 +201,17 @@ void Model::add_variables (Data &data)
                 w_[t][i][v] = NumVarMatrix3d(env, data.get_nb_trains());
                 for (int l = 0; l < data.get_nb_trains(); l++)
                 {
-                    w_[t][i][v][l] = NumVarMatrix2d(env, data.get_train_max_trips(l));
-                    for (int j = 0; j < data.get_train_max_trips(l); j++)
+                    if (t != l)
                     {
-                        w_[t][i][v][l][j] = IloNumVarArray(env, data.get_nb_vertices());
-                        for (int k = 0; k < data.get_nb_vertices(); k++)
+                        w_[t][i][v][l] = NumVarMatrix2d(env, data.get_train_max_trips(l));
+                        for (int j = 0; j < data.get_train_max_trips(l); j++)
                         {
-                            w_[t][i][v][l][j][k] = IloNumVar(env, 0, 1, ILOBOOL);
-                            w_[t][i][v][l][j][k].setName(string("w(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
+                            w_[t][i][v][l][j] = IloNumVarArray(env, data.get_nb_vertices());
+                            for (int k = 0; k < data.get_nb_vertices(); k++)
+                            {
+                                w_[t][i][v][l][j][k] = IloNumVar(env, 0, 1, ILOBOOL);
+                                w_[t][i][v][l][j][k].setName(string("w(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
+                            }
                         }
                     }
                 }
@@ -585,41 +600,49 @@ void Model::add_constraints (Data &data)
                 {
                     for (int j = 0; j < data.get_train_max_trips(l); j++)
                     {
-                        for (int v = 0; v < data.get_nb_vertices(); v++)
+                        // for (int v = 0; v < data.get_nb_vertices(); v++)
+                        // {
+                        //     for (int k = 0; k < data.get_nb_vertices(); k++)
+                        //     {
+
+                        for (auto inc_point : data.get_inc_points())
                         {
-                            for (int k = 0; k < data.get_nb_vertices(); k++)
+                            int k = get<0>(inc_point);
+                            int v = get<2>(inc_point);
+
+                            if (v == k)
+                                continue;
+                            IloExpr expr1(env);
+                            for (auto arc : data.get_vertex_out_arcs(v))
                             {
-                                if (v == k)
-                                    continue;
-                                IloExpr expr1(env);
-                                for (auto arc : data.get_vertex_out_arcs(v))
+                                if (!data.is_reversal_arc(arc))
                                 {
-                                    if (!data.is_reversal_arc(arc))
-                                    {
-                                        int a = arc.idx;
-                                        expr1 += x_[t][i][a];
-                                    }
+                                    int a = arc.idx;
+                                    expr1 += x_[t][i][a];
                                 }
-                                IloExpr expr2(env);
-                                for (auto arc : data.get_vertex_out_arcs(k))
-                                {
-                                    if (!data.is_reversal_arc(arc))
-                                    {
-                                        int a = arc.idx;
-                                        expr2 += x_[l][j][a];
-                                    }
-                                }
-
-                                constraints.add(w_[t][i][v][l][j][k] <= expr1);
-                                constraints[constraints.getSize() - 1].setName(string("link_w_and_x1(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
-
-                                constraints.add(w_[t][i][v][l][j][k] <= expr2);
-                                constraints[constraints.getSize() - 1].setName(string("link_w_and_x2(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
-
-                                constraints.add(w_[t][i][v][l][j][k] + w_[l][j][k][t][i][v] >= expr1 + expr2 - 1);
-                                constraints[constraints.getSize() - 1].setName(string("link_w_and_x3(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
                             }
+                            IloExpr expr2(env);
+                            for (auto arc : data.get_vertex_out_arcs(k))
+                            {
+                                if (!data.is_reversal_arc(arc))
+                                {
+                                    int a = arc.idx;
+                                    expr2 += x_[l][j][a];
+                                }
+                            }
+
+                            constraints.add(w_[t][i][v][l][j][k] <= expr1);
+                            constraints[constraints.getSize() - 1].setName(string("link_w_and_x1(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
+
+                            constraints.add(w_[t][i][v][l][j][k] <= expr2);
+                            constraints[constraints.getSize() - 1].setName(string("link_w_and_x2(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
+
+                            constraints.add(w_[t][i][v][l][j][k] + w_[l][j][k][t][i][v] >= expr1 + expr2 - 1);
+                            constraints[constraints.getSize() - 1].setName(string("link_w_and_x3(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
                         }
+                        
+                        //      }
+                        // }
                     }
                 }
             }
@@ -792,64 +815,9 @@ void Model::add_constraints (Data &data)
     // constraints.add(lambda_[2][2][0] == 0); constraints.add(lambda_[2][2][1] == 0); constraints.add(lambda_[2][2][2] == 0); constraints.add(lambda_[2][2][3] == 0); constraints.add(lambda_[2][2][5] == 0);
 }
 
-int Model::extract_solution_for_combination(Data &data, int best_bound, int time_limit, bool &reached_time_limit)
-{
-    IloCplex cplex(env);
-
-    cplex.setWarning(env.getNullStream());       // silence warnings
-
-    // extract model and .lp file
-    cplex.extract(model);
-    cplex.exportModel("cbtu.lp");
-
-    cplex.setParam(IloCplex::ClockType, 2);
-    cplex.setParam(IloCplex::TiLim, time_limit); // set time limit
-    cplex.setParam(IloCplex::Threads, 1);        // using single thread to solve the model
-    cplex.setParam(IloCplex::ParallelMode, 0);   // no parallel mode
-    cplex.setParam(IloCplex::CutUp, best_bound); // set best integer solution already known
-
-    // remove outputs
-    cplex.setOut(env.getNullStream());     
-    cplex.setError(env.getNullStream());
-
-
-    bool solved = cplex.solve();
-    if (!solved)
-    {
-        // verify if time limit was reached
-        if(cplex.getCplexStatus() == IloCplex::AbortTimeLim)
-            reached_time_limit = true;
-        return 0;
-    }
-
-    if (cplex.getObjValue() <= best_sol[0].obj_value)
-    {
-        current_sol.obj_value = cplex.getObjValue();
-        get_value_of_variables(data, cplex);
-
-        if (cplex.getObjValue() < best_sol[0].obj_value)
-        {
-            // cout << "Found new best!" << endl;
-
-            best_sol.clear();
-            best_sol.push_back(current_sol);
-        }
-        else if (cplex.getObjValue() == best_sol[0].obj_value) 
-        {
-            // cout << "Found the same!" << endl;
-
-            // to-do: add tie breaker
-
-            best_sol.push_back(current_sol);
-        }
-    }
-
-    // verify if time limit was reached
-    if (cplex.getCplexStatus() == IloCplex::AbortTimeLim)
-        reached_time_limit = true;
-
-    return 1;
-}
+/*-------------------------------------------------------------------------*/
+/*------------- methods to set parameters and solve the model -------------*/
+/*-------------------------------------------------------------------------*/
 
 int Model::extract_solution(Data &data, int time_limit)
 {
@@ -893,6 +861,68 @@ int Model::extract_solution(Data &data, int time_limit)
 
     return 1;
 }
+
+int Model::extract_solution_for_combination(Data &data, int best_bound, int time_limit, bool &reached_time_limit)
+{
+    IloCplex cplex(env);
+
+    cplex.setWarning(env.getNullStream());       // silence warnings
+
+    // extract model and .lp file
+    cplex.extract(model);
+    cplex.exportModel("cbtu.lp");
+
+    cplex.setParam(IloCplex::ClockType, 2);
+    cplex.setParam(IloCplex::TiLim, time_limit); // set time limit
+    cplex.setParam(IloCplex::Threads, 1);        // using single thread to solve the model
+    cplex.setParam(IloCplex::ParallelMode, 0);   // no parallel mode
+    cplex.setParam(IloCplex::CutUp, best_bound); // set best integer solution already known
+
+    // remove outputs
+    cplex.setOut(env.getNullStream());     
+    cplex.setError(env.getNullStream());
+
+    bool solved = cplex.solve();
+    if (!solved)
+    {
+        // verify if time limit was reached
+        if(cplex.getCplexStatus() == IloCplex::AbortTimeLim)
+            reached_time_limit = true;
+        return 0;
+    }
+
+    if (cplex.getObjValue() <= best_sol[0].obj_value)
+    {
+        current_sol.obj_value = cplex.getObjValue();
+        get_value_of_variables(data, cplex);
+
+        if (cplex.getObjValue() < best_sol[0].obj_value)
+        {
+            // cout << "Found new best!" << endl;
+
+            best_sol.clear();
+            best_sol.push_back(current_sol);
+        }
+        else if (cplex.getObjValue() == best_sol[0].obj_value) 
+        {
+            // cout << "Found the same!" << endl;
+
+            // to-do: add tie breaker
+
+            best_sol.push_back(current_sol);
+        }
+    }
+
+    // verify if time limit was reached
+    if (cplex.getCplexStatus() == IloCplex::AbortTimeLim)
+        reached_time_limit = true;
+
+    return 1;
+}
+
+/*----------------------------------------------------------------------*/
+/*----------------- method to store value of variables -----------------*/
+/*----------------------------------------------------------------------*/
 
 void Model::get_value_of_variables(Data &data, IloCplex &cplex)
 {
@@ -1043,92 +1073,9 @@ void Model::get_value_of_variables(Data &data, IloCplex &cplex)
     current_sol.lambda_values = lambda_values;
 }
 
-void Model::tie_breaker(Data &data, vector<vector<vector<int>>> &combinations)
-{
-    int combination_with_highest = 0;
-    int highest_ammount_of_times = 0;
-
-    //for each combination
-    for (int i = 0; i < combinations.size(); i++)
-    {
-        // get the amount of times each route is completed
-        vector <int> times_route_is_completed (data.get_nb_routes(), 0);
-
-        // for each train
-        for (int j = 0; j < combinations[i].size(); j++)
-        {
-            // for each trip
-            for (int k = 0; k < combinations[i][j].size(); k++)
-            {   
-                int route = combinations[i][j][k];
-                if (route != data.get_nb_routes())
-                {
-                    times_route_is_completed[route]++;
-                }
-            }
-        }
-
-        int max_times = 0;
-        for (int i = 0; i < times_route_is_completed.size(); i++)
-        {
-            if (times_route_is_completed[i] > max_times)
-                max_times = times_route_is_completed[i];
-        }
-        
-        if (max_times > highest_ammount_of_times)
-        {
-            highest_ammount_of_times = max_times;
-            combination_with_highest = i;
-        }
-    }
-
-    // change the combinations vector
-    vector<vector<int>> selected_combination = combinations[combination_with_highest];
-    combinations.clear();
-    combinations.push_back(selected_combination);
-}
-
-void Model::get_best_combinations (Data &data, vector<vector<vector<int>>> &combination)
-{
-    combination.clear();
-    vector<vector<int>> combination_aux;
-    for (int i = 0; i < best_sol.size(); i++)
-    {
-        VarValuesMatrix3d lambda_values = best_sol[i].lambda_values;
-
-        combination_aux.clear();
-        for (int i = 0; i < data.get_nb_trains(); i++)
-        {
-            vector <int> aux;
-            for (int j = 0; j < data.get_train_max_trips(i); j++)
-            {
-                for (int k = 0; k < data.get_nb_routes(); k++)
-                {
-                    if (lambda_values[i][j][k] == 1)
-                    {
-                        aux.push_back(k);
-                        break;
-                    } 
-                }
-            }
-            combination_aux.push_back(aux);
-        }
-        combination.push_back(combination_aux);
-    
-        // cout << endl << "Best current cost: " << best_sol[0].obj_value << endl;
-        // cout << "Best current solution:" << endl;
-        // for (int i = 0; i < combination_aux.size(); i++)
-        // {
-        //     cout << "Train " << i+1 << ": ";
-        //     for (int j = 0; j < combination_aux[i].size(); j++)
-        //     {
-        //         cout << combination_aux[i][j] << " ";
-        //     }
-        //     cout << endl;
-        // }
-        // cout << endl;
-    }
-}
+/*------------------------------------------------------------------------------------*/
+/*----------------- methods to get and display the solution obtained -----------------*/
+/*------------------------------------------------------------------------------------*/
 
 void Model::get_solution (Data &data, bool print_gap, string method)
 {   
@@ -1246,6 +1193,101 @@ void Model::get_graph (Data &data, string method)
     command += (file_name + instance);
     system(command.c_str());
 }
+
+/*------------------------------------------------------------------------------------*/
+/*----------------- methods to auxiliate in the heuristic procedure ------------------*/
+/*------------------------------------------------------------------------------------*/
+
+void Model::tie_breaker(Data &data, vector<vector<vector<int>>> &combinations)
+{
+    int combination_with_highest = 0;
+    int highest_ammount_of_times = 0;
+
+    //for each combination
+    for (int i = 0; i < combinations.size(); i++)
+    {
+        // get the amount of times each route is completed
+        vector <int> times_route_is_completed (data.get_nb_routes(), 0);
+
+        // for each train
+        for (int j = 0; j < combinations[i].size(); j++)
+        {
+            // for each trip
+            for (int k = 0; k < combinations[i][j].size(); k++)
+            {   
+                int route = combinations[i][j][k];
+                if (route != data.get_nb_routes())
+                {
+                    times_route_is_completed[route]++;
+                }
+            }
+        }
+
+        int max_times = 0;
+        for (int i = 0; i < times_route_is_completed.size(); i++)
+        {
+            if (times_route_is_completed[i] > max_times)
+                max_times = times_route_is_completed[i];
+        }
+        
+        if (max_times > highest_ammount_of_times)
+        {
+            highest_ammount_of_times = max_times;
+            combination_with_highest = i;
+        }
+    }
+
+    // change the combinations vector
+    vector<vector<int>> selected_combination = combinations[combination_with_highest];
+    combinations.clear();
+    combinations.push_back(selected_combination);
+}
+
+void Model::get_best_combinations (Data &data, vector<vector<vector<int>>> &combination)
+{
+    combination.clear();
+    vector<vector<int>> combination_aux;
+    for (int i = 0; i < best_sol.size(); i++)
+    {
+        VarValuesMatrix3d lambda_values = best_sol[i].lambda_values;
+
+        combination_aux.clear();
+        for (int i = 0; i < data.get_nb_trains(); i++)
+        {
+            vector <int> aux;
+            for (int j = 0; j < data.get_train_max_trips(i); j++)
+            {
+                for (int k = 0; k < data.get_nb_routes(); k++)
+                {
+                    if (lambda_values[i][j][k] == 1)
+                    {
+                        aux.push_back(k);
+                        break;
+                    } 
+                }
+            }
+            combination_aux.push_back(aux);
+        }
+        combination.push_back(combination_aux);
+    
+        // cout << endl << "Best current cost: " << best_sol[0].obj_value << endl;
+        // cout << "Best current solution:" << endl;
+        // for (int i = 0; i < combination_aux.size(); i++)
+        // {
+        //     cout << "Train " << i+1 << ": ";
+        //     for (int j = 0; j < combination_aux[i].size(); j++)
+        //     {
+        //         cout << combination_aux[i][j] << " ";
+        //     }
+        //     cout << endl;
+        // }
+        // cout << endl;
+    }
+}
+
+/*------------------------------------------------------------------------*/
+/*--------- auxiliate method to convert time in seconds to hours ---------*/
+/*------------------------------------------------------------------------*/
 
 string Model::convert_time(int seconds)
 {
