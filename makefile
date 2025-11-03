@@ -34,15 +34,29 @@ endif
 CPPC = g++
 #############################
 
+#### diretorio OR-Tools (se instalado)
+ORTOOLSDIR = $(HOME)/or-tools
+ORTOOLS_BUILD = $(ORTOOLSDIR)/build
+ORTOOLS_DEPS = $(ORTOOLS_BUILD)/_deps
+#############################
+
 #### opcoes de compilacao e includes
 CCOPT = $(BITS_OPTION) -O3 -fPIC -fexceptions -DNDEBUG -DIL_STD -std=c++17
 CONCERTINCDIR = $(CONCERTDIR)/include
 CPLEXINCDIR   = $(CPLEXDIR)/include
-CCFLAGS = $(CCOPT) -fopenmp -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) -Iinclude  
+# Flags base para todos os arquivos
+CCFLAGS_BASE = $(CCOPT) -fopenmp -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) -Iinclude
+# Flags adicionais para arquivos que usam OR-Tools
+CCFLAGS_ORTOOLS = -I$(ORTOOLSDIR) -I$(ORTOOLS_BUILD) -I$(ORTOOLS_DEPS)/absl-src -I$(ORTOOLS_DEPS)/protobuf-src/src -I$(ORTOOLS_DEPS)/protobuf-src -I$(ORTOOLS_DEPS)/re2-src -I$(ORTOOLS_DEPS)/eigen3-src -DOR_PROTO_DLL=
+# Flags padrão (sem OR-Tools)
+CCFLAGS = $(CCFLAGS_BASE)
 #############################
 
 #### flags do linker
 CCLNFLAGS = -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -lpthread -ldl -fopenmp
+# Flags de linkagem para OR-Tools
+ORTOOLS_LIB = $(ORTOOLS_BUILD)/lib
+CCLNFLAGS_ORTOOLS = -L$(ORTOOLS_LIB) -Wl,--no-as-needed -lortools -labsl_flags_parse -labsl_flags_usage -labsl_log_initialize -labsl_log_internal_message -labsl_log_globals -labsl_time -labsl_strings -labsl_base -lprotobuf -Wl,--as-needed
 #############################
 
 #### diretorios com os source files e com os objs files
@@ -50,15 +64,17 @@ SRCDIR = src
 OBJDIR = obj
 #############################
 
-#### lista de todos os srcs e todos os objs
-SRCS = $(wildcard $(SRCDIR)/*.cpp)
+#### lista de todos os srcs e todos os objs (exclui Model-Highs.cpp que usa OR-Tools)
+#### Model-OR-Tools.cpp é compilado separadamente com regra especial abaixo
+SRCS = $(filter-out $(SRCDIR)/Model-Highs.cpp $(SRCDIR)/Model-OR-Tools.cpp, $(wildcard $(SRCDIR)/*.cpp))
 OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
+OBJS += $(OBJDIR)/Model-OR-Tools.o
 #############################
 
 #### regra principal, gera o executavel
 cbtu: $(OBJS) 
 	@echo  "\033[31m \nLinking all objects files: \033[0m"
-	$(CPPC) $(BITS_OPTION) $(OBJS) -o $@ $(CCLNFLAGS)
+	$(CPPC) $(BITS_OPTION) $(OBJS) -o $@ $(CCLNFLAGS) $(CCLNFLAGS_ORTOOLS)
 ############################
 
 # inclui os arquivos de dependencias
@@ -75,6 +91,16 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
 	@rm -f $(basename $@).d.tmp
 
+# Regra especial para Model-OR-Tools.cpp que requer OR-Tools
+$(OBJDIR)/Model-OR-Tools.o: $(SRCDIR)/Model-OR-Tools.cpp
+	@echo  "\033[31m \nCompiling $< with OR-Tools support: \033[0m"
+	$(CPPC) $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -c $< -o $@
+	@echo  "\033[32m \ncreating $< dependency file: \033[0m"
+	$(CPPC) -std=c++0x $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -MM $< > $(basename $@).d
+	@mv -f $(basename $@).d $(basename $@).d.tmp
+	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
+	@rm -f $(basename $@).d.tmp
+
 # delete objetos e arquivos de dependencia
 clean:
 	@echo "\033[31mcleaning obj directory \033[0m"
@@ -82,4 +108,20 @@ clean:
 
 
 rebuild: clean cbtu
+
+# Target para compilar Model-Highs.cpp com OR-Tools (requer OR-Tools instalado)
+# Nota: OR-Tools tem muitas dependências. Para compilar manualmente, use:
+# g++ src/Model-Highs.cpp -o highs -I$(HOME)/or-tools -I$(HOME)/or-tools/build \
+#     -I$(HOME)/or-tools/build/_deps/absl-src -I$(HOME)/or-tools/build/_deps/protobuf-src/src \
+#     -L$(HOME)/or-tools/build/lib -lortools -lhighs -lpthread -std=c++17
+highs:
+	@echo "\033[31mCompilando Model-Highs.cpp com OR-Tools...\033[0m"
+	$(CPPC) $(SRCDIR)/Model-Highs.cpp -o highs \
+		-I$(HOME)/or-tools \
+		-I$(HOME)/or-tools/build \
+		-I$(HOME)/or-tools/build/_deps/absl-src \
+		-I$(HOME)/or-tools/build/_deps/protobuf-src/src \
+		-L$(HOME)/or-tools/build/lib \
+		-lortools -lhighs -lpthread -std=c++17 \
+		|| echo "\033[33mErro: Pode ser necessário ajustar os caminhos ou instalar dependências adicionais do OR-Tools\033[0m"
 

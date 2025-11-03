@@ -65,9 +65,9 @@ Combinations::Combinations(Data &data, int threads, string method, int time_limi
     best_thread.get_solution(data, proved_optimal, method);
 }
 
-/*******************************************************************/
+/*-----------------------------------------------------------------*/
 /* ===================== ENUMERATION METHODS ===================== */
-/*******************************************************************/
+/*-----------------------------------------------------------------*/
 
 void Combinations::execute_enumeration(Data &data)
 {
@@ -184,9 +184,9 @@ void Combinations::execute_all_combinations(Data &data)
     }
 }
 
-/****************************************************************************/
-/*********** Methods to generate and calculate trips combinations ***********/
-/****************************************************************************/
+/*------------------------------------------------------------------------*/
+/*--------- Methods to generate and calculate trips combinations ---------*/
+/*------------------------------------------------------------------------*/
 
 void Combinations::calculate_trips_combinations(Data &data)
 {
@@ -254,10 +254,10 @@ bool Combinations::verify_overflow(unsigned long long base, unsigned long long e
     return false;
 }
 
-/****************************************************************************/
-/*********** Methods to verify if combination is valid and should ***********/
-/*********** be solved by the model.                              ***********/
-/****************************************************************************/
+/*------------------------------------------------------------------------*/
+/*--------- Methods to verify if combination is valid and should ---------*/
+/*--------- be solved by the model.                              ---------*/
+/*------------------------------------------------------------------------*/
 
 bool Combinations::is_valid_combination (Data &data, vector<vector<int>> &current)
 {
@@ -329,9 +329,9 @@ bool Combinations::check_trips_feasibility (Data &data, vector<int> &current)
     return flag; 
 }
 
-/*******************************************************************/
+/*-----------------------------------------------------------------*/
 /* ====================== HEURISTIC METHODS ====================== */
-/*******************************************************************/
+/*-----------------------------------------------------------------*/
 
 void Combinations::execute_heuristic (Data &data)
 {
@@ -533,9 +533,9 @@ bool Combinations::execute_candidate_combinations (Data &data)
     return improved;
 }
 
-/*******************************************************************/
-/* ======================== GENERAL METHODS ======================== */
-/*******************************************************************/
+/*------------------------------------------------------------------------*/
+/*=========================== GENERAL METHODS ============================*/
+/*------------------------------------------------------------------------*/
 
 bool Combinations::normalize_combination (Data &data, vector<vector<int>> &current)
 {
