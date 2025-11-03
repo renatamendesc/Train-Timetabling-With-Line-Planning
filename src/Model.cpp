@@ -188,7 +188,6 @@ void Model::add_variables (Data &data)
     }
     
     // create variable w - specifies whether train t departs from vertex v after train l departs from vertex k
-    // criar w só para o que precisa!!!!!!!!!!!
     w_ = NumVarMatrix6d(env, data.get_nb_trains());
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
@@ -209,8 +208,18 @@ void Model::add_variables (Data &data)
                             w_[t][i][v][l][j] = IloNumVarArray(env, data.get_nb_vertices());
                             for (int k = 0; k < data.get_nb_vertices(); k++)
                             {
-                                w_[t][i][v][l][j][k] = IloNumVar(env, 0, 1, ILOBOOL);
-                                w_[t][i][v][l][j][k].setName(string("w(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
+                                for (auto inc_point : data.get_inc_points())
+                                {
+                                    int k_aux = get<0>(inc_point);
+                                    int v_aux = get<2>(inc_point);
+                                    
+                                    if (v_aux == v && k_aux == k)
+                                    {
+                                        w_[t][i][v][l][j][k] = IloNumVar(env, 0, 1, ILOBOOL);
+                                        w_[t][i][v][l][j][k].setName(string("w(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")").c_str());
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -229,14 +238,17 @@ void Model::add_variables (Data &data)
             u_[t][i] = NumVarMatrix3d(env, data.get_nb_trains());
             for (int l = 0; l < data.get_nb_trains(); l++)
             {
-                u_[t][i][l] = NumVarMatrix2d(env, data.get_train_max_trips(l));
-                for (int j = 0; j < data.get_train_max_trips(l); j++)
+                if (t != l)
                 {
-                    u_[t][i][l][j] = IloNumVarArray(env, data.get_nb_vertices());
-                    for (int v = 0; v < data.get_nb_vertices(); v++)
+                    u_[t][i][l] = NumVarMatrix2d(env, data.get_train_max_trips(l));
+                    for (int j = 0; j < data.get_train_max_trips(l); j++)
                     {
-                        u_[t][i][l][j][v] = IloNumVar(env, 0, 1, ILOBOOL);
-                        u_[t][i][l][j][v].setName(string("u(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(v) + ")").c_str());
+                        u_[t][i][l][j] = IloNumVarArray(env, data.get_nb_vertices());
+                        for (int v = 0; v < data.get_nb_vertices(); v++)
+                        {
+                            u_[t][i][l][j][v] = IloNumVar(env, 0, 1, ILOBOOL);
+                            u_[t][i][l][j][v].setName(string("u(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(v) + ")").c_str());
+                        }
                     }
                 }
             }
