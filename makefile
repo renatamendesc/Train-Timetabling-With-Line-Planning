@@ -65,10 +65,11 @@ OBJDIR = obj
 #############################
 
 #### lista de todos os srcs e todos os objs (exclui Model-Highs.cpp que usa OR-Tools)
-#### Model-OR-Tools.cpp é compilado separadamente com regra especial abaixo
-SRCS = $(filter-out $(SRCDIR)/Model-Highs.cpp $(SRCDIR)/Model-OR-Tools.cpp, $(wildcard $(SRCDIR)/*.cpp))
+#### Model-OR-Tools.cpp e main.cpp são compilados separadamente com regra especial abaixo
+#### porque incluem headers do OR-Tools
+SRCS = $(filter-out $(SRCDIR)/Model-Highs.cpp $(SRCDIR)/Model-OR-Tools.cpp $(SRCDIR)/main.cpp, $(wildcard $(SRCDIR)/*.cpp))
 OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
-OBJS += $(OBJDIR)/Model-OR-Tools.o
+OBJS += $(OBJDIR)/Model-OR-Tools.o $(OBJDIR)/main.o
 #############################
 
 #### regra principal, gera o executavel
@@ -93,6 +94,16 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 # Regra especial para Model-OR-Tools.cpp que requer OR-Tools
 $(OBJDIR)/Model-OR-Tools.o: $(SRCDIR)/Model-OR-Tools.cpp
+	@echo  "\033[31m \nCompiling $< with OR-Tools support: \033[0m"
+	$(CPPC) $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -c $< -o $@
+	@echo  "\033[32m \ncreating $< dependency file: \033[0m"
+	$(CPPC) -std=c++0x $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -MM $< > $(basename $@).d
+	@mv -f $(basename $@).d $(basename $@).d.tmp
+	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
+	@rm -f $(basename $@).d.tmp
+
+# Regra especial para main.cpp que requer OR-Tools (porque inclui Model-OR-Tools.hpp)
+$(OBJDIR)/main.o: $(SRCDIR)/main.cpp
 	@echo  "\033[31m \nCompiling $< with OR-Tools support: \033[0m"
 	$(CPPC) $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -c $< -o $@
 	@echo  "\033[32m \ncreating $< dependency file: \033[0m"

@@ -1,8 +1,8 @@
 #include "Data.hpp"
-#include "Model.hpp"
 #include "Model-OR-Tools.hpp"
-#include "Combinations.hpp"
-#include "Heuristic.hpp"
+// #include "Model.hpp"
+// #include "Combinations.hpp"
+// #include "Heuristic.hpp"
 
 // ----------------------------------------------------------------- //
 // Input: ./cbtu <instance> <method> <number of threads>

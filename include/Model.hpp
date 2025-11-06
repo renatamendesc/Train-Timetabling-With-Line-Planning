@@ -73,7 +73,6 @@ class Model
         NumVarMatrix3d y_;
         NumVarMatrix3d y_bar;
         NumVarMatrix3d lambda_;
-        NumVarMatrix2d beta_;
         IloNumVar z_;
         NumVarMatrix6d w_;
         NumVarMatrix5d u_;
