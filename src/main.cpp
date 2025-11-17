@@ -21,6 +21,10 @@ int main(int argc, char *argv[])
 
     ModelORTools model;
     model.initialize(data, 1);
+    model.create_full_model(data);
+    model.execute_solver_for_full_model(data);
+    model.get_value_of_variables(data);
+    model.current_sol.get_solution(data);
 
     // // read method
     // if (argc < 3)

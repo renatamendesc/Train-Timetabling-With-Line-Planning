@@ -1,0 +1,44 @@
+#ifndef SOLUTION_HPP
+#define SOLUTION_HPP
+
+#include <chrono>
+#include <vector>
+
+typedef std::vector<std::vector<int>> VarValuesMatrix2d;
+typedef std::vector<VarValuesMatrix2d> VarValuesMatrix3d;
+typedef std::vector<VarValuesMatrix3d> VarValuesMatrix4d;
+typedef std::vector<VarValuesMatrix4d> VarValuesMatrix5d;
+typedef std::vector<VarValuesMatrix5d> VarValuesMatrix6d;
+
+typedef std::vector<std::vector<int>> CombinationMatrix;
+
+class Solution
+{
+    public:
+        int obj_value = __INT_MAX__;
+        std::chrono::duration<double> computational_time;
+        double gap_value;
+        bool proven_optimal = true;
+
+        // values of variables
+        VarValuesMatrix3d x_values_;
+        VarValuesMatrix4d x_bar_values_;
+        VarValuesMatrix3d y_values_;
+        VarValuesMatrix3d y_bar_values_;
+        VarValuesMatrix3d lambda_values_;
+        VarValuesMatrix6d w_values_;
+        VarValuesMatrix5d u_values_;
+
+        CombinationMatrix routes_combination;
+        void get_combination();
+
+        int max_nb_repeated_routes;
+        void get_max_nb_repeated_route();
+
+        void get_solution(Data &data);
+    
+    private:
+        void convert_time(int seconds);
+};
+
+#endif

@@ -9,34 +9,79 @@ using namespace std;
 
 void ModelORTools::initialize(Data &data, int threads)
 {
-    // create the linear solver with the HIGHS
+    // set maximum number of threads to be used
+    nb_threads = threads;
+
+    // create the linear solver
     solver = std::unique_ptr<MPSolver>(MPSolver::CreateSolver("HIGHS"));
     if (!solver)
     {
-        cerr << "Warning: Could not create solver HIGHS" << endl;
+        cerr << "Warning: Could not create solver" << endl;
         return;
     }
+}
 
-    // create the model
+void ModelORTools::create_full_model(Data &data)
+{
     cout << endl << "Creating model..." << endl;
-
+    // create decision variables
     add_variables(data);
-    cout << "Creating objective function..." << endl;   
+    // create objective function
     objective = solver->MutableObjective();
     objective->SetCoefficient(z_, 1);
     objective->SetMinimization();
+    // create constraints
+    add_constraints(data);
+}
+
+void ModelORTools::create_model_with_routes_constraints(Data &data, std::vector<std::vector<int>> &routes_of_trains)
+{
+    // create decision variables
+    add_variables(data);
+    // create objective function
+    objective = solver->MutableObjective();
+    objective->SetCoefficient(z_, 1);
+    objective->SetMinimization();
+    // create constraints
     add_constraints(data);
 
-    execute_solver(data);
-
-    get_solution(data);
-
-    return;
+    // create routes constraints
+    for (int t = 0; t < routes_of_trains.size(); t++)
+    {
+        vector<int> current = routes_of_trains[t];        
+        for (int i = 0; i < current.size(); i++)
+        {
+            if (i < data.get_train_max_trips(t))
+            {       
+                // if trip is not made
+                if (current[i] == data.get_nb_routes())
+                {
+                    // assign variable equal to zero
+                    for (int r = 0; r < data.get_nb_routes(); r++)
+                    {
+                        // make sure that route exists for the first trip
+                        if (data.is_valid_route(t, i, r))
+                        {
+                            // lambda_[t][i][r] == 0
+                            MPConstraint* c_route = solver->MakeRowConstraint(0, 0);
+                            c_route->SetCoefficient(lambda_[t][i][r], 1);
+                        }
+                    }
+                }
+                else if (current[i] != -1)
+                {
+                    // variable is 1 if route is completed
+                    // lambda_[t][i][current[i]] == 1
+                    MPConstraint* c_route = solver->MakeRowConstraint(0, 0);
+                    c_route->SetCoefficient(lambda_[t][i][current[i]], 1);
+                }
+            }
+        }
+    }
 }
 
 void ModelORTools::add_variables(Data &data)
 {
-
     cout << "Creating variables..." << endl;
 
     // create variable x - specifies whether train t on trip i uses arc a
@@ -820,80 +865,80 @@ void ModelORTools::add_constraints(Data &data)
 void ModelORTools::get_value_of_variables(Data &data)
 {
     // get x values
-    x_values_ = VarValuesMatrix3d(data.get_nb_trains());
+    current_sol.x_values_ = VarValuesMatrix3d(data.get_nb_trains());
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
-        x_values_[t] = VarValuesMatrix2d(data.get_train_max_trips(t));
+        current_sol.x_values_[t] = VarValuesMatrix2d(data.get_train_max_trips(t));
         for (int i = 0; i < data.get_train_max_trips(t); i++)
         {
-            x_values_[t][i] = vector<int>(data.get_nb_arcs());
+            current_sol.x_values_[t][i] = vector<int>(data.get_nb_arcs());
             for (int a = 0; a < data.get_nb_arcs(); a++)
             {
-                x_values_[t][i][a] = x_[t][i][a]->solution_value();
+                current_sol.x_values_[t][i][a] = x_[t][i][a]->solution_value();
             }
         }
     }
 
     // get x bar values  
-    x_bar_values_ = VarValuesMatrix4d(data.get_nb_trains());
+    current_sol.x_bar_values_ = VarValuesMatrix4d(data.get_nb_trains());
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
-        x_bar_values_[t] = VarValuesMatrix3d(data.get_train_max_trips(t));
+        current_sol.x_bar_values_[t] = VarValuesMatrix3d(data.get_train_max_trips(t));
         for (int i = 0; i < data.get_train_max_trips(t); i++)
         {
-            x_bar_values_[t][i] = VarValuesMatrix2d(data.get_nb_arcs());
+            current_sol.x_bar_values_[t][i] = VarValuesMatrix2d(data.get_nb_arcs());
             for (int a = 0; a < data.get_nb_arcs(); a++)
             {
-                x_bar_values_[t][i][a] = vector<int>(data.get_nb_intervals());
+                current_sol.x_bar_values_[t][i][a] = vector<int>(data.get_nb_intervals());
                 for (int h = 0; h < data.get_nb_intervals(); h++)
                 {
-                    x_bar_values_[t][i][a][h] = x_bar_[t][i][a][h]->solution_value();
+                    current_sol.x_bar_values_[t][i][a][h] = x_bar_[t][i][a][h]->solution_value();
                 }
             }
         }
     }
 
     // get y values
-    y_values_ = VarValuesMatrix3d(data.get_nb_trains());
+    current_sol.y_values_ = VarValuesMatrix3d(data.get_nb_trains());
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
-        y_values_[t] = VarValuesMatrix2d(data.get_train_max_trips(t));
+        current_sol.y_values_[t] = VarValuesMatrix2d(data.get_train_max_trips(t));
         for (int i = 0; i < data.get_train_max_trips(t); i++)
         {
-            y_values_[t][i] = vector<int>(data.get_nb_vertices());
+            current_sol.y_values_[t][i] = vector<int>(data.get_nb_vertices());
             for (int v = 0; v < data.get_nb_vertices(); v++)
             {
-                y_values_[t][i][v] = y_[t][i][v]->solution_value();
+                current_sol.y_values_[t][i][v] = y_[t][i][v]->solution_value();
             }
         }
     }
 
     // get y bar values
-    y_bar_values_ = VarValuesMatrix3d(data.get_nb_trains());
+    current_sol.y_bar_values_ = VarValuesMatrix3d(data.get_nb_trains());
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
-        y_bar_values_[t] = VarValuesMatrix2d(data.get_train_max_trips(t));
+        current_sol.y_bar_values_[t] = VarValuesMatrix2d(data.get_train_max_trips(t));
         for (int i = 0; i < data.get_train_max_trips(t); i++)
         {
-            y_bar_values_[t][i] = vector<int>(data.get_nb_vertices());
+            current_sol.y_bar_values_[t][i] = vector<int>(data.get_nb_vertices());
             for (int v = 0; v < data.get_nb_vertices(); v++)
             {
-                y_bar_values_[t][i][v] = y_bar_[t][i][v]->solution_value();
+                current_sol.y_bar_values_[t][i][v] = y_bar_[t][i][v]->solution_value();
             }
         }
     }
 
     // get lambda values
-    lambda_values_ = VarValuesMatrix3d(data.get_nb_trains());
+    current_sol.lambda_values_ = VarValuesMatrix3d(data.get_nb_trains());
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
-        lambda_values_[t] = VarValuesMatrix2d(data.get_train_max_trips(t));
+        current_sol.lambda_values_[t] = VarValuesMatrix2d(data.get_train_max_trips(t));
         for (int i = 0; i < data.get_train_max_trips(t); i++)
         {
-            lambda_values_[t][i] = vector<int>(data.get_nb_routes());
+            current_sol.lambda_values_[t][i] = vector<int>(data.get_nb_routes());
             for (int r = 0; r < data.get_nb_routes(); r++)
             {
-                lambda_values_[t][i][r] = lambda_[t][i][r]->solution_value();
+                current_sol.lambda_values_[t][i][r] = lambda_[t][i][r]->solution_value();
             }
         }
     }
@@ -902,11 +947,11 @@ void ModelORTools::get_value_of_variables(Data &data)
     // get u values
 }
 
-int ModelORTools::execute_solver(Data &data) // return 1 if the solver found an optimal solution, 0 otherwise
+int ModelORTools::execute_solver_for_full_model(Data &data) // return 1 if the solver found an optimal solution, 0 otherwise
 {
     // setting parameters
     std::string params = R"(
-        time_limit = 43200
+        time_limit = 600
         threads = 1
         log_to_console = true
         output_flag = true
@@ -921,116 +966,79 @@ int ModelORTools::execute_solver(Data &data) // return 1 if the solver found an 
     const MPSolver::ResultStatus result_status = solver->Solve();
     auto end = chrono::steady_clock::now();
 
-    time = end-start;
+    current_sol.computational_time = end-start;
+    current_sol.obj_value = objective->Value();
 
     cout << "Status: " << result_status << endl;
     if (result_status != MPSolver::OPTIMAL)
     {
-        cout << "The problem does not have an optimal solution!" << endl;
-        if (result_status == MPSolver::FEASIBLE)
-        {
-            cout << "A potentially suboptimal solution was found" << endl;
-        }
-        else
+        current_sol.proven_optimal = false;
+        cout << "Optimal solution was not proven." << endl;
+        if (result_status != MPSolver::FEASIBLE)
         {
             cout << "The solver could not solve the problem." << endl;
             return 0;
         }
     }
     return 1;
-
 }
 
-void ModelORTools::get_solution(Data &data)
+int ModelORTools::execute_solver_for_combination(Data &data, int best_bound, int time_limit_for_combination)
 {
-    cout << endl << "-> Solution value = " << objective->Value() << endl;
-    cout << "-> Total time = " << time.count() << endl;
-    // pending: get gap value
+    // setting parameters
+    std::string params = R"(
+        time_limit = 600
+        threads = 1
+        log_to_console = true
+        output_flag = true
+        log_file = highs_log.txt
+    )";
 
-    get_value_of_variables(data);
-    for (int t = 0; t < data.get_nb_trains(); t++)
+    auto start = chrono::steady_clock::now();
+    const MPSolver::ResultStatus result_status = solver->Solve();
+    auto end = chrono::steady_clock::now();
+
+    if (result_status != MPSolver::OPTIMAL)
     {
-        cout << "=============" << endl
-                << "Train " << t << endl
-                << "=============" << endl;
-        for (int i = 0; i < data.get_train_max_trips(t); i++)
+        // a feasible solution was found, but the optimal solution was not proven
+        current_sol.proven_optimal = false;
+        if (result_status != MPSolver::FEASIBLE)
         {
-            for (int r = 0; r < data.get_nb_routes(); r++)
-            {
-                if (data.is_valid_route(t, i, r))
-                {
-                    if (lambda_values_[t][i][r] > 0)
-                    {
-                        cout << "> Trip " << i << endl;
-                        int departure, arrival;
-
-                        for (auto arc : data.get_route_arcs(r))
-                        {
-                            departure = arc.out;
-                            arrival = arc.inc;
-
-                            cout << "   " << departure << "(time " << y_values_[t][i][departure] << " - " << convert_time(y_values_[t][i][departure]) << ")"
-                                    << "(time " << y_bar_values_[t][i][arrival] << " - " << convert_time(y_bar_values_[t][i][arrival])
-                                    << ") -> ";
-                        }
-                        cout << arrival << endl;
-                    }
-                }
-            }
+            return 0;
         }
     }
+
+    current_sol.obj_value = objective->Value();
+    if (current_sol.obj_value < best_sol.obj_value)
+    {
+        get_value_of_variables(data);
+
+        current_sol.get_combination();
+        current_sol.get_max_nb_repeated_route();
+
+        current_sol.computational_time = end-start;
+
+        best_sol = current_sol;
+    }
+    else if (current_sol.obj_value == best_sol.obj_value)
+    {
+        // apply tie breaker (same objective value)
+        get_value_of_variables(data);
+
+        current_sol.get_combination();
+        current_sol.get_max_nb_repeated_route();
+
+        if (current_sol.max_nb_repeated_route > best_sol.max_nb_repeated_route)
+        {
+            current_sol.computational_time = end-start;
+
+            best_sol = current_sol;
+        }
+    }
+    return 1;
 }
 
-string ModelORTools::convert_time(int seconds)
-{
-    int hours = 0, minutes = 0;
-    while (seconds >= 3600)
-    {
-        int time = seconds / 3600;
-        seconds = seconds % 3600;
-
-        hours += time;
-    }
-    while (seconds >= 60)
-    {
-        int time = seconds / 60;
-        seconds = seconds % 60;
-
-        minutes += time;
-    }
-
-    if (hours < 10)
-    {
-        if (seconds < 10)
-        {
-            if (minutes < 10)
-                return string("0" + to_string(hours) + ":0" + to_string(minutes) + ":0" + to_string(seconds));
-            else
-                return string("0" + to_string(hours) + ":" + to_string(minutes) + ":0" + to_string(seconds));
-        }
-        else
-        {
-            if (minutes < 10)
-                return string("0" + to_string(hours) + ":0" + to_string(minutes) + ":" + to_string(seconds));
-            else
-                return string("0" + to_string(hours) + ":" + to_string(minutes) + ":" + to_string(seconds));
-        }
-    }
-    else
-    {
-        if (seconds < 10)
-        {
-            if (minutes < 10)
-                return string(to_string(hours) + ":0" + to_string(minutes) + ":0" + to_string(seconds));
-            else
-                return string(to_string(hours) + ":" + to_string(minutes) + ":0" + to_string(seconds));
-        }
-        else
-        {
-            if (minutes < 10)
-                return string(to_string(hours) + ":0" + to_string(minutes) + ":" + to_string(seconds));
-            else
-                return string(to_string(hours) + ":" + to_string(minutes) + ":" + to_string(seconds));
-        }
-    }
-}
+// ModelORTools::~ModelORTools()
+// {
+//     solver.reset();
+// }

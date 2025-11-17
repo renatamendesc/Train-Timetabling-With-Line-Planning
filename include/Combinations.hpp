@@ -2,7 +2,8 @@
 #define COMB_HPP
 
 #include "Data.hpp"
-#include "Model.hpp"
+// #include "Model.hpp"
+#include "Model-OR-Tools.hpp"
 #include "Heuristic.hpp"
 #include <omp.h>
 #include <cmath>
@@ -28,6 +29,8 @@ class Combinations
         int time_limit_complete = 43200;
 
         bool proved_optimal = true;
+
+        Solution overall_best_sol;
 
         Model best_thread;
         Heuristic heuristic;

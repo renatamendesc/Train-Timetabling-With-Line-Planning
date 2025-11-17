@@ -27,6 +27,9 @@ fi
 mkdir -p "$OUTPUT_FOLDER"
 > "$OUTPUT_FILE"
 
+# configure OR-Tools library path
+export LD_LIBRARY_PATH=/home/renata/or-tools/build/lib:$LD_LIBRARY_PATH
+
 # execute each instance
 for f in "$INPUT_FOLDER"/*; do
     [ -f "$f" ] || continue
