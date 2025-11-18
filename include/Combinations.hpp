@@ -18,7 +18,10 @@ class Combinations
         unsigned long long int total_nb_combinations = 0;
         unsigned long long int nb_feasible_combinations = 0;
 
-        Combinations(Data &data, int threads, std::string method, int time_limit_complete = 43200);
+        // Combinations(Data &data, int threads, std::string method, int time_limit_complete = 43200);
+        std::vector<std::vector<std::vector<int>>> trips_combinations;
+        int calculate_trips_combinations(Data &data);
+        bool is_valid_combination (Data &data, std::vector<std::vector<int>> &current);
 
     private:
 
@@ -32,19 +35,17 @@ class Combinations
 
         Solution overall_best_sol;
 
-        Model best_thread;
+        // Model best_thread;
         Heuristic heuristic;
 
         int best_bound = __INT_MAX__; // best integer solution found
 
         int nb_threads;
-        int nb_routes; 
-        int nb_trains;
+        // int nb_routes; 
+        // int nb_trains;
 
         int aux_progress;
         int counter_solved = 0;
-
-        void calculate_trips_combinations(Data &data);
 
         void execute_enumeration(Data &data);
         void execute_heuristic (Data &data);
@@ -53,14 +54,12 @@ class Combinations
         bool execute_candidate_combinations (Data &data);
 
         std::set<std::vector<std::vector<int>>> unique_combinations;
-        std::vector<std::vector<std::vector<int>>> trips_combinations;
 
         void generate_trips_combinations(Data &data, int train_idx);
         unsigned long long int max_nb_trips_combinations = 0;
 
         bool normalize_combination (Data &data, std::vector<std::vector<int>> &current);
         bool check_trips_feasibility (Data &data, std::vector<int> &current);
-        bool is_valid_combination (Data &data, std::vector<std::vector<int>> &current);
 
         bool verify_overflow(unsigned long long base, unsigned long long exp);
 

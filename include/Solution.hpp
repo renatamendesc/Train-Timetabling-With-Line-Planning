@@ -1,6 +1,8 @@
 #ifndef SOLUTION_HPP
 #define SOLUTION_HPP
 
+#include "Data.hpp"
+
 #include <chrono>
 #include <vector>
 
@@ -18,7 +20,9 @@ class Solution
         int obj_value = __INT_MAX__;
         std::chrono::duration<double> computational_time;
         double gap_value;
+        
         bool proven_optimal = true;
+        bool feasible = false;
 
         // values of variables
         VarValuesMatrix3d x_values_;
@@ -30,15 +34,15 @@ class Solution
         VarValuesMatrix5d u_values_;
 
         CombinationMatrix routes_combination;
-        void get_combination();
+        void store_combination(Data &data);
 
         int max_nb_repeated_routes;
-        void get_max_nb_repeated_route();
+        void store_max_nb_repeated_route(Data &data);
 
-        void get_solution(Data &data);
+        void display_solution(Data &data);
     
     private:
-        void convert_time(int seconds);
+        std::string convert_time(int seconds);
 };
 
 #endif

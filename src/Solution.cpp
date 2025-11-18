@@ -2,7 +2,7 @@
 
 using namespace std;
 
-CombinationMatrix Solution::get_combination()
+void Solution::store_combination(Data &data)
 {
     for (int i = 0; i < data.get_nb_trains(); i++)
     {
@@ -11,7 +11,7 @@ CombinationMatrix Solution::get_combination()
         {
             for (int k = 0; k < data.get_nb_routes(); k++)
             {
-                if (lambda_values[i][j][k] == 1)
+                if (lambda_values_[i][j][k] == 1)
                 {
                     aux.push_back(k);
                     break;
@@ -22,46 +22,36 @@ CombinationMatrix Solution::get_combination()
     }
 }
 
-int Solution::get_max_nb_repeated_route()
+void Solution::store_max_nb_repeated_route(Data &data)
 {
     // get the amount of times each route is completed
     vector <int> times_route_is_completed (data.get_nb_routes(), 0);
 
     // for each train
-    for (int j = 0; j < combinations[i].size(); j++)
+    for (int i = 0; i < routes_combination.size(); i++)
     {
         // for each trip
-        for (int k = 0; k < combinations[i][j].size(); k++)
+        for (int j = 0; j < routes_combination[i].size(); j++)
         {   
-            int route = combinations[i][j][k];
+            int route = routes_combination[i][j];
             if (route != data.get_nb_routes())
             {
                 times_route_is_completed[route]++;
             }
         }
     }
-    max_nb_repeated_route = 0;
+    max_nb_repeated_routes = 0;
     for (int i = 0; i < times_route_is_completed.size(); i++)
     {
-        if (times_route_is_completed[i] > max_nb_repeated_route)
-            max_nb_repeated_route = times_route_is_completed[i];
+        if (times_route_is_completed[i] > max_nb_repeated_routes)
+            max_nb_repeated_routes = times_route_is_completed[i];
     }
 }
 
-void Solution::get_solution(Data &data)
+void Solution::display_solution(Data &data)
 {
-    cout << endl << "-> Solution value = " << obj_value << endl;
-    cout << "-> Total time = " << computational_time.count() << endl;
+    cout << "-> Solution value = " << obj_value << endl;
     // pending: get gap value
-
-    if (proven_optimal)
-    {
-        cout << "\tSolution is proven optimal!" << endl;
-    }
-    else
-    {
-        cout << "\tSolution is not proven optimal!" << endl;
-    }
 
     for (int t = 0; t < data.get_nb_trains(); t++)
     {

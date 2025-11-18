@@ -72,7 +72,7 @@ void ModelORTools::create_model_with_routes_constraints(Data &data, std::vector<
                 {
                     // variable is 1 if route is completed
                     // lambda_[t][i][current[i]] == 1
-                    MPConstraint* c_route = solver->MakeRowConstraint(0, 0);
+                    MPConstraint* c_route = solver->MakeRowConstraint(1, 1);
                     c_route->SetCoefficient(lambda_[t][i][current[i]], 1);
                 }
             }
@@ -82,8 +82,6 @@ void ModelORTools::create_model_with_routes_constraints(Data &data, std::vector<
 
 void ModelORTools::add_variables(Data &data)
 {
-    cout << "Creating variables..." << endl;
-
     // create variable x - specifies whether train t on trip i uses arc a
     x_.resize(data.get_nb_trains());
     for (int t = 0; t < data.get_nb_trains(); t++)
@@ -242,8 +240,6 @@ void ModelORTools::add_variables(Data &data)
 
 void ModelORTools::add_constraints(Data &data)
 {
-    cout << "Creating constraints..." << endl;
-
     // constraints to get value of z (2)
     for (int t = 0; t < data.get_nb_trains(); t++)
     {
@@ -983,6 +979,7 @@ int ModelORTools::execute_solver_for_full_model(Data &data) // return 1 if the s
     return 1;
 }
 
+// pendente: retornar se melhorou no lugar de se eh vivavel
 int ModelORTools::execute_solver_for_combination(Data &data, int best_bound, int time_limit_for_combination)
 {
     // setting parameters
@@ -1001,40 +998,48 @@ int ModelORTools::execute_solver_for_combination(Data &data, int best_bound, int
     if (result_status != MPSolver::OPTIMAL)
     {
         // a feasible solution was found, but the optimal solution was not proven
-        current_sol.proven_optimal = false;
         if (result_status != MPSolver::FEASIBLE)
         {
             return 0;
         }
+        current_sol.proven_optimal = false;
     }
+    else
+    {
+        current_sol.proven_optimal = true;
+    }
+
+    current_sol.feasible = true;
+
+    // cout << "New: " << objective->Value() << endl;
 
     current_sol.obj_value = objective->Value();
     if (current_sol.obj_value < best_sol.obj_value)
     {
         get_value_of_variables(data);
 
-        current_sol.get_combination();
-        current_sol.get_max_nb_repeated_route();
+        current_sol.store_combination(data);
+        current_sol.store_max_nb_repeated_route(data);
 
         current_sol.computational_time = end-start;
 
         best_sol = current_sol;
     }
-    else if (current_sol.obj_value == best_sol.obj_value)
-    {
-        // apply tie breaker (same objective value)
-        get_value_of_variables(data);
+    // else if (current_sol.obj_value == best_sol.obj_value)
+    // {
+    //     // apply tie breaker (same objective value)
+    //     get_value_of_variables(data);
 
-        current_sol.get_combination();
-        current_sol.get_max_nb_repeated_route();
+    //     current_sol.store_combination(data);
+    //     current_sol.store_max_nb_repeated_route(data);
 
-        if (current_sol.max_nb_repeated_route > best_sol.max_nb_repeated_route)
-        {
-            current_sol.computational_time = end-start;
+    //     if (current_sol.max_nb_repeated_routes > best_sol.max_nb_repeated_routes)
+    //     {
+    //         current_sol.computational_time = end-start;
 
-            best_sol = current_sol;
-        }
-    }
+    //         best_sol = current_sol;
+    //     }
+    // }
     return 1;
 }
 

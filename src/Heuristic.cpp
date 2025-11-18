@@ -2,6 +2,36 @@
 
 using namespace std;
 
+Heuristic::Heuristic(Data &data, int nb_threads, int time_limit_complete, int time_limit_per_combination)
+{
+    this->time_limit_complete = time_limit_complete;
+    this->time_limit_per_combination = time_limit_per_combination;
+
+    this->nb_threads = nb_threads;
+
+    start = chrono::steady_clock::now();
+    execute_heuristic(data);
+    end = chrono::steady_clock::now();
+}
+
+Heuristic::execute_heuristic(Data &data)
+{
+    create_initial_candidates(data);
+    // solve initial
+
+    while (current_best_sol.feasible && current_best_sol.obj_value < overall_best_sol.obj_value)
+    {
+        overall_best_sol = current_best_sol;
+
+        // create subsets of candidate combinations
+        // verify if subsets meet demands
+
+        // update candidates with subsets
+    }
+}
+
+// ================================================================ //
+
 void Heuristic::create_initial_candidates (Data &data)
 {
     // próximo passo: criar conjunto a partir da mínima quantidade de viagens que atende as demandas

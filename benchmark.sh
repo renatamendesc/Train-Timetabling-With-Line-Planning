@@ -47,8 +47,8 @@ for f in "$INPUT_FOLDER"/*; do
     # save complete log to instance folder
     echo "$OUTPUT" > "$INSTANCE_FOLDER/output.log"
 
-    SOL_LINE=$(echo "$OUTPUT" | grep "\-> Solution value")
     TIME_LINE=$(echo "$OUTPUT" | grep "\-> Total time")
+    SOL_LINE=$(echo "$OUTPUT" | grep "\-> Solution value")
 
     if echo "$OUTPUT" | grep -q "\-> Gap value"; then
         GAP_LINE=$(echo "$OUTPUT" | grep "\-> Gap value")

@@ -8,38 +8,58 @@
 
 class Heuristic
 {
-public:
-    std::vector<std::vector<std::vector<int>>> candidate_combinations;
+    public:
+        Heuristic(Data &data, int nb_threads, int time_limit_complete, int time_limit_per_combination);
 
-    void create_initial_candidates (Data &data);
-    bool remove_trips (Data &data, bool remove_from_all_candiates, std::vector<std::vector<int>> &current, int iter);
-    bool add_trips (Data &data);
-    void change_trips (Data &data, bool change_all_candidates, std::vector<std::vector<int>> &current);
-    
-    void create_subsets (Data &data, std::vector<std::vector<std::vector<int>>> &aux_candidates, std::vector<std::vector<int>> &current, int max_nb_trips);
+        // ===================================================================== //
 
-    bool have_cycles = false;
+        void create_initial_candidates (Data &data);
+        bool remove_trips (Data &data, bool remove_from_all_candiates, std::vector<std::vector<int>> &current, int iter);
+        bool add_trips (Data &data);
+        void change_trips (Data &data, bool change_all_candidates, std::vector<std::vector<int>> &current);
+        
+        void create_subsets (Data &data, std::vector<std::vector<std::vector<int>>> &aux_candidates, std::vector<std::vector<int>> &current, int max_nb_trips);
 
-    void try_new_set_of_routes(Data &data, int iter_set);
+        bool have_cycles = false;
 
-private:
-    std::vector<std::vector<int>> cycles_of_routes;
+        void try_new_set_of_routes(Data &data, int iter_set);
 
-    std::vector <int> cyclical_routes_set;
-    void create_cyclical_routes_set(Data &data);
-    std::vector <int> initial_valid_routes_set;
-    void create_initial_valid_routes_set(Data &data);
-    // void create_artificial_cycles(Data &data);
+    private:
+        std::chrono::time_point<std::chrono::steady_clock> start;
+        std::chrono::time_point<std::chrono::steady_clock> end;
 
-    // create new set of selected routes
+        int time_limit_complete;
+        int time_limit_per_combination;
 
-    void create_maximum_size_candidates(Data &data);
-    void add_trips_till_demands_are_met(Data &data, int nb_trains, int num_valid, int num_cyclic);
+        int nb_threads;
 
-    bool verify_demands(Data &data, std::vector<std::vector<int>> &current);
-    bool verify_compatibility (Data &data, std::vector<int> &current);
-    bool normalize_candidates (Data &data, std::vector<std::vector<int>> &current);
-    std::set<std::vector<std::vector<int>>> unique_combinations;
+        void execute_heuristic(Data &data);
+
+        Solution overall_best_sol;
+        Solution current_best_sol;
+        Solution current_sol;
+
+        std::vector<std::vector<std::vector<int>>> candidate_combinations;
+
+        // ===================================================================== //
+
+        std::vector<std::vector<int>> cycles_of_routes;
+
+        std::vector <int> cyclical_routes_set;
+        void create_cyclical_routes_set(Data &data);
+        std::vector <int> initial_valid_routes_set;
+        void create_initial_valid_routes_set(Data &data);
+        // void create_artificial_cycles(Data &data);
+
+        // create new set of selected routes
+
+        void create_maximum_size_candidates(Data &data);
+        void add_trips_till_demands_are_met(Data &data, int nb_trains, int num_valid, int num_cyclic);
+
+        bool verify_demands(Data &data, std::vector<std::vector<int>> &current);
+        bool verify_compatibility (Data &data, std::vector<int> &current);
+        bool normalize_candidates (Data &data, std::vector<std::vector<int>> &current);
+        std::set<std::vector<std::vector<int>>> unique_combinations;
 
 };
 
