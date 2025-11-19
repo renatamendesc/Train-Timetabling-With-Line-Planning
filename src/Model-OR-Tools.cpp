@@ -3,10 +3,6 @@
 using namespace operations_research;
 using namespace std;
 
-// ------------------------------------------------------------------------------------------- //
-// Input: LD_LIBRARY_PATH=/home/renata/or-tools/build/lib:$LD_LIBRARY_PATH ./cbtu <instance>
-// ------------------------------------------------------------------------------------------- //
-
 void ModelORTools::initialize(Data &data, int threads)
 {
     // set maximum number of threads to be used
@@ -48,7 +44,7 @@ void ModelORTools::create_model_with_routes_constraints(Data &data, std::vector<
     // create routes constraints
     for (int t = 0; t < routes_of_trains.size(); t++)
     {
-        vector<int> current = routes_of_trains[t];        
+        vector<int> current = routes_of_trains[t];      
         for (int i = 0; i < current.size(); i++)
         {
             if (i < data.get_train_max_trips(t))
@@ -70,10 +66,13 @@ void ModelORTools::create_model_with_routes_constraints(Data &data, std::vector<
                 }
                 else if (current[i] != -1)
                 {
-                    // variable is 1 if route is completed
-                    // lambda_[t][i][current[i]] == 1
-                    MPConstraint* c_route = solver->MakeRowConstraint(1, 1);
-                    c_route->SetCoefficient(lambda_[t][i][current[i]], 1);
+                    if (data.is_valid_route(t, i, current[i]))
+                    {
+                        // variable is 1 if route is completed
+                        // lambda_[t][i][current[i]] == 1
+                        MPConstraint* c_route = solver->MakeRowConstraint(1, 1);
+                        c_route->SetCoefficient(lambda_[t][i][current[i]], 1);
+                    }
                 }
             }
         }
@@ -943,7 +942,7 @@ void ModelORTools::get_value_of_variables(Data &data)
     // get u values
 }
 
-int ModelORTools::execute_solver_for_full_model(Data &data) // return 1 if the solver found an optimal solution, 0 otherwise
+int ModelORTools::execute_solver_for_full_model(Data &data) // return 1 if the solver found a solution, 0 otherwise
 {
     // setting parameters
     std::string params = R"(
@@ -968,19 +967,22 @@ int ModelORTools::execute_solver_for_full_model(Data &data) // return 1 if the s
     cout << "Status: " << result_status << endl;
     if (result_status != MPSolver::OPTIMAL)
     {
-        current_sol.proven_optimal = false;
         cout << "Optimal solution was not proven." << endl;
         if (result_status != MPSolver::FEASIBLE)
         {
             cout << "The solver could not solve the problem." << endl;
             return 0;
         }
+        current_sol.proven_optimal = false;
+    }
+    else
+    {
+        current_sol.proven_optimal = true;
     }
     return 1;
 }
 
-// pendente: retornar se melhorou no lugar de se eh vivavel
-int ModelORTools::execute_solver_for_combination(Data &data, int best_bound, int time_limit_for_combination)
+int ModelORTools::execute_solver_for_combination(Data &data, int best_bound, int time_limit_for_combination, string method)
 {
     // setting parameters
     std::string params = R"(
@@ -1011,8 +1013,6 @@ int ModelORTools::execute_solver_for_combination(Data &data, int best_bound, int
 
     current_sol.feasible = true;
 
-    // cout << "New: " << objective->Value() << endl;
-
     current_sol.obj_value = objective->Value();
     if (current_sol.obj_value < best_sol.obj_value)
     {
@@ -1025,25 +1025,20 @@ int ModelORTools::execute_solver_for_combination(Data &data, int best_bound, int
 
         best_sol = current_sol;
     }
-    // else if (current_sol.obj_value == best_sol.obj_value)
-    // {
-    //     // apply tie breaker (same objective value)
-    //     get_value_of_variables(data);
+    else if (method == "heuristic" && current_sol.obj_value == best_sol.obj_value)
+    {
+        // apply tie breaker for solutions with the same objective value
+        get_value_of_variables(data);
 
-    //     current_sol.store_combination(data);
-    //     current_sol.store_max_nb_repeated_route(data);
+        current_sol.store_combination(data);
+        current_sol.store_max_nb_repeated_route(data);
 
-    //     if (current_sol.max_nb_repeated_routes > best_sol.max_nb_repeated_routes)
-    //     {
-    //         current_sol.computational_time = end-start;
+        if (current_sol.max_nb_repeated_routes > best_sol.max_nb_repeated_routes)
+        {
+            current_sol.computational_time = end-start;
 
-    //         best_sol = current_sol;
-    //     }
-    // }
+            best_sol = current_sol;
+        }
+    }
     return 1;
 }
-
-// ModelORTools::~ModelORTools()
-// {
-//     solver.reset();
-// }

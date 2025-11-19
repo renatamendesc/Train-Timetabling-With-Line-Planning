@@ -37,9 +37,9 @@ void Enumeration::execute_enumeration(Data &data)
     if (comb.calculate_trips_combinations(data)) 
     {
         total_nb_combinations = 1;
-        for (int i = 0; i < comb.trips_combinations.size(); i++)
+        for (int i = 0; i < comb.all_trips_combinations.size(); i++)
         {
-            total_nb_combinations *= comb.trips_combinations[i].size(); 
+            total_nb_combinations *= comb.all_trips_combinations[i].size(); 
         }
     
         cout << endl << "Starting to test combinations... - Total number of combinations = " << total_nb_combinations << endl;
@@ -75,21 +75,21 @@ void Enumeration::execute_all_combinations(Data &data)
             vector<int> indices(nb_trains);
             for (int k = nb_trains - 1; k >= 0; k--)
             {
-                indices[k] = idx % comb.trips_combinations[k].size();
-                idx /= comb.trips_combinations[k].size();
+                indices[k] = idx % comb.all_trips_combinations[k].size();
+                idx /= comb.all_trips_combinations[k].size();
             }
-            vector<vector<int>> current;
+            RoutesCombination current_combination;
             for (int k = 0; k < nb_trains; k++)
             {
-                current.push_back(comb.trips_combinations[k][indices[k]]);
+                current_combination.push_back(comb.all_trips_combinations[k][indices[k]]);
             }
 
-            if (comb.is_valid_combination(data, current))
+            if (comb.is_valid_combination(data, current_combination))
             {
                 ModelORTools &model_thread = models[thread_id];
                 model_thread.initialize(data, 1);
-                model_thread.create_model_with_routes_constraints(data, current);
-                int feasible = model_thread.execute_solver_for_combination(data, overall_best_sol.obj_value, time_limit_per_combination);
+                model_thread.create_model_with_routes_constraints(data, current_combination);
+                int feasible = model_thread.execute_solver_for_combination(data, overall_best_sol.obj_value, time_limit_per_combination, "enum");
                 if (feasible)
                 {
                     #pragma omp atomic
@@ -131,6 +131,7 @@ void Enumeration::reached_time_limit(Data &data, chrono::duration<double> time)
     if (nb_feasible_combinations == 0)
     {
         cout << "\tNo feasible solution was found..." << endl;
+        cout << endl << "-> Total time = " << time.count() << endl;
     }
     else
     {

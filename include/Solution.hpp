@@ -2,6 +2,7 @@
 #define SOLUTION_HPP
 
 #include "Data.hpp"
+#include "Combinations.hpp"
 
 #include <chrono>
 #include <vector>
@@ -11,8 +12,6 @@ typedef std::vector<VarValuesMatrix2d> VarValuesMatrix3d;
 typedef std::vector<VarValuesMatrix3d> VarValuesMatrix4d;
 typedef std::vector<VarValuesMatrix4d> VarValuesMatrix5d;
 typedef std::vector<VarValuesMatrix5d> VarValuesMatrix6d;
-
-typedef std::vector<std::vector<int>> CombinationMatrix;
 
 class Solution
 {
@@ -33,12 +32,13 @@ class Solution
         VarValuesMatrix6d w_values_;
         VarValuesMatrix5d u_values_;
 
-        CombinationMatrix routes_combination;
+        RoutesCombination routes_combination;
         void store_combination(Data &data);
 
         int max_nb_repeated_routes;
         void store_max_nb_repeated_route(Data &data);
 
+        void display_routes_combination(Data &data);
         void display_solution(Data &data);
     
     private:

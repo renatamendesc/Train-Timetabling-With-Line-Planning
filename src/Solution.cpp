@@ -4,6 +4,7 @@ using namespace std;
 
 void Solution::store_combination(Data &data)
 {
+    routes_combination.clear();
     for (int i = 0; i < data.get_nb_trains(); i++)
     {
         vector <int> aux;
@@ -45,6 +46,20 @@ void Solution::store_max_nb_repeated_route(Data &data)
     {
         if (times_route_is_completed[i] > max_nb_repeated_routes)
             max_nb_repeated_routes = times_route_is_completed[i];
+    }
+}
+
+void Solution::display_routes_combination(Data &data)
+{
+    cout << "Routes combination:" << endl;
+    for (int i = 0; i < routes_combination.size(); i++)
+    {
+        cout << "Train " << i << ": ";
+        for (int j = 0; j < routes_combination[i].size(); j++)
+        {
+            cout << routes_combination[i][j] << " ";
+        }
+        cout << endl;
     }
 }
 

@@ -23,9 +23,6 @@ class Enumeration
         Enumeration(Data &data, int nb_threads, int time_limit_complete, int time_limit_per_combination);
 
     private:
-        std::chrono::time_point<std::chrono::steady_clock> start;
-        std::chrono::time_point<std::chrono::steady_clock> end;
-
         int time_limit_complete;
         int time_limit_per_combination;
         
@@ -36,6 +33,9 @@ class Enumeration
         void execute_all_combinations(Data &data);
 
         void reached_time_limit(Data &data, std::chrono::duration<double> time);
+
+        std::chrono::time_point<std::chrono::steady_clock> start;
+        std::chrono::time_point<std::chrono::steady_clock> end;
 };
 
 #endif

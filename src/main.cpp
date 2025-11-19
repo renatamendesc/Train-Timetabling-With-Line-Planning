@@ -2,7 +2,7 @@
 #include "Model-OR-Tools.hpp"
 // #include "Model.hpp"
 #include "Enumeration.hpp"
-// #include "Heuristic.hpp"
+#include "Heuristic.hpp"
 
 // ----------------------------------------------------------------- //
 // Input: ./cbtu <instance> <method> <number of threads>
@@ -19,24 +19,13 @@ int main(int argc, char *argv[])
     Data data(argv[1]);
     // data.print_data();
 
-    // ModelORTools model;
-    // model.initialize(data, 1);
-    // model.create_full_model(data);
-    // model.execute_solver_for_full_model(data);
-    // model.get_value_of_variables(data);
-
-    // std::cout << std::endl << "-> Total time = " << model.current_sol.computational_time.count() << std::endl;
-    // model.current_sol.display_solution(data);
-
-    Enumeration enumeration(data, 1, 43200, 7200);
-
-    // // read method
-    // if (argc < 3)
-    // {
-    //     std::cout << "Error: Method not provided!" << std::endl;
-    //     return 1;
-    // }
-    // std::string method = argv[2];
+    // read method
+    if (argc < 3)
+    {
+        std::cout << "Error: Method not provided!" << std::endl;
+        return 1;
+    }
+    std::string method = argv[2];
 
     // // read number of threads
     // int threads = 1;
@@ -63,22 +52,30 @@ int main(int argc, char *argv[])
     // std::cout << "\t>> Method: " << method << std::endl;
     // std::cout << "\t>> Number of threads: " << threads << std::endl << std::endl;
 
-    // // execute selected method
-    // if (method == "model")
-    // {
-        // Model model;
-        // model.initialize(data, threads);
-        // model.run(data);
-    // }
-    // else if (method == "enum" || method == "heuristic")
-    // {
-    //     Combinations comb (data, threads, method);
-    // }
-    // else
-    // {
-    //     std::cout << "Did not provide a valid method!" << std::endl;
-    //     return 1;
-    // }
+    // execute selected method
+    if (method == "model")
+    {
+        ModelORTools model;
+        model.initialize(data, 1);
+        model.create_full_model(data);
+        model.execute_solver_for_full_model(data);
+        model.get_value_of_variables(data);
+        std::cout << std::endl << "-> Total time = " << model.current_sol.computational_time.count() << std::endl;
+        model.current_sol.display_solution(data);
+    }
+    else if (method == "enum")
+    {
+        Enumeration enumeration(data, 1, 43200, 7200);
+    }
+    else if (method == "heuristic")
+    {
+        Heuristic heuristic(data, 1, 43200, 2400);
+    }
+    else
+    {
+        std::cout << "Did not provide a valid method!" << std::endl;
+        return 1;
+    }
 
     return 0;
 }

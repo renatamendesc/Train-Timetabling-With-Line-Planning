@@ -39,11 +39,9 @@ class ModelORTools
         void add_constraints(Data &data);
 
         int execute_solver_for_full_model(Data &data);
-        int execute_solver_for_combination(Data &data, int best_bound, int time_limit_for_combination);
+        int execute_solver_for_combination(Data &data, int best_bound, int time_limit_for_combination, std::string method);
 
         void get_value_of_variables(Data &data);
-
-        // ~ModelORTools();
 
     private:
         int nb_threads;
