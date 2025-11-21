@@ -945,14 +945,12 @@ void ModelORTools::get_value_of_variables(Data &data)
 int ModelORTools::execute_solver_for_full_model(Data &data) // return 1 if the solver found a solution, 0 otherwise
 {
     // setting parameters
-    std::string params = R"(
-        time_limit = 600
-        threads = 1
-        log_to_console = true
-        output_flag = true
-        log_file = highs_log.txt
-    )";
-    // solver->SetSolverSpecificParametersAsString(params);
+
+    std::string params = "time_limit = 43200\n"
+    "threads = 1\n"
+    "log_to_console = true\n"
+    "log_file = highs_log.txt\n";
+    solver->SetSolverSpecificParametersAsString(params);
     // solver->SetSolverSpecificParametersAsString("log_to_console=true");
     // solver->SetSolverSpecificParametersAsString("log_file=highs_log.txt");
     // solver->EnableOutput();
@@ -985,13 +983,11 @@ int ModelORTools::execute_solver_for_full_model(Data &data) // return 1 if the s
 int ModelORTools::execute_solver_for_combination(Data &data, int best_bound, int time_limit_for_combination, string method)
 {
     // setting parameters
-    std::string params = R"(
-        time_limit = 600
-        threads = 1
-        log_to_console = true
-        output_flag = true
-        log_file = highs_log.txt
-    )";
+    std::string params = "time_limit = " + std::to_string(time_limit_for_combination) + "\n"
+                         "threads = 1\n"
+                         "log_to_console = true\n"
+                         "log_file = highs_log.txt\n";
+    solver->SetSolverSpecificParametersAsString(params);
 
     auto start = chrono::steady_clock::now();
     const MPSolver::ResultStatus result_status = solver->Solve();
