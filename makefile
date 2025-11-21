@@ -38,6 +38,8 @@ CPPC = g++
 ORTOOLSDIR = $(HOME)/or-tools
 ORTOOLS_BUILD = $(ORTOOLSDIR)/build
 ORTOOLS_DEPS = $(ORTOOLS_BUILD)/_deps
+# Diretório local para bibliotecas (portabilidade)
+LOCAL_LIBDIR = lib
 #############################
 
 #### opcoes de compilacao e includes
@@ -55,8 +57,18 @@ CCFLAGS = $(CCFLAGS_BASE)
 #### flags do linker
 CCLNFLAGS = -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -lpthread -ldl -fopenmp
 # Flags de linkagem para OR-Tools
+# Usa diretório local se existir, senão usa o diretório original do OR-Tools
 ORTOOLS_LIB = $(ORTOOLS_BUILD)/lib
-CCLNFLAGS_ORTOOLS = -L$(ORTOOLS_LIB) -Wl,-rpath,$(ORTOOLS_LIB) -Wl,--no-as-needed -lortools -labsl_flags_parse -labsl_flags_usage -labsl_log_initialize -labsl_log_internal_message -labsl_log_globals -labsl_time -labsl_strings -labsl_base -lprotobuf -Wl,--as-needed
+LOCAL_ORTOOLS_LIB = $(LOCAL_LIBDIR)
+# Verifica se o diretório local existe, senão usa o original
+ifeq ($(wildcard $(LOCAL_ORTOOLS_LIB)/libortools.so*),)
+    # Se não existe lib local, usa a original
+    CCLNFLAGS_ORTOOLS = -L$(ORTOOLS_LIB) -Wl,-rpath,$(ORTOOLS_LIB) -Wl,--no-as-needed -lortools -labsl_flags_parse -labsl_flags_usage -labsl_log_initialize -labsl_log_internal_message -labsl_log_globals -labsl_time -labsl_strings -labsl_base -lprotobuf -Wl,--as-needed
+else
+    # Usa bibliotecas locais com rpath relativo (portabilidade)
+    # $$ORIGIN será expandido pelo linker para o diretório do executável
+    CCLNFLAGS_ORTOOLS = -L$(LOCAL_ORTOOLS_LIB) -Wl,-rpath,$$ORIGIN/lib -Wl,--no-as-needed -lortools -labsl_flags_parse -labsl_flags_usage -labsl_log_initialize -labsl_log_internal_message -labsl_log_globals -labsl_time -labsl_strings -labsl_base -lprotobuf -Wl,--as-needed
+endif
 #############################
 
 #### diretorios com os source files e com os objs files
@@ -145,10 +157,33 @@ $(OBJDIR)/Heuristic.o: $(SRCDIR)/Heuristic.cpp
 # delete objetos e arquivos de dependencia
 clean:
 	@echo "\033[31mcleaning obj directory \033[0m"
-	@rm cbtu -f $(OBJDIR)/*.o $(OBJDIR)/*.d
+	@rm -f cbtu $(OBJDIR)/*.o $(OBJDIR)/*.d
 
 
 rebuild: clean cbtu
+
+# Target para copiar bibliotecas OR-Tools para diretório local (portabilidade)
+# Isso permite executar o programa em outra máquina sem instalar OR-Tools
+copy-ortools-libs:
+	@echo "\033[31mCopiando bibliotecas OR-Tools para diretório local...\033[0m"
+	@mkdir -p $(LOCAL_LIBDIR)
+	@echo "Copiando bibliotecas principais..."
+	@cp -L $(ORTOOLS_LIB)/libortools.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
+	@cp -L $(ORTOOLS_LIB)/libprotobuf.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
+	@echo "Copiando bibliotecas absl..."
+	@cp -L $(ORTOOLS_LIB)/libabsl_*.so $(LOCAL_LIBDIR)/ 2>/dev/null || true
+	@echo "Copiando outras dependências..."
+	@cp -L $(ORTOOLS_LIB)/libre2.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
+	@cp -L $(ORTOOLS_LIB)/libutf8_*.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
+	@cp -L $(ORTOOLS_LIB)/libz.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
+	@cp -L $(ORTOOLS_LIB)/libbz2.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
+	@echo "\033[32mBibliotecas copiadas para $(LOCAL_LIBDIR)/\033[0m"
+	@echo "\033[33mNota: Para usar em outra máquina, copie o diretório $(LOCAL_LIBDIR)/ junto com o executável\033[0m"
+
+# Target para limpar bibliotecas locais
+clean-libs:
+	@echo "\033[31mRemovendo bibliotecas locais...\033[0m"
+	@rm -rf $(LOCAL_LIBDIR)
 
 # Target para compilar Model-Highs.cpp com OR-Tools (requer OR-Tools instalado)
 # Nota: OR-Tools tem muitas dependências. Para compilar manualmente, use:
