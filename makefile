@@ -31,10 +31,10 @@ endif
 # CONCERTLIBDIR = $(CONCERTDIR)/lib/arm64_osx/static_pic
 
 #### define o compilador
-CPPC = g++ -g
+CPPC = g++ 
 #############################
 
-#### diretorio OR-Tools (se instalado)
+#### diretorio OR-Tools
 ORTOOLSDIR = $(HOME)/or-tools
 ORTOOLS_BUILD = $(ORTOOLSDIR)/build
 ORTOOLS_DEPS = $(ORTOOLS_BUILD)/_deps
