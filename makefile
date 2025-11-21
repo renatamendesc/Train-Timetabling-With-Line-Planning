@@ -1,203 +1,115 @@
-# CPLEX_VERSION = 2211
+# Makefile para projeto Train-Timetabling com OR-Tools e HiGHS
+# Gera executável portável que pode ser executado em máquinas sem OR-Tools instalado
 
-# detecta se o sistema é de 32 ou 64 bits
-BITS_OPTION = -m64
+# Compilador
+CPPC = g++
 
-####diretorios com as libs do cplex
-####diretorios com as libs do cplex
+# Diretórios OR-Tools (instalação padrão do GitHub)
+ORTOOLS_INCLUDE = /usr/local/include
+ORTOOLS_LIB = /usr/local/lib
 
-ifeq ($(shell uname),Darwin) # if OS X
-
-	CPLEXDIR  = ~/Applications/IBM/ILOG/CPLEX_Studio1210/cplex
-	CONCERTDIR = ~/Applications/IBM/ILOG/CPLEX_Studio1210/concert
-	
-	CPLEXLIBDIR   = $(CPLEXDIR)/lib/x86-64_osx/static_pic
-	CONCERTLIBDIR = $(CONCERTDIR)/lib/x86-64_osx/static_pic
-
-else # other unix
-
-	CPLEXDIR  = /opt/ibm/ILOG/CPLEX_Studio1210/cplex
-	CONCERTDIR = /opt/ibm/ILOG/CPLEX_Studio1210/concert
-	
-	CPLEXLIBDIR   = $(CPLEXDIR)/lib/x86-64_linux/static_pic
-	CONCERTLIBDIR = $(CONCERTDIR)/lib/x86-64_linux/static_pic
-
-endif
-
-# CPLEXDIR  = /Applications/CPLEX_Studio$(CPLEX_VERSION)/cplex
-# CONCERTDIR = /Applications/CPLEX_Studio$(CPLEX_VERSION)/concert
-   
-# CPLEXLIBDIR   = $(CPLEXDIR)/lib/arm64_osx/static_pic
-# CONCERTLIBDIR = $(CONCERTDIR)/lib/arm64_osx/static_pic
-
-#### define o compilador
-CPPC = g++ 
-#############################
-
-#### diretorio OR-Tools
-ORTOOLSDIR = $(HOME)/or-tools
-ORTOOLS_BUILD = $(ORTOOLSDIR)/build
-ORTOOLS_DEPS = $(ORTOOLS_BUILD)/_deps
 # Diretório local para bibliotecas (portabilidade)
 LOCAL_LIBDIR = lib
-#############################
 
-#### opcoes de compilacao e includes
-CCOPT = $(BITS_OPTION) -O3 -fPIC -fexceptions -DNDEBUG -DIL_STD -std=c++17
-CONCERTINCDIR = $(CONCERTDIR)/include
-CPLEXINCDIR   = $(CPLEXDIR)/include
-# Flags base para todos os arquivos
-CCFLAGS_BASE = $(CCOPT) -fopenmp -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) -Iinclude
-# Flags adicionais para arquivos que usam OR-Tools
-CCFLAGS_ORTOOLS = -I$(ORTOOLSDIR) -I$(ORTOOLS_BUILD) -I$(ORTOOLS_DEPS)/absl-src -I$(ORTOOLS_DEPS)/protobuf-src/src -I$(ORTOOLS_DEPS)/protobuf-src -I$(ORTOOLS_DEPS)/re2-src -I$(ORTOOLS_DEPS)/eigen3-src -DOR_PROTO_DLL=
-# Flags padrão (sem OR-Tools)
-CCFLAGS = $(CCFLAGS_BASE)
-#############################
-
-#### flags do linker
-CCLNFLAGS = -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -lpthread -ldl -fopenmp
-# Flags de linkagem para OR-Tools
-# Usa diretório local se existir, senão usa o diretório original do OR-Tools
-ORTOOLS_LIB = $(ORTOOLS_BUILD)/lib
-LOCAL_ORTOOLS_LIB = $(LOCAL_LIBDIR)
-# Verifica se o diretório local existe, senão usa o original
-ifeq ($(wildcard $(LOCAL_ORTOOLS_LIB)/libortools.so*),)
-    # Se não existe lib local, usa a original
-    CCLNFLAGS_ORTOOLS = -L$(ORTOOLS_LIB) -Wl,-rpath,$(ORTOOLS_LIB) -Wl,--no-as-needed -lortools -labsl_flags_parse -labsl_flags_usage -labsl_log_initialize -labsl_log_internal_message -labsl_log_globals -labsl_time -labsl_strings -labsl_base -lprotobuf -Wl,--as-needed
-else
-    # Usa bibliotecas locais com rpath relativo (portabilidade)
-    # $$ORIGIN será expandido pelo linker para o diretório do executável
-    CCLNFLAGS_ORTOOLS = -L$(LOCAL_ORTOOLS_LIB) -Wl,-rpath,$$ORIGIN/lib -Wl,--no-as-needed -lortools -labsl_flags_parse -labsl_flags_usage -labsl_log_initialize -labsl_log_internal_message -labsl_log_globals -labsl_time -labsl_strings -labsl_base -lprotobuf -Wl,--as-needed
-endif
-#############################
-
-#### diretorios com os source files e com os objs files
+# Diretórios do projeto
 SRCDIR = src
 OBJDIR = obj
-#############################
+INCLUDEDIR = include
 
-#### lista de todos os srcs e todos os objs (exclui Model-Highs.cpp que usa OR-Tools)
-#### Model-OR-Tools.cpp, main.cpp, Combinations.cpp, Enumeration.cpp e Heuristic.cpp são compilados separadamente com regra especial abaixo
-#### porque incluem headers do OR-Tools
-SRCS = $(filter-out $(SRCDIR)/Model-Highs.cpp $(SRCDIR)/Model-OR-Tools.cpp $(SRCDIR)/main.cpp $(SRCDIR)/Combinations.cpp $(SRCDIR)/Enumeration.cpp $(SRCDIR)/Heuristic.cpp, $(wildcard $(SRCDIR)/*.cpp))
-OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
-OBJS += $(OBJDIR)/Model-OR-Tools.o $(OBJDIR)/main.o $(OBJDIR)/Combinations.o $(OBJDIR)/Enumeration.o $(OBJDIR)/Heuristic.o
-#############################
+# Flags de compilação
+CCFLAGS = -m64 -O3 -fPIC -fexceptions -DNDEBUG -std=c++17 \
+          -fopenmp \
+          -I$(INCLUDEDIR) \
+          -I$(ORTOOLS_INCLUDE) \
+          -I$(ORTOOLS_INCLUDE)/ortools \
+          -DOR_PROTO_DLL=
 
-#### regra principal, gera o executavel
-cbtu: $(OBJS) 
-	@echo  "\033[31m \nLinking all objects files: \033[0m"
-	$(CPPC) $(BITS_OPTION) $(OBJS) -o $@ $(CCLNFLAGS) $(CCLNFLAGS_ORTOOLS)
-############################
+# Flags de linkagem
+# Usa biblioteca estática do OR-Tools e bibliotecas dinâmicas das dependências
+# O rpath aponta para o diretório lib/ relativo ao executável (portabilidade)
+# Inclui todas as bibliotecas Abseil necessárias (o linker remove as não usadas)
+# Permite símbolos não definidos do SCIP (não usado, apenas HiGHS)
+CCLNFLAGS = -L$(ORTOOLS_LIB) \
+            -Wl,-rpath,'$$ORIGIN/$(LOCAL_LIBDIR)' \
+            -Wl,-rpath,$(ORTOOLS_LIB) \
+            -Wl,--unresolved-symbols=ignore-in-object-files \
+            -lortools \
+            -labsl_flags_parse -labsl_flags_usage -labsl_log_initialize \
+            -labsl_log_internal_message -labsl_log_globals -labsl_log_internal_nullguard \
+            -labsl_time -labsl_int128 -labsl_leak_check \
+            -labsl_strings -labsl_strings_internal -labsl_string_view -labsl_base -labsl_raw_logging_internal \
+            -labsl_str_format_internal -labsl_statusor -labsl_status \
+            -labsl_cord -labsl_cord_internal -labsl_cordz_functions \
+            -labsl_cordz_handle -labsl_cordz_info -labsl_cordz_sample_token \
+            -labsl_hash -labsl_city -labsl_low_level_hash -labsl_raw_hash_set \
+            -labsl_random_distributions \
+            -labsl_random_internal_platform -labsl_random_internal_randen \
+            -labsl_random_internal_randen_hwaes -labsl_random_internal_randen_hwaes_impl -labsl_random_internal_randen_slow \
+            -labsl_random_seed_sequences -labsl_random_internal_entropy_pool -labsl_random_internal_seed_material \
+            -labsl_synchronization -labsl_graphcycles_internal -labsl_spinlock_wait -labsl_kernel_timeout_internal \
+            -labsl_symbolize -labsl_examine_stack -labsl_failure_signal_handler \
+            -labsl_debugging_internal -labsl_demangle_internal -labsl_tracing_internal \
+            -labsl_stacktrace -labsl_throw_delegate -labsl_civil_time -labsl_time_zone \
+            -labsl_strerror -labsl_periodic_sampler -labsl_exponential_biased \
+            -labsl_hashtablez_sampler -labsl_scoped_set_env -labsl_poison \
+            -labsl_die_if_null -labsl_utf8_for_code_point -labsl_decode_rust_punycode \
+            -labsl_demangle_rust -labsl_flags_commandlineflag -labsl_flags_commandlineflag_internal \
+            -labsl_flags_config -labsl_flags_internal -labsl_flags_marshalling \
+            -labsl_flags_private_handle_accessor -labsl_flags_program_name \
+            -labsl_flags_reflection -labsl_flags_usage_internal -labsl_log_flags \
+            -labsl_log_internal_check_op -labsl_log_internal_conditions \
+            -labsl_log_internal_fnmatch -labsl_log_internal_format \
+            -labsl_log_internal_log_sink_set -labsl_log_internal_proto \
+            -labsl_log_internal_structured_proto -labsl_log_severity -labsl_log_sink \
+            -labsl_vlog_config_internal             -labsl_random_internal_distribution_test_util \
+            -labsl_random_seed_gen_exception \
+            -labsl_crc32c -labsl_crc_cpu_detect -labsl_crc_cord_state \
+            -labsl_crc_internal -labsl_malloc_internal \
+            -lprotobuf -lre2 -lhighs -lz \
+            -lm -lpthread -ldl -fopenmp
 
-# inclui os arquivos de dependencias
--include $(OBJS:.o=.d)
+# Lista de sources e objs (exclui Model.cpp que depende do CPLEX)
+SRCS = $(filter-out $(SRCDIR)/Model.cpp,$(wildcard $(SRCDIR)/*.cpp))
+OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 
-# regra para cada arquivo objeto: compila e gera o arquivo de dependencias do arquivo objeto
-# cada arquivo objeto depende do .c e dos headers (informacao dos header esta no arquivo de dependencias gerado pelo compiler)
+# Executável portável
+cbtu: copy-libs $(OBJS)
+	@echo "\033[31m\nLinking all object files (portable version):\033[0m"
+	$(CPPC) -m64 $(OBJS) -o $@ $(CCLNFLAGS)
+	@echo "\033[32m\nExecutável portável criado: cbtu\033[0m"
+	@echo "\033[33mDistribua junto: cbtu e diretório lib/\033[0m"
+
+# Compilação de objetos
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	@echo  "\033[31m \nCompiling $<: \033[0m"
+	@mkdir -p $(OBJDIR)
+	@echo "\033[31m\nCompiling $<:\033[0m"
 	$(CPPC) $(CCFLAGS) -c $< -o $@
-	@echo  "\033[32m \ncreating $< dependency file: \033[0m"
-	$(CPPC) -std=c++0x $(CCFLAGS) -MM $< > $(basename $@).d
-	@mv -f $(basename $@).d $(basename $@).d.tmp #proximas tres linhas colocam o diretorio no arquivo de dependencias (g++ nao coloca, surprisingly!)
-	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
-	@rm -f $(basename $@).d.tmp
 
-# Regra especial para Model-OR-Tools.cpp que requer OR-Tools
-$(OBJDIR)/Model-OR-Tools.o: $(SRCDIR)/Model-OR-Tools.cpp
-	@echo  "\033[31m \nCompiling $< with OR-Tools support: \033[0m"
-	$(CPPC) $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -c $< -o $@
-	@echo  "\033[32m \ncreating $< dependency file: \033[0m"
-	$(CPPC) -std=c++0x $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -MM $< > $(basename $@).d
-	@mv -f $(basename $@).d $(basename $@).d.tmp
-	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
-	@rm -f $(basename $@).d.tmp
-
-# Regra especial para main.cpp que requer OR-Tools (porque inclui Model-OR-Tools.hpp)
-$(OBJDIR)/main.o: $(SRCDIR)/main.cpp
-	@echo  "\033[31m \nCompiling $< with OR-Tools support: \033[0m"
-	$(CPPC) $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -c $< -o $@
-	@echo  "\033[32m \ncreating $< dependency file: \033[0m"
-	$(CPPC) -std=c++0x $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -MM $< > $(basename $@).d
-	@mv -f $(basename $@).d $(basename $@).d.tmp
-	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
-	@rm -f $(basename $@).d.tmp
-
-# Regra especial para Combinations.cpp que requer OR-Tools (porque Combinations.hpp inclui Model-OR-Tools.hpp)
-$(OBJDIR)/Combinations.o: $(SRCDIR)/Combinations.cpp
-	@echo  "\033[31m \nCompiling $< with OR-Tools support: \033[0m"
-	$(CPPC) $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -c $< -o $@
-	@echo  "\033[32m \ncreating $< dependency file: \033[0m"
-	$(CPPC) -std=c++0x $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -MM $< > $(basename $@).d
-	@mv -f $(basename $@).d $(basename $@).d.tmp
-	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
-	@rm -f $(basename $@).d.tmp
-
-# Regra especial para Enumeration.cpp que requer OR-Tools (porque Enumeration.hpp inclui Model-OR-Tools.hpp)
-$(OBJDIR)/Enumeration.o: $(SRCDIR)/Enumeration.cpp
-	@echo  "\033[31m \nCompiling $< with OR-Tools support: \033[0m"
-	$(CPPC) $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -c $< -o $@
-	@echo  "\033[32m \ncreating $< dependency file: \033[0m"
-	$(CPPC) -std=c++0x $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -MM $< > $(basename $@).d
-	@mv -f $(basename $@).d $(basename $@).d.tmp
-	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
-	@rm -f $(basename $@).d.tmp
-
-# Regra especial para Heuristic.cpp que requer OR-Tools (porque Heuristic.hpp inclui Model-OR-Tools.hpp)
-$(OBJDIR)/Heuristic.o: $(SRCDIR)/Heuristic.cpp
-	@echo  "\033[31m \nCompiling $< with OR-Tools support: \033[0m"
-	$(CPPC) $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -c $< -o $@
-	@echo  "\033[32m \ncreating $< dependency file: \033[0m"
-	$(CPPC) -std=c++0x $(CCFLAGS_BASE) $(CCFLAGS_ORTOOLS) -MM $< > $(basename $@).d
-	@mv -f $(basename $@).d $(basename $@).d.tmp
-	@sed -e 's|.*:|$(basename $@).o:|' < $(basename $@).d.tmp > $(basename $@).d
-	@rm -f $(basename $@).d.tmp
-
-# delete objetos e arquivos de dependencia
-clean:
-	@echo "\033[31mcleaning obj directory \033[0m"
-	@rm -f cbtu $(OBJDIR)/*.o $(OBJDIR)/*.d
-
-
-rebuild: clean cbtu
-
-# Target para copiar bibliotecas OR-Tools para diretório local (portabilidade)
-# Isso permite executar o programa em outra máquina sem instalar OR-Tools
-copy-ortools-libs:
-	@echo "\033[31mCopiando bibliotecas OR-Tools para diretório local...\033[0m"
+# Copiar bibliotecas necessárias para diretório local (portabilidade)
+copy-libs:
+	@echo "\033[31mCopying required libraries locally...\033[0m"
 	@mkdir -p $(LOCAL_LIBDIR)
-	@echo "Copiando bibliotecas principais..."
-	@cp -L $(ORTOOLS_LIB)/libortools.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
-	@cp -L $(ORTOOLS_LIB)/libprotobuf.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
-	@echo "Copiando bibliotecas absl..."
-	@cp -L $(ORTOOLS_LIB)/libabsl_*.so $(LOCAL_LIBDIR)/ 2>/dev/null || true
-	@echo "Copiando outras dependências..."
-	@cp -L $(ORTOOLS_LIB)/libre2.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
-	@cp -L $(ORTOOLS_LIB)/libutf8_*.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
-	@cp -L $(ORTOOLS_LIB)/libz.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
-	@cp -L $(ORTOOLS_LIB)/libbz2.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
-	@echo "\033[32mBibliotecas copiadas para $(LOCAL_LIBDIR)/\033[0m"
-	@echo "\033[33mNota: Para usar em outra máquina, copie o diretório $(LOCAL_LIBDIR)/ junto com o executável\033[0m"
+	@echo "  Copying HiGHS library..."
+	@cp -L $(ORTOOLS_LIB)/libhighs.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
+	@echo "  Copying Abseil libraries..."
+	@cp -L $(ORTOOLS_LIB)/libabsl*.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true
+	@echo "  Copying Protobuf library..."
+	@if ls /lib/x86_64-linux-gnu/libprotobuf.so* 1> /dev/null 2>&1; then \
+		cp -L /lib/x86_64-linux-gnu/libprotobuf.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true; \
+	elif ls $(ORTOOLS_LIB)/libprotobuf.so* 1> /dev/null 2>&1; then \
+		cp -L $(ORTOOLS_LIB)/libprotobuf.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true; \
+	fi
+	@echo "  Copying RE2 library..."
+	@if ls /lib/x86_64-linux-gnu/libre2.so* 1> /dev/null 2>&1; then \
+		cp -L /lib/x86_64-linux-gnu/libre2.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true; \
+	elif ls $(ORTOOLS_LIB)/libre2.so* 1> /dev/null 2>&1; then \
+		cp -L $(ORTOOLS_LIB)/libre2.so* $(LOCAL_LIBDIR)/ 2>/dev/null || true; \
+	fi
+	@echo "\033[32mAll required libraries copied to $(LOCAL_LIBDIR)/\033[0m"
 
-# Target para limpar bibliotecas locais
-clean-libs:
-	@echo "\033[31mRemovendo bibliotecas locais...\033[0m"
-	@rm -rf $(LOCAL_LIBDIR)
+# Limpeza
+clean:
+	@echo "\033[31mCleaning obj directory and local libraries\033[0m"
+	@rm -rf $(OBJDIR)/*.o $(OBJDIR)/*.d cbtu $(LOCAL_LIBDIR)
 
-# Target para compilar Model-Highs.cpp com OR-Tools (requer OR-Tools instalado)
-# Nota: OR-Tools tem muitas dependências. Para compilar manualmente, use:
-# g++ src/Model-Highs.cpp -o highs -I$(HOME)/or-tools -I$(HOME)/or-tools/build \
-#     -I$(HOME)/or-tools/build/_deps/absl-src -I$(HOME)/or-tools/build/_deps/protobuf-src/src \
-#     -L$(HOME)/or-tools/build/lib -lortools -lhighs -lpthread -std=c++17
-highs:
-	@echo "\033[31mCompilando Model-Highs.cpp com OR-Tools...\033[0m"
-	$(CPPC) $(SRCDIR)/Model-Highs.cpp -o highs \
-		-I$(HOME)/or-tools \
-		-I$(HOME)/or-tools/build \
-		-I$(HOME)/or-tools/build/_deps/absl-src \
-		-I$(HOME)/or-tools/build/_deps/protobuf-src/src \
-		-L$(HOME)/or-tools/build/lib \
-		-lortools -lhighs -lpthread -std=c++17 \
-		|| echo "\033[33mErro: Pode ser necessário ajustar os caminhos ou instalar dependências adicionais do OR-Tools\033[0m"
-
+.PHONY: copy-libs clean
