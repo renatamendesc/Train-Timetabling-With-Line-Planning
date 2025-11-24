@@ -1,11 +1,10 @@
 #ifndef MODEL_OR_TOOLS_HPP
 #define MODEL_OR_TOOLS_HPP
 
-#include "absl/base/log_severity.h"
-#include "absl/log/globals.h"
-#include "absl/log/log.h"
-#include "ortools/base/init_google.h"
-#include "ortools/init/init.h"
+#ifndef OR_PROTO_DLL
+#define OR_PROTO_DLL
+#endif
+
 #include "ortools/linear_solver/linear_solver.h"
 
 #include "Data.hpp"
