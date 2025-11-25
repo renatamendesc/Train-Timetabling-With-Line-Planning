@@ -91,7 +91,8 @@ ax = plt.gca()
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
-file_graph = "benchmarking/" + instance_set + "/" + type_execution + "/" + instance + "/graph.png"
+# file_graph = "benchmarking/" + instance_set + "/" + type_execution + "/" + instance + "/graph.png"
+file_graph = "graph-test.png"
 plt.savefig(file_graph, dpi=300, bbox_inches='tight')
 # plt.show()
 

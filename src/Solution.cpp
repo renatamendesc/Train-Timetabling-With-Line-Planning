@@ -63,6 +63,50 @@ void Solution::display_routes_combination(Data &data)
     }
 }
 
+void Solution::display_variables_values(Data &data)
+{
+    // y values
+    cout << "y values:" << endl;
+    for (int t = 0; t < data.get_nb_trains(); t++)
+    {
+        for (int i = 0; i < data.get_train_max_trips(t); i++)
+        {
+            for (int v = 0; v < data.get_nb_vertices(); v++)
+            {
+                cout << "y[" << t << "][" << i << "][" << v << "] == " << y_values_[t][i][v] << endl;
+            }
+        }
+    }
+    cout << endl;
+    // y bar values
+    cout << "y bar values:" << endl;
+    for (int t = 0; t < data.get_nb_trains(); t++)
+    {
+        for (int i = 0; i < data.get_train_max_trips(t); i++)
+        {
+            for (int v = 0; v < data.get_nb_vertices(); v++)
+            {
+                cout << "y_bar[" << t << "][" << i << "][" << v << "] == " << y_bar_values_[t][i][v] << endl;
+            }
+        }
+    }
+    cout << endl;
+    // lambda values
+    cout << "lambda values:" << endl;
+    for (int t = 0; t < data.get_nb_trains(); t++)
+    {
+        for (int i = 0; i < data.get_train_max_trips(t); i++)
+        {
+            for (int r = 0; r < data.get_nb_routes(); r++)
+            {
+                cout << "lambda[" << t << "][" << i << "][" << r << "] == " << lambda_values_[t][i][r] << endl;
+            }
+        }
+    }
+    cout << endl;
+}
+
+
 void Solution::display_solution(Data &data)
 {
     cout << "-> Solution value = " << obj_value << endl;
@@ -99,6 +143,47 @@ void Solution::display_solution(Data &data)
             }
         }
     }
+}
+
+void Solution::create_graph(Data &data, string method, int nb_threads)
+{
+    ofstream solution_script;
+    solution_script.open("script-solution.txt", ios::out | ios::trunc); // file to execute python script to generate the graphs of the timetable
+    solution_script << "num_points " << data.get_nb_points() << endl;
+    solution_script << "---" << endl;
+    for (int t = 0; t < data.get_nb_trains(); t++)
+    {
+        for (int i = 0; i < data.get_train_max_trips(t); i++)
+        {
+            for (int r = 0; r < data.get_nb_routes(); r++)
+            {
+                if (data.is_valid_route(t, i, r))
+                {
+                    if (lambda_values_[t][i][r] > 0)
+                    {
+                        int departure, arrival;
+                        for (auto arc : data.get_route_arcs(r))
+                        {
+                            departure = arc.out;
+                            arrival = arc.inc;
+                            solution_script << t << "," << i << "," << data.get_vertex_point(departure) << ": " << y_values_[t][i][departure] << " -> ";
+                            solution_script << t << "," << i << "," << data.get_vertex_point(arrival) << ": " << (y_values_[t][i][departure] + data.get_distance(arc.idx)) << " // ";
+                        }
+                    }
+                }
+            }
+            solution_script << endl;
+        }
+        solution_script << endl;
+    }
+    solution_script.close();
+
+    // calls python script to generate graph of the solution
+    string command = "python3 ";
+    string file_name = "script-graph.py ";
+    string instance = "\"" + data.get_instance_set() + "/" + method + "_" + to_string(nb_threads) + "/" + data.get_instance_name() + "\"";
+    command += (file_name + instance);
+    system(command.c_str());
 }
 
 string Solution::convert_time(int seconds)

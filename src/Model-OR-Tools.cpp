@@ -614,9 +614,12 @@ void ModelORTools::add_constraints(Data &data)
                 for (int i = 0; i < data.get_train_max_trips(t); i++)
                 {
                     for (auto arc : data.get_vertex_out_arcs(v))
-                    {
-                        int a = arc.idx;
-                        c_17->SetCoefficient(x_bar_[t][i][a][h], 1);
+                    {   
+                        if (!data.is_reversal_arc(arc))
+                        {
+                            int a = arc.idx;
+                            c_17->SetCoefficient(x_bar_[t][i][a][h], 1);
+                        }
                     }
                 }
             }
@@ -953,7 +956,7 @@ int ModelORTools::execute_solver_for_full_model(Data &data) // return 1 if the s
     solver->SetSolverSpecificParametersAsString(params);
     // solver->SetSolverSpecificParametersAsString("log_to_console=true");
     // solver->SetSolverSpecificParametersAsString("log_file=highs_log.txt");
-    // solver->EnableOutput();
+    solver->EnableOutput();
 
     auto start = chrono::steady_clock::now();
     const MPSolver::ResultStatus result_status = solver->Solve();

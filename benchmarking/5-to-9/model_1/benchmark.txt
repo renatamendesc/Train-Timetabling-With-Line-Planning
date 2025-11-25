@@ -1,30 +1,30 @@
 t2p5r2h1.txt:
     -> Solution value = 31922
-    -> Total time = 12.1683
+    -> Total time = 7.52976
         -> Could not prove optimality!
 
 t2p6r7h3.txt:
     -> Solution value = 42078
-    -> Total time = 22.6322
+    -> Total time = 13.8172
         -> Could not prove optimality!
 
 t2p7r8h1.txt:
     -> Solution value = 17570
-    -> Total time = 87.8722
+    -> Total time = 54.3253
         -> Could not prove optimality!
 
 t2p8r2h2.txt:
     -> Solution value = 20078
-    -> Total time = 10.1725
+    -> Total time = 6.16105
         -> Could not prove optimality!
 
 t2p9r2h3.txt:
     -> Solution value = 37235
-    -> Total time = 442.386
+    -> Total time = 271.116
         -> Could not prove optimality!
 
 t3p5r7h1.txt:
-    -> Solution value = 7731
-    -> Total time = 40.6971
+    -> Solution value = 7730
+    -> Total time = 24.6788
         -> Could not prove optimality!
 

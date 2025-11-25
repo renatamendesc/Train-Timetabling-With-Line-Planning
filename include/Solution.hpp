@@ -40,6 +40,9 @@ class Solution
 
         void display_routes_combination(Data &data);
         void display_solution(Data &data);
+        void display_variables_values(Data &data);
+
+        void create_graph(Data &data, std::string method, int nb_threads);
     
     private:
         std::string convert_time(int seconds);
