@@ -257,7 +257,7 @@ void ModelORTools::add_constraints(Data &data)
                             int v = data.get_point_vertices(p)[0];
 
                             string name = "max_gap_between_departures_upper(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(v) + ")";
-                            MPConstraint* c_2 = solver->MakeRowConstraint(-solver->infinity(), 0, name.c_str());
+                            MPConstraint* c_2 = solver->MakeRowConstraint(-solver->infinity(), 0.0, name.c_str());
                             c_2->SetCoefficient(z_, -1);
                             c_2->SetCoefficient(y_[t][i][v], 1);
                             c_2->SetCoefficient(y_[l][j][v], -1);
@@ -265,7 +265,7 @@ void ModelORTools::add_constraints(Data &data)
                             v = data.get_point_vertices(p)[1];
 
                             name = "max_gap_between_departures_lower(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(v) + ")";
-                            c_2 = solver->MakeRowConstraint(-solver->infinity(), 0, name.c_str());
+                            c_2 = solver->MakeRowConstraint(-solver->infinity(), 0.0, name.c_str());
                             c_2->SetCoefficient(z_, -1);
                             c_2->SetCoefficient(y_[t][i][v], 1);
                             c_2->SetCoefficient(y_[l][j][v], -1);
@@ -287,7 +287,7 @@ void ModelORTools::add_constraints(Data &data)
                 // x_[t][i][a] == expr
 
                 string name = "associate_x_and_x_bar(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(a) + ")";
-                MPConstraint* c_3 = solver->MakeRowConstraint(0, 0, name.c_str());
+                MPConstraint* c_3 = solver->MakeRowConstraint(0.0, 0.0, name.c_str());
                 c_3->SetCoefficient(x_[t][i][a], -1);
                 for (int h = 0; h < data.get_nb_intervals(); h++)
                 {
@@ -307,7 +307,7 @@ void ModelORTools::add_constraints(Data &data)
                 // x_[t][i][a] == expr
 
                 string name = "associate_routes_with_arcs(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(a) + ")";
-                MPConstraint* c_4 = solver->MakeRowConstraint(0, 0, name.c_str());
+                MPConstraint* c_4 = solver->MakeRowConstraint(0.0, 0.0, name.c_str());
                 c_4->SetCoefficient(x_[t][i][a], -1);
                 for (int r = 0; r < data.get_nb_routes(); r++)
                 {
@@ -328,7 +328,7 @@ void ModelORTools::add_constraints(Data &data)
             // expr <= 1
 
             string name = "associate_trip_with_route(" + to_string(t) + ")(" + to_string(i) + ")";
-            MPConstraint* c_5 = solver->MakeRowConstraint(-solver->infinity(), 1, name.c_str());
+            MPConstraint* c_5 = solver->MakeRowConstraint(-solver->infinity(), 1.0, name.c_str());
             for (int r = 0; r < data.get_nb_routes(); r++)
             {
                 if (data.is_valid_route(t, i, r))
@@ -357,7 +357,7 @@ void ModelORTools::add_constraints(Data &data)
 
                                 // lambda_[t][i][r1] + lambda_[t][i - 1][r2] <= 1
                                 string name = "incompatible_routes(" + to_string(t) + ")(" + to_string(i - 1) + ")(" + to_string(i) + ")(" + to_string(r1) + ")(" + to_string(r2) + ")";
-                                MPConstraint* c_6 = solver->MakeRowConstraint(-solver->infinity(), 1, name.c_str());
+                                MPConstraint* c_6 = solver->MakeRowConstraint(-solver->infinity(), 1.0, name.c_str());
                                 c_6->SetCoefficient(lambda_[t][i][r1], 1);
                                 c_6->SetCoefficient(lambda_[t][i - 1][r2], 1);
                             }
@@ -376,7 +376,7 @@ void ModelORTools::add_constraints(Data &data)
             // expr1 <= expr2
 
             string name = "subseq_trips(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(i - 1) + ")";
-            MPConstraint* c_7 = solver->MakeRowConstraint(0, solver->infinity(), name.c_str());
+            MPConstraint* c_7 = solver->MakeRowConstraint(0.0, solver->infinity(), name.c_str());
             for (int r = 0; r < data.get_nb_routes(); r++)
             {
                 if (data.is_valid_route(t, i, r))
@@ -412,7 +412,7 @@ void ModelORTools::add_constraints(Data &data)
                         // BIG_M * 2 >= y_bar[t][i - 1][v] + BIG_M * (expr1 + expr2) - y_[t][i][k] >= -inf
 
                         string name = "connect_trips(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(k) + ")";
-                        MPConstraint* c_8 = solver->MakeRowConstraint(-solver->infinity(), 2*BIG_M, name.c_str());
+                        MPConstraint* c_8 = solver->MakeRowConstraint(-solver->infinity(), 2.0*BIG_M, name.c_str());
                         c_8->SetCoefficient(y_bar_[t][i - 1][v], 1);
                         c_8->SetCoefficient(y_[t][i][k], -1);
                         for (int r = 0; r < data.get_nb_routes(); r++)
@@ -535,7 +535,7 @@ void ModelORTools::add_constraints(Data &data)
 
                 // max time for outgoing vertices
                 string name = "max_time_out(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")";
-                MPConstraint* c_13 = solver->MakeRowConstraint(0, solver->infinity(), name.c_str());
+                MPConstraint* c_13 = solver->MakeRowConstraint(0.0, solver->infinity(), name.c_str());
                 c_13->SetCoefficient(y_[t][i][v], -1);
                 for (auto arc : data.get_vertex_out_arcs(v))
                 {
@@ -546,7 +546,7 @@ void ModelORTools::add_constraints(Data &data)
 
                 // max time for incoming vertices
                 name = "max_time_inc(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")";
-                MPConstraint* c_14 = solver->MakeRowConstraint(0, solver->infinity(), name.c_str());
+                MPConstraint* c_14 = solver->MakeRowConstraint(0.0, solver->infinity(), name.c_str());
                 c_14->SetCoefficient(y_bar_[t][i][v], -1);
                 for (auto arc : data.get_vertex_inc_arcs(v))
                 {
@@ -572,25 +572,28 @@ void ModelORTools::add_constraints(Data &data)
 
                     for (auto arc : data.get_vertex_out_arcs(v))
                     {
-                        // y_[t][i][v] >= h_start - BIG_M * (1 - x_bar_[t][i][a][h])
-                        // 0 >= h_start - BIG_M * (1 - x_bar_[t][i][a][h]) - y_[t][i][v] >= -inf
-                        // 0 >= h_start - BIG_M + BIG_M * x_bar_[t][i][a][h] - y_[t][i][v] >= -inf
-                        // -h_start + BIG_M >= BIG_M * x_bar_[t][i][a][h] - y_[t][i][v] >= -inf
 
                         int a = arc.idx;
+
+                        // y_[t][i][v] >= h_start - BIG_M * (1 - x_bar_[t][i][a][h])
+                        // y_[t][i][v] >= h_start - BIG_M + BIG_M * x_bar_[t][i][a][h]
+                        // y_[t][i][v] - BIG_M * x_bar_[t][i][a][h] >= h_start - BIG_M
+                        // inf >= y_[t][i][v] - BIG_M * x_bar_[t][i][a][h] >= h_start - BIG_M
+
                         string name = "intervals_start(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(h) + ")";
-                        MPConstraint* c_15 = solver->MakeRowConstraint(-solver->infinity(), -h_start + BIG_M, name.c_str());
-                        c_15->SetCoefficient(y_[t][i][v], -1);
-                        c_15->SetCoefficient(x_bar_[t][i][a][h], BIG_M);
-
+                        MPConstraint* c_15 = solver->MakeRowConstraint(h_start - BIG_M, solver->infinity(), name.c_str());
+                        c_15->SetCoefficient(y_[t][i][v], 1);
+                        c_15->SetCoefficient(x_bar_[t][i][a][h], -BIG_M);
+                        
+    
                         // y_[t][i][v] <= h_final + BIG_M * (1 - x_bar_[t][i][a][h])
-                        // 0 <= h_final + BIG_M * (1 - x_bar_[t][i][a][h]) - y_[t][i][v] <= inf
-                        // 0 <= h_final + BIG_M - BIG_M * x_bar_[t][i][a][h] - y_[t][i][v] <= inf
-                        // -h_final - BIG_M <= BIG_M * x_bar_[t][i][a][h] - y_[t][i][v] <= inf
-
+                        // y_[t][i][v] <= h_final + BIG_M - BIG_M * x_bar_[t][i][a][h]
+                        // y_[t][i][v] + BIG_M * x_bar_[t][i][a][h] <= h_final + BIG_M
+                        // -inf <= y_[t][i][v] + BIG_M * x_bar_[t][i][a][h] <= h_final + BIG_M
+                        
                         name = "intervals_final(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(h) + ")";
-                        MPConstraint* c_16 = solver->MakeRowConstraint(-h_final - BIG_M, solver->infinity(), name.c_str());
-                        c_16->SetCoefficient(y_[t][i][v], -1);
+                        MPConstraint* c_16 = solver->MakeRowConstraint(-solver->infinity(), h_final + BIG_M, name.c_str());
+                        c_16->SetCoefficient(y_[t][i][v], 1);
                         c_16->SetCoefficient(x_bar_[t][i][a][h], BIG_M);
                     }
                 }
@@ -603,7 +606,6 @@ void ModelORTools::add_constraints(Data &data)
     {
         for (int h = 0; h < data.get_nb_intervals(); h++)
         {
-
             // expr >= data.get_demands()[v][h]
             // inf >= expr >= data.get_demands()[v][h]
 
@@ -649,7 +651,7 @@ void ModelORTools::add_constraints(Data &data)
                             // 0 <= expr1 - w_[t][i][v][l][j][k] <= inf
     
                             string name = "link_w_and_x1(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")";
-                            MPConstraint* c_18 = solver->MakeRowConstraint(0, solver->infinity(), name.c_str());
+                            MPConstraint* c_18 = solver->MakeRowConstraint(0.0, solver->infinity(), name.c_str());
                             c_18->SetCoefficient(w_[t][i][v][l][j][k], -1);
                             for (auto arc : data.get_vertex_out_arcs(v))
                             {
@@ -664,7 +666,7 @@ void ModelORTools::add_constraints(Data &data)
                             // 0 <= expr2 - w_[t][i][v][l][j][k] <= inf
                             // expr2 >= w_[t][i][v][l][j][k]
                             name = "link_w_and_x2(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")";
-                            MPConstraint* c_19 = solver->MakeRowConstraint(0, solver->infinity(), name.c_str());
+                            MPConstraint* c_19 = solver->MakeRowConstraint(0.0, solver->infinity(), name.c_str());
                             c_19->SetCoefficient(w_[t][i][v][l][j][k], -1);
                             for (auto arc : data.get_vertex_out_arcs(k))
                             {
@@ -679,7 +681,7 @@ void ModelORTools::add_constraints(Data &data)
                             // 1 >= expr1 + expr2 - w_[t][i][v][l][j][k] - w_[l][j][k][t][i][v] >= -inf
 
                             name = "link_w_and_x3(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")(" + to_string(k) + ")";
-                            MPConstraint* c_20 = solver->MakeRowConstraint(-solver->infinity(), 1, name.c_str());
+                            MPConstraint* c_20 = solver->MakeRowConstraint(-solver->infinity(), 1.0, name.c_str());
                             c_20->SetCoefficient(w_[t][i][v][l][j][k], -1);
                             c_20->SetCoefficient(w_[l][j][k][t][i][v], -1);
                             for (auto arc : data.get_vertex_out_arcs(v))
@@ -723,7 +725,7 @@ void ModelORTools::add_constraints(Data &data)
                             // 0 <= expr1 - u_[t][i][l][j][v] <= inf
 
                             string name = "link_u_and_x1(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")";
-                            MPConstraint* c_21 = solver->MakeRowConstraint(0, solver->infinity(), name.c_str());
+                            MPConstraint* c_21 = solver->MakeRowConstraint(0.0, solver->infinity(), name.c_str());
                             c_21->SetCoefficient(u_[t][i][l][j][v], -1);
                             for (auto arc : data.get_vertex_out_arcs(v))
                             {
@@ -735,7 +737,7 @@ void ModelORTools::add_constraints(Data &data)
                             // 0 <= expr2 - u_[t][i][l][j][v] <= inf
 
                             name = "link_u_and_x2(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")";
-                            MPConstraint* c_22 = solver->MakeRowConstraint(0, solver->infinity(), name.c_str());
+                            MPConstraint* c_22 = solver->MakeRowConstraint(0.0, solver->infinity(), name.c_str());
                             c_22->SetCoefficient(u_[t][i][l][j][v], -1);
                             for (auto arc : data.get_vertex_out_arcs(v))
                             {
@@ -746,7 +748,7 @@ void ModelORTools::add_constraints(Data &data)
                             // u_[t][i][l][j][v] + u_[l][j][t][i][v] >= expr1 + expr2 - 1
                             // 1 >= expr1 + expr2 - u_[t][i][l][j][v] - u_[l][j][t][i][v] >= -inf
                             name = "link_u_and_x3(" + to_string(t) + ")(" + to_string(i) + ")(" + to_string(v) + ")(" + to_string(l) + ")(" + to_string(j) + ")";
-                            MPConstraint* c_23 = solver->MakeRowConstraint(-solver->infinity(), 1, name.c_str());
+                            MPConstraint* c_23 = solver->MakeRowConstraint(-solver->infinity(), 1.0, name.c_str());
                             c_23->SetCoefficient(u_[t][i][l][j][v], -1);
                             c_23->SetCoefficient(u_[l][j][t][i][v], -1);
                             for (auto arc : data.get_vertex_out_arcs(v))
@@ -948,7 +950,6 @@ void ModelORTools::get_value_of_variables(Data &data)
 int ModelORTools::execute_solver_for_full_model(Data &data) // return 1 if the solver found a solution, 0 otherwise
 {
     // setting parameters
-
     std::string params = "time_limit = 43200\n"
     "threads = 1\n"
     "log_to_console = true\n"

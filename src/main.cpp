@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     Data data(argv[1]);
-    // data.print_data();
+    data.print_data();
 
     // read method
     if (argc < 3)
@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
         model.create_full_model(data);
         model.execute_solver_for_full_model(data);
         model.get_value_of_variables(data);
+        std::cout << std::fixed << std::setprecision(4);
         std::cout << std::endl << "-> Total time = " << double(model.current_sol.computational_time.count()) << std::endl;
         model.current_sol.display_solution(data);
         // model.current_sol.display_variables_values(data);

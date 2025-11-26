@@ -65,6 +65,35 @@ void Solution::display_routes_combination(Data &data)
 
 void Solution::display_variables_values(Data &data)
 {
+    // x values
+    cout << "x values:" << endl;
+    for (int t = 0; t < data.get_nb_trains(); t++)
+    {
+        for (int i = 0; i < data.get_train_max_trips(t); i++)
+        {
+            for (int a = 0; a < data.get_nb_arcs(); a++)
+            {
+                cout << "x[" << t << "][" << i << "][" << a << "] == " << x_values_[t][i][a] << endl;
+            }
+        }
+    }
+    cout << endl;
+    // x bar values
+    cout << "x bar values:" << endl;
+    for (int t = 0; t < data.get_nb_trains(); t++)
+    {
+        for (int i = 0; i < data.get_train_max_trips(t); i++)
+        {
+            for (int a = 0; a < data.get_nb_arcs(); a++)
+            {
+                for (int h = 0; h < data.get_nb_intervals(); h++)
+                {
+                    cout << "x_bar[" << t << "][" << i << "][" << a << "][" << h << "] == " << x_bar_values_[t][i][a][h] << endl;
+                }
+            }
+        }
+    }
+    cout << endl;
     // y values
     cout << "y values:" << endl;
     for (int t = 0; t < data.get_nb_trains(); t++)
