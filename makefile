@@ -1,5 +1,3 @@
-# Makefile com OR-Tools e HiGHS
-
 # Compilador
 CXX = g++
 CXXFLAGS = -std=c++17 -O2 -pthread -fopenmp
@@ -34,6 +32,7 @@ LIBS = -Wl,-rpath,$(ORTOOLS)/lib \
        -labsl_log_initialize \
        -labsl_log_internal_nullguard \
        -labsl_time \
+       -labsl_log_internal_check_op \
        -labsl_int128 \
        -labsl_string_view \
        -labsl_statusor \
