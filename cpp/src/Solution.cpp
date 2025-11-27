@@ -209,7 +209,7 @@ void Solution::create_graph(Data &data, string method, int nb_threads)
 
     // calls python script to generate graph of the solution
     string command = "python3 ";
-    string file_name = "script-graph.py ";
+    string file_name = "../script-graph.py ";
     string instance = "\"" + data.get_instance_set() + "/" + method + "_" + to_string(nb_threads) + "/" + data.get_instance_name() + "\"";
     command += (file_name + instance);
     system(command.c_str());

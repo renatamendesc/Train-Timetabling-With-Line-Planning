@@ -48,3 +48,9 @@ rename-instances.py
 
 # files .log
 *.log
+
+# python venv
+venv/
+
+# python pycache
+python/__pycache__/
