@@ -1,6 +1,7 @@
 import sys
 import psutil
 from data import Data
+from model import ModelTrainTimetabling
 
 def main():
     # read instance
@@ -11,7 +12,7 @@ def main():
     data = Data(instance_path)
     data.read_data()
     data.print_data()
-    
+
     # read method
     if len(sys.argv) < 3:
         print("Error: Method not provided!")
@@ -38,15 +39,10 @@ def main():
 
     # execute selected method
     if method == "model":
-        print("Going to execute the model...")
-        # model = ModelORTools()
-        # model.initialize(data, 1)
-        # model.create_full_model(data)
-        # model.execute_solver_for_full_model(data)
-        # model.get_value_of_variables(data)
-        # print(f"\n-> Total time = {model.current_sol.computational_time:.4f}")
-        # model.current_sol.display_solution(data)
-        # model.current_sol.create_graph(data, method, 1)
+        model = ModelTrainTimetabling(data, threads, 43200)
+        model.initialize()
+        model.create_full_model()
+        model.execute_solver_for_full_model()
 
     elif method == "enum":
         print("Going to execute the enumeration...")

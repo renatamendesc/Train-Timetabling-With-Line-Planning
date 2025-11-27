@@ -97,7 +97,17 @@ class Data:
         if trip_idx == 0:
             return self.vertex_to_point[self.route_arcs[route_idx][0]["out"]] == self.initial_point
         return True
-
+    def arc_belongs_to_route(self, route_idx, arc_idx):
+        for arc in self.route_arcs[route_idx]:
+            if arc["idx"] == arc_idx:
+                return True
+        return False
+    
+    def get_vertex_out_arcs(self, vertex):
+        return self.vertex_out_arcs[vertex]
+    def get_vertex_inc_arcs(self, vertex):
+        return self.vertex_inc_arcs[vertex]
+    
     # =====================================================================
     #            Methods to store data from arcs and inc points
     # =====================================================================

@@ -1,0 +1,14 @@
+# Python dependencies for Train-Timetabling project
+# 
+# Note: We use mip from GitHub (not PyPI) because it has HiGHS support
+# The version on PyPI (1.15.0) does not support HiGHS natively
+
+# MIP solver library (from GitHub for HiGHS support)
+git+https://github.com/coin-or/python-mip.git
+
+# HiGHS solver interface
+highspy
+
+# System and process utilities
+psutil
+
