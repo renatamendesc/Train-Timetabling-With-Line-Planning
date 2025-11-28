@@ -2,6 +2,7 @@ import sys
 import psutil
 from data import Data
 from model import ModelTrainTimetabling
+from enumeration import Enumeration
 
 def main():
     # read instance
@@ -41,12 +42,12 @@ def main():
     if method == "model":
         model = ModelTrainTimetabling(data, threads, 43200)
         model.initialize()
-        model.create_full_model()
+        model.add_constraints()
         model.execute_solver_for_full_model()
 
     elif method == "enum":
-        print("Going to execute the enumeration...")
-        # Enumeration(data, threads, 43200, 3600)
+        enumeration = Enumeration(data, threads, 43200, 1200)
+        enumeration.execute_enumeration()
 
     elif method == "heuristic":
         print("Going to execute the heuristic...")

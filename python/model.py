@@ -4,14 +4,16 @@ from solution import Solution
 class ModelTrainTimetabling:
     BIG_M = 100000
 
-    def __init__(self, data, threads, time_limit):
+    def __init__(self, data, threads, time_limit, time_limit_per_combination):
         self.data = data
         self.nb_threads = threads
         self.model = None
+
         self.time_limit = time_limit
+        self.time_limit_per_combination = time_limit_per_combination
 
         # solution object
-        self.solution = Solution()
+        self.best_solution = Solution()
 
         # decision variables
         self.z_ = None
@@ -25,15 +27,38 @@ class ModelTrainTimetabling:
 
     def initialize(self):
         self.model = Model(solver_name='HiGHS')
-
-    def create_full_model(self):
-        print("Creating model...")
         # create variables
         self.add_variables()
         # create objective function
         self.model.objective = minimize(self.z_)
+
+    def reset(self):
+        self.model.remove(self.model.constrs)
+
+    def create_model_for_combination(self, routes_of_trains):
         # create constraints
         self.add_constraints()
+        self.add_routes_constraints(routes_of_trains)
+
+    def add_routes_constraints(self, routes_of_trains):
+        # create routes constraints
+        for t in range(len(routes_of_trains)):
+            current = routes_of_trains[t]
+            for i in range(len(current)):
+                if i < self.data.train_max_trips[t]:
+
+                    # if trip is not made
+                    if current[i] == self.data.nb_routes:
+                        # set all lambda to zero
+                        for r in range(self.data.nb_routes):
+                            if self.data.is_valid_route(t, i, r):
+                                self.model += self.lambda_[t][i][r] == 0
+
+                    # if a valid route exists for this trip
+                    elif current[i] != -1:
+                        if data.is_valid_route(t, i, current[i]):
+                            # set route to 1
+                            model += lambda_[t][i][current[i]] == 1
 
     def add_variables(self):
         self.x_ = [
@@ -550,27 +575,53 @@ class ModelTrainTimetabling:
         ]
 
     def execute_solver_for_full_model(self):
-
         # setting parameters
         self.model.threads = self.nb_threads
 
         status = self.model.optimize(max_seconds=self.time_limit)
-        if status in [OptimizationStatus.OPTIMAL, OptimizationStatus.FEASIBLE]:
-            self.solution.obj_value = self.model.objective_value
+        if status in [OptimizationStatus.INFEASIBLE, OptimizationStatus.NO_SOLUTION_FOUND]:
+            print("Could not find a feasible solution!")
+            return False
 
-            # calculate gap value
-            best_bound = self.model.objective_bound # lower bound
-            if self.solution.obj_value != 0:
-                self.solution.gap_value = abs(best_bound - self.solution.obj_value) / abs(self.solution.obj_value)
-            else:
-                self.solution.gap_value = None # not a valid gap value
+        # a feasible solution was found
+        self.best_solution.obj_value = self.model.objective_value
+        self.get_gap_value()
+        self.store_value_of_variables()
+        self.best_solution.feasible = True
 
-            self.store_value_of_variables()
-            self.solution.feasible = True
+        if status == OptimizationStatus.OPTIMAL:
+            self.best_solution.proven_optimal = True
 
-            if status == OptimizationStatus.OPTIMAL:
-                self.solution.proven_optimal = True
+        self.best_solution.display_solution(self.data)
+        return True
 
-            self.solution.display_solution(self.data)
+    def execute_solver_for_combination(self, method):
+
+        # setting parameters
+        self.model.threads = 1
+
+        status = self.model.optimize(max_seconds=self.time_limit_per_combination)
+        if status in [OptimizationStatus.INFEASIBLE, OptimizationStatus.NO_SOLUTION_FOUND]:
+            return False
+
+        # a feasible solution was found
+        if method == "enum":
+            if self.best_solution.obj_value < self.model.objective_value:
+                self.best_solution.obj_value = self.model.objective_value
+                self.store_value_of_variables()
+                self.best_solution.feasible = True
+
+                if status == OptimizationStatus.OPTIMAL:
+                    self.best_solution.proven_optimal = True
+            return True
+        
+        if method == "heuristic":
+            return True
+
+    def get_gap_value(self):
+        # calculate gap value
+        best_bound = self.model.objective_bound # lower bound
+        if self.best_solution.obj_value != 0:
+            self.best_solution.gap_value = abs(best_bound - self.best_solution.obj_value) / abs(self.best_solution.obj_value)
         else:
-            print("Could not find a feasiblesolution!")
+            self.best_solution.gap_value = None # not a valid gap value

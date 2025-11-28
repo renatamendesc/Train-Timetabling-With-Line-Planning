@@ -41,7 +41,6 @@ void Enumeration::execute_enumeration(Data &data)
         {
             total_nb_combinations *= comb.all_trips_combinations[i].size(); 
         }
-    
         cout << endl << "Starting to test combinations... - Total number of combinations = " << total_nb_combinations << endl;
         execute_all_combinations(data);
     }
