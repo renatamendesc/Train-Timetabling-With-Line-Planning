@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from threading import Lock
 
 ULLONG_MAX = (1 << 64) - 1
 
@@ -8,19 +9,10 @@ class Combinations:
         self.data = data
 
         self.all_trips_combinations = None
+        self.unique_combinations = set()
+        self.lock = Lock()
 
-    def check_trips_feasibility(self, seq):
-
-        # seq: represents a sequence of trips a single train can complete
-        route_not_completed = self.data.nb_routes
-
-        # verify whether first route starts at the initial depot
-        if seq[0] != route_not_completed:
-            if not self.data.is_valid_route(0, 0, seq[0]):
-                return False
-        else:
-            return False
-
+    def verify_sequence_feasibility(self, seq, route_not_completed):
         flag = False  # flag to tell whether train completes any trips during the day
         last_idx = len(seq) - 1
         for i in range(last_idx):
@@ -39,6 +31,20 @@ class Combinations:
                     return False
 
         return flag
+        
+    def check_trips_feasibility(self, seq):
+
+        # seq: represents a sequence of trips a single train can complete
+        route_not_completed = self.data.nb_routes
+
+        # verify whether first route starts at the initial depot
+        if seq[0] != route_not_completed:
+            if not self.data.is_valid_route(0, 0, seq[0]):
+                return False
+        else:
+            return False
+
+        return self.verify_sequence_feasibility(seq, route_not_completed)
 
     def generate_trips_combinations(self, total, max_trips):
 
@@ -82,5 +88,56 @@ class Combinations:
             total = (self.data.nb_routes + 1) ** max_trips
             self.all_trips_combinations[i] = self.generate_trips_combinations(total,max_trips)
             computed[max_trips] = self.all_trips_combinations[i]
+
+    def normalize_combination(self, combination):
+        nb_routes = self.data.nb_routes
+
+        # ensure all dimensions have the same size
+        max_trips = self.data.max_nb_trips
+        for i in range(len(combination)):
+            # convert numpy array to list if needed
+            if isinstance(combination[i], np.ndarray):
+                combination[i] = combination[i].tolist()
+            while len(combination[i]) < max_trips:
+                combination[i].append(nb_routes)
+
+        # create a normalized copy
+        normalized_combination = sorted((tuple(row) for row in combination))
+        normalized_tuple = tuple(normalized_combination)
+
+        # insert with thread safety
+        with self.lock:
+            if normalized_tuple in self.unique_combinations:
+                return False  # already seen
+            self.unique_combinations.add(normalized_tuple)
+        return True  # a new combination
+
+    def verify_daily_demands(self, combination):
+
+        times_vertex_was_visited = [0] * self.data.get_nb_vertices()
+        for i in range(len(combination)):
+            for j in range(len(combination[i])):
+                if combination[i][j] != self.data.nb_routes and combination[i][j] != -1:
+                    route = combination[i][j]
+                    for vertex in self.data.route_vertices[route]:
+                        times_vertex_was_visited[vertex] += 1
+
+        # if any demand was not met, invalid combination
+        for i in range(self.data.get_nb_vertices()):
+            if times_vertex_was_visited[i] < self.data.demand_per_day[i]:
+                return False
+
+        return True
+
+    def is_valid_combination(self, combination):
+
+        if not self.normalize_combination(combination):
+            return False
+
+        if not self.verify_daily_demands(combination):
+            return False
+
+        return True
+
 
 

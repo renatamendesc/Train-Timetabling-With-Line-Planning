@@ -1,0 +1,4 @@
+t3p16r6h1:
+-> Total time = 7467.45
+-> Solution value = 40360
+-> Gap value = 0

@@ -400,6 +400,12 @@ class Data:
             vals = list(map(int, file.readline().split()))
             self.demands.append(vals)
 
+        # calculate demand per day for each vertex
+        self.demand_per_day = [0] * nb_vertices
+        for i in range(nb_vertices):
+            for j in range(self.get_nb_intervals()):
+                self.demand_per_day[i] += self.demands[i][j]
+
         # --- max_time ---
         print("   > Reading maximum time...")
         skip_hash_line()

@@ -1,5 +1,6 @@
 from mip import Model, xsum, BINARY, minimize, OptimizationStatus
 from solution import Solution
+import os
 
 class ModelTrainTimetabling:
     BIG_M = 100000
@@ -25,40 +26,49 @@ class ModelTrainTimetabling:
         self.w_ = None
         self.u_ = None
 
+        # constraints sets
+        self.routes_constraints = []
+
     def initialize(self):
         self.model = Model(solver_name='HiGHS')
         # create variables
         self.add_variables()
         # create objective function
         self.model.objective = minimize(self.z_)
+        # add general constraints
+        self.add_constraints()
 
     def reset(self):
-        self.model.remove(self.model.constrs)
+        # remove constraints one by one
+        for constr in self.routes_constraints:
+            self.model.remove(constr)
+        self.routes_constraints.clear()
 
     def create_model_for_combination(self, routes_of_trains):
-        # create constraints
-        self.add_constraints()
         self.add_routes_constraints(routes_of_trains)
 
     def add_routes_constraints(self, routes_of_trains):
+        self.routes_constraints = []
         # create routes constraints
         for t in range(len(routes_of_trains)):
             current = routes_of_trains[t]
             for i in range(len(current)):
-                if i < self.data.train_max_trips[t]:
+                if i < self.data.max_trips_per_train[t]:
 
                     # if trip is not made
                     if current[i] == self.data.nb_routes:
                         # set all lambda to zero
                         for r in range(self.data.nb_routes):
                             if self.data.is_valid_route(t, i, r):
-                                self.model += self.lambda_[t][i][r] == 0
+                                constr = self.model.add_constr(self.lambda_[t][i][r] == 0, name=f"route_lambda_zero({t})({i})({r})")
+                                self.routes_constraints.append(constr)
 
                     # if a valid route exists for this trip
                     elif current[i] != -1:
-                        if data.is_valid_route(t, i, current[i]):
+                        if self.data.is_valid_route(t, i, current[i]):
                             # set route to 1
-                            model += lambda_[t][i][current[i]] == 1
+                            constr = self.model.add_constr(self.lambda_[t][i][current[i]] == 1, name=f"route_lambda_one({t})({i})({current[i]})")
+                            self.routes_constraints.append(constr)
 
     def add_variables(self):
         self.x_ = [
@@ -162,7 +172,6 @@ class ModelTrainTimetabling:
         self.z_ = self.model.add_var(lb=0, ub=float("inf"), name="z")
 
     def add_constraints(self):
-
         # constraints to get value of z (2)
         for t in range(self.data.nb_trains):
             for i in range(self.data.max_trips_per_train[t]):
@@ -500,14 +509,14 @@ class ModelTrainTimetabling:
                                 )
 
     def store_value_of_variables(self):
-        self.solution.x_values = [
+        self.best_solution.x_values = [
             [
                 [self.x_[t][i][a].x for a in range(len(self.x_[t][i]))]
                 for i in range(len(self.x_[t]))
             ]
             for t in range(len(self.x_))
         ]
-        self.solution.x_bar_values = [
+        self.best_solution.x_bar_values = [
             [
                 [
                     [self.x_bar_[t][i][a][h].x for h in range(len(self.x_bar_[t][i][a]))]
@@ -517,21 +526,21 @@ class ModelTrainTimetabling:
             ]
             for t in range(len(self.x_bar_))
         ]
-        self.solution.y_values = [
+        self.best_solution.y_values = [
             [
                 [self.y_[t][i][v].x for v in range(len(self.y_[t][i]))]
                 for i in range(len(self.y_[t]))
             ]
             for t in range(len(self.y_))
         ]
-        self.solution.y_bar_values = [
+        self.best_solution.y_bar_values = [
             [   
                 [self.y_bar_[t][i][v].x for v in range(len(self.y_bar_[t][i]))]
                 for i in range(len(self.y_bar_[t]))
             ]
             for t in range(len(self.y_bar_))
         ]
-        self.solution.lambda_values = [
+        self.best_solution.lambda_values = [
             [
                 [self.lambda_[t][i][r].x for r in range(len(self.lambda_[t][i]))]
                 for i in range(len(self.lambda_[t]))
@@ -592,21 +601,21 @@ class ModelTrainTimetabling:
         if status == OptimizationStatus.OPTIMAL:
             self.best_solution.proven_optimal = True
 
-        self.best_solution.display_solution(self.data)
         return True
 
     def execute_solver_for_combination(self, method):
-
         # setting parameters
         self.model.threads = 1
+        self.model.verbose = 0
 
         status = self.model.optimize(max_seconds=self.time_limit_per_combination)
+        
         if status in [OptimizationStatus.INFEASIBLE, OptimizationStatus.NO_SOLUTION_FOUND]:
             return False
 
         # a feasible solution was found
         if method == "enum":
-            if self.best_solution.obj_value < self.model.objective_value:
+            if self.model.objective_value < self.best_solution.obj_value:
                 self.best_solution.obj_value = self.model.objective_value
                 self.store_value_of_variables()
                 self.best_solution.feasible = True

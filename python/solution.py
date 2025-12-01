@@ -16,11 +16,22 @@ class Solution:
         self.w_values = None
         self.u_values = None
 
+        # routes combination
+        self.routes_combination = None
+
+    def extract_routes_combination(self, data):
+        self.routes_combination = []
+        for t in range(self.data.nb_trains):
+            for i in range(self.data.max_trips_per_train[t]):
+                for r in range(self.data.nb_routes):
+                    if self.lambda_values[t][i][r] > 0:
+                        routes_combination.append(r)
+
     def display_value_of_variables(self):
         pass
 
     def display_solution(self, data):
-        print("\n-> Solution value =", self.obj_value)
+        print("\n-> Solution value =", round(self.obj_value))
         print("-> Gap value =", self.gap_value)
         print()
 
