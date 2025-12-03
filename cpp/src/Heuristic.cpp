@@ -13,7 +13,7 @@ Heuristic::Heuristic(Data &data, int nb_threads, int time_limit_complete, int ti
     execute_heuristic(data);
     end = chrono::steady_clock::now();
 
-    cout << endl << "-> Total time = " << chrono::duration<double>(end-start).count() << endl;
+    cout << endl << "-> Total time = " << setprecision(3) << chrono::duration<double>(end-start).count() << endl;
     if (!overall_best_sol.feasible)
     {
         cout << "No feasible solution was found with heuristic method!" << endl;
@@ -28,6 +28,7 @@ Heuristic::Heuristic(Data &data, int nb_threads, int time_limit_complete, int ti
 void Heuristic::execute_heuristic(Data &data)
 {
     create_initial_candidates(data);
+    display_candidates_combinations();
     cout << "Solving initial candidates..." << endl;
     solve_initial_candidates(data);
     while (improved_sol)
@@ -49,6 +50,7 @@ void Heuristic::execute_heuristic(Data &data)
             break;
 
         cout << "Updating candidates - iter = " << iter << endl;
+        display_candidates_combinations();
 
         // update candidates with subsets
         execute_candidate_combinations(data);
@@ -368,6 +370,7 @@ void Heuristic::unfix_trips_from_all_candidates (Data &data)
 
 void Heuristic::display_candidates_combinations()
 {
+    cout << "Nb candidate combinations: " << candidate_combinations.size() << endl;
     for (int i = 0; i < candidate_combinations.size(); i++)
     {
         cout << "Combination " << i+1 << ": " << endl;
@@ -380,7 +383,7 @@ void Heuristic::display_candidates_combinations()
             }
             cout << endl;
         }
-        cout << endl << endl;
+        cout << endl;
     }
 }
 

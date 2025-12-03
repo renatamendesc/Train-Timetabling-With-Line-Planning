@@ -36,6 +36,10 @@ class Enumeration
 
         std::chrono::time_point<std::chrono::steady_clock> start;
         std::chrono::time_point<std::chrono::steady_clock> end;
+        
+        // Profiling variables
+        double total_solver_time = 0.0;
+        unsigned long long int solver_call_count = 0;
 };
 
 #endif

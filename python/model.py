@@ -1,6 +1,7 @@
 from mip import Model, xsum, BINARY, minimize, OptimizationStatus
 from solution import Solution
 import os
+import copy
 
 class ModelTrainTimetabling:
     BIG_M = 100000
@@ -15,6 +16,7 @@ class ModelTrainTimetabling:
 
         # solution object
         self.best_solution = Solution()
+        self.current_solution = Solution()
 
         # decision variables
         self.z_ = None
@@ -509,14 +511,14 @@ class ModelTrainTimetabling:
                                 )
 
     def store_value_of_variables(self):
-        self.best_solution.x_values = [
+        self.current_solution.x_values = [
             [
                 [self.x_[t][i][a].x for a in range(len(self.x_[t][i]))]
                 for i in range(len(self.x_[t]))
             ]
             for t in range(len(self.x_))
         ]
-        self.best_solution.x_bar_values = [
+        self.current_solution.x_bar_values = [
             [
                 [
                     [self.x_bar_[t][i][a][h].x for h in range(len(self.x_bar_[t][i][a]))]
@@ -526,28 +528,28 @@ class ModelTrainTimetabling:
             ]
             for t in range(len(self.x_bar_))
         ]
-        self.best_solution.y_values = [
+        self.current_solution.y_values = [
             [
                 [self.y_[t][i][v].x for v in range(len(self.y_[t][i]))]
                 for i in range(len(self.y_[t]))
             ]
             for t in range(len(self.y_))
         ]
-        self.best_solution.y_bar_values = [
+        self.current_solution.y_bar_values = [
             [   
                 [self.y_bar_[t][i][v].x for v in range(len(self.y_bar_[t][i]))]
                 for i in range(len(self.y_bar_[t]))
             ]
             for t in range(len(self.y_bar_))
         ]
-        self.best_solution.lambda_values = [
+        self.current_solution.lambda_values = [
             [
                 [self.lambda_[t][i][r].x for r in range(len(self.lambda_[t][i]))]
                 for i in range(len(self.lambda_[t]))
             ]
             for t in range(len(self.lambda_))
         ]
-        w_values = [
+        self.current_solution.w_values = [
             [
                 [
                     [
@@ -566,7 +568,7 @@ class ModelTrainTimetabling:
             ]
             for t in range(len(self.w_))
         ]
-        u_values = [
+        self.current_solution.u_values = [
             [
                 [
                     [
@@ -593,13 +595,13 @@ class ModelTrainTimetabling:
             return False
 
         # a feasible solution was found
-        self.best_solution.obj_value = self.model.objective_value
+        self.current_solution.obj_value = self.model.objective_value
         self.get_gap_value()
         self.store_value_of_variables()
-        self.best_solution.feasible = True
+        self.current_solution.feasible = True
 
         if status == OptimizationStatus.OPTIMAL:
-            self.best_solution.proven_optimal = True
+            self.current_solution.proven_optimal = True
 
         return True
 
@@ -609,22 +611,46 @@ class ModelTrainTimetabling:
         self.model.verbose = 0
 
         status = self.model.optimize(max_seconds=self.time_limit_per_combination)
-        
+
         if status in [OptimizationStatus.INFEASIBLE, OptimizationStatus.NO_SOLUTION_FOUND]:
             return False
 
         # a feasible solution was found
         if method == "enum":
             if self.model.objective_value < self.best_solution.obj_value:
-                self.best_solution.obj_value = self.model.objective_value
+                self.current_solution.obj_value = self.model.objective_value
                 self.store_value_of_variables()
-                self.best_solution.feasible = True
+                self.current_solution.feasible = True
 
                 if status == OptimizationStatus.OPTIMAL:
-                    self.best_solution.proven_optimal = True
+                    self.current_solution.proven_optimal = True
+
+                self.best_solution = copy.deepcopy(self.current_solution)
             return True
         
         if method == "heuristic":
+            if self.model.objective_value < self.best_solution.obj_value:
+                self.current_solution.obj_value = self.model.objective_value
+                self.store_value_of_variables()
+                self.current_solution.extract_routes_combination(self.data)
+                self.current_solution.feasible = True
+
+                if status == OptimizationStatus.OPTIMAL:
+                    self.current_solution.proven_optimal = True
+
+                self.best_solution = copy.deepcopy(self.current_solution)
+            elif self.model.objective_value == self.best_solution.obj_value:
+                self.store_value_of_variables()
+                self.current_solution.extract_routes_combination(self.data)
+
+                if self.current_solution.max_nb_repeated_routes > self.best_solution.max_nb_repeated_routes:
+                    self.current_solution.obj_value = self.model.objective_value
+                    self.current_solution.feasible = True
+
+                    if status == OptimizationStatus.OPTIMAL:
+                        self.current_solution.proven_optimal = True
+
+                    self.best_solution = copy.deepcopy(self.current_solution)
             return True
 
     def get_gap_value(self):

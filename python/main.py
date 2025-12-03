@@ -5,6 +5,7 @@ import time
 from data import Data
 from model import ModelTrainTimetabling
 from enumeration import Enumeration
+from heuristic import Heuristic
 
 def main():
     # read instance
@@ -49,15 +50,15 @@ def main():
         end_time = time.time()
         total_time = end_time - start_time
         print(f"\n-> Total time = {total_time:.2f}", end="")
-        model.best_solution.display_solution(data)
+        model.current_solution.display_solution(data)
 
     elif method == "enum":
         enumeration = Enumeration(data, threads, 43200, 1200)
         enumeration.execute_enumeration()
 
     elif method == "heuristic":
-        print("Going to execute the heuristic...")
-        # Heuristic(data, threads, 43200, 1200)
+        heuristic = Heuristic(data, threads, 43200, 1200)
+        heuristic.execute_heuristic()
 
     else:
         print("Did not provide a valid method!")

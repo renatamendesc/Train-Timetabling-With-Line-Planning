@@ -18,14 +18,30 @@ class Solution:
 
         # routes combination
         self.routes_combination = None
+        self.max_nb_repeated_routes = None
 
     def extract_routes_combination(self, data):
         self.routes_combination = []
-        for t in range(self.data.nb_trains):
-            for i in range(self.data.max_trips_per_train[t]):
-                for r in range(self.data.nb_routes):
+        for t in range(data.nb_trains):
+            train_routes = []
+            for i in range(data.max_trips_per_train[t]):
+                for r in range(data.nb_routes):
                     if self.lambda_values[t][i][r] > 0:
-                        routes_combination.append(r)
+                        train_routes.append(r)
+                        break  # only one route per trip
+            self.routes_combination.append(train_routes)
+
+        self.store_max_nb_repeated_route(data)
+
+    def store_max_nb_repeated_route(self, data):
+        times_route_is_completed = [0] * data.nb_routes
+
+        for train_routes in self.routes_combination:
+            for route in train_routes:
+                if route != data.nb_routes:
+                    times_route_is_completed[route] += 1
+
+        self.max_nb_repeated_routes = max(times_route_is_completed)
 
     def display_value_of_variables(self):
         pass
