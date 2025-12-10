@@ -868,8 +868,8 @@ int Model::extract_solution(Data &data, int time_limit)
     get_value_of_variables(data, cplex);
     best_sol.clear();
     best_sol.push_back(current_sol);
-    if (!verify_feasibility)
-        get_solution(data, true, "model");
+
+    get_solution(data, true, "model");
 
     return 1;
 }
