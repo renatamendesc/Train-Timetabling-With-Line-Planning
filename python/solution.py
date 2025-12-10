@@ -79,5 +79,44 @@ class Solution:
                                 )
                             print(arrival)
 
+    def save_solution(self, data, total_time, method, threads):
+
+        output_file = f"benchmarking/{data.instance_set}/{method}_{threads}/{data.instance_name}/timetable.txt"
+
+        with open(output_file, 'w') as f:
+            f.write(f"-> Total time = {total_time:.2f}\n")
+            f.write(f"-> Solution value = {round(self.obj_value)}\n")
+            f.write(f"-> Gap value = {self.gap_value}\n")
+            f.write("\n")
+            
+            def convert_time(seconds):
+                hours = seconds // 3600
+                minutes = (seconds % 3600) // 60
+                seconds = seconds % 60
+                return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}"
+            
+            for t in range(data.nb_trains):
+                f.write("=============\n")
+                f.write(f"Train {t}\n")
+                f.write("=============\n")
+                
+                for i in range(data.max_trips_per_train[t]):
+                    for r in range(data.nb_routes):
+                        if data.is_valid_route(t, i, r):
+                            if self.lambda_values[t][i][r] > 0:
+                                f.write(f"> Trip {i}\n")
+                                
+                                for arc in data.route_arcs[r]:
+                                    departure = arc["out"]
+                                    arrival = arc["inc"]
+                                    
+                                    f.write(
+                                        f"   {departure}(time {int(self.y_values[t][i][departure])} - {convert_time(self.y_values[t][i][departure])})"
+                                        f"(time {int(self.y_bar_values[t][i][arrival])} - {convert_time(self.y_bar_values[t][i][arrival])}) -> "
+                                    )
+                                f.write(f"{arrival}\n")
+        
+        print(f"\nSolution saved to {output_file}")
+
     def create_graph(self):
         pass

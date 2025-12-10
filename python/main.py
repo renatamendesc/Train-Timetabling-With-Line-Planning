@@ -51,7 +51,8 @@ def main():
         total_time = end_time - start_time
         print(f"\n-> Total time = {total_time:.2f}", end="")
         model.current_solution.display_solution(data)
-
+        model.current_solution.save_solution(data, total_time, "model", threads)
+        
     elif method == "enum":
         enumeration = Enumeration(data, threads, 43200, 1200)
         enumeration.execute_enumeration()

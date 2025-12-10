@@ -412,3 +412,4 @@ class Heuristic:
         total_time = end_time - start_time
         print(f"\n-> Total time = {total_time:.2f}", end="")
         self.overall_best_sol.display_solution(self.data)
+        self.overall_best_sol.save_solution(self.data, total_time, "heuristic", self.nb_threads)
