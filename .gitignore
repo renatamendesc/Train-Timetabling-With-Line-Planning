@@ -54,3 +54,5 @@ venv/
 
 # python pycache
 python/__pycache__/
+
+not-feasible-instances.txt

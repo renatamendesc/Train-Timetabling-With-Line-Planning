@@ -29,7 +29,7 @@ class Heuristic:
 
         self.iter = 0
 
-        # Threading-related attributes
+        # threading-related attributes
         self.thread_local = threading.local()
         self.best_lock = threading.Lock()
         self.progress_lock = threading.Lock()
@@ -327,6 +327,7 @@ class Heuristic:
                     # update set of valid routes
                     self.try_new_set_of_routes()
                     self.execute_candidate_combinations()
+                    exit(1)
 
                     if not self.improved_sol:
                         # allow model to choose the last trips completed by the trains
@@ -342,22 +343,25 @@ class Heuristic:
         model_thread = self.thread_local.model
 
         # check feasibility
-        print(f"Solving combination: {candidate_combination}")
-        
-        # if valid, reset model for the thread
-        model_thread.reset()
-        model_thread.create_model_for_combination(candidate_combination)
-        feasible = model_thread.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
+        # print(f"Solving combination: {candidate_combination}")
+        if candidate_combination == [[3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 6, 6, 6, 6], [6, 6, 6, 6, 10], [6, 6, 6, 10, 10]]:
+        # if candidate_combination[0] == [3, 3, 3, 3, 3]:
+            print(f"Solving combination: {candidate_combination}")
+                # exit(1)
+            # if valid, reset model for the thread
+            model_thread.reset()
+            model_thread.create_model_for_combination(candidate_combination)
+            feasible = model_thread.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
 
-        if feasible:
-            with self.best_lock:
-                if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
-                    self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
-                    self.improved_sol = True
-                elif model_thread.best_solution.obj_value == self.overall_best_sol.obj_value:
-                    if model_thread.best_solution.max_nb_repeated_routes > self.overall_best_sol.max_nb_repeated_routes:
+            if feasible:
+                with self.best_lock:
+                    if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
                         self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
                         self.improved_sol = True
+                    elif model_thread.best_solution.obj_value == self.overall_best_sol.obj_value:
+                        if model_thread.best_solution.max_nb_repeated_routes > self.overall_best_sol.max_nb_repeated_routes:
+                            self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
+                            self.improved_sol = True
 
         with self.progress_lock:
             self.counter_solved += 1
