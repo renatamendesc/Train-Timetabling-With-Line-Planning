@@ -1,3 +1,5 @@
+import os
+
 class Solution:
     def __init__(self):
         self.obj_value = float('inf')
@@ -82,6 +84,9 @@ class Solution:
     def save_solution(self, data, total_time, method, threads):
 
         output_file = f"benchmarking/{data.instance_set}/{method}_{threads}/{data.instance_name}/timetable.txt"
+        
+        # Criar diretórios se não existirem
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
         with open(output_file, 'w') as f:
             f.write(f"-> Total time = {total_time:.2f}\n")

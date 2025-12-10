@@ -344,24 +344,25 @@ class Heuristic:
 
         # check feasibility
         # print(f"Solving combination: {candidate_combination}")
-        if candidate_combination == [[3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 6, 6, 6, 6], [6, 6, 6, 6, 10], [6, 6, 6, 10, 10]]:
+        # if candidate_combination == [[3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 6, 6, 6, 6], [6, 6, 6, 6, 10], [6, 6, 6, 10, 10]]:
         # if candidate_combination[0] == [3, 3, 3, 3, 3]:
-            print(f"Solving combination: {candidate_combination}")
-                # exit(1)
-            # if valid, reset model for the thread
-            model_thread.reset()
-            model_thread.create_model_for_combination(candidate_combination)
-            feasible = model_thread.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
+        # print(f"Solving combination: {candidate_combination}")
+        # exit(1)
+        
+        # if valid, reset model for the thread
+        model_thread.reset()
+        model_thread.create_model_for_combination(candidate_combination)
+        feasible = model_thread.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
 
-            if feasible:
-                with self.best_lock:
-                    if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
+        if feasible:
+            with self.best_lock:
+                if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
+                    self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
+                    self.improved_sol = True
+                elif model_thread.best_solution.obj_value == self.overall_best_sol.obj_value:
+                    if model_thread.best_solution.max_nb_repeated_routes > self.overall_best_sol.max_nb_repeated_routes:
                         self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
                         self.improved_sol = True
-                    elif model_thread.best_solution.obj_value == self.overall_best_sol.obj_value:
-                        if model_thread.best_solution.max_nb_repeated_routes > self.overall_best_sol.max_nb_repeated_routes:
-                            self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
-                            self.improved_sol = True
 
         with self.progress_lock:
             self.counter_solved += 1
