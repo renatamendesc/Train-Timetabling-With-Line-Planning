@@ -11,9 +11,9 @@
 #include <fstream>
 #include <filesystem>
 
-#include "../../include/Data.hpp"
-#include "../../include/Model.hpp"
-#include "../../include/Combinations.hpp"
+#include "../include/Data.hpp"
+#include "../include/Model.hpp"
+#include "../include/Combinations.hpp"
 
 using namespace std;
 
@@ -865,14 +865,40 @@ int main(int argc, char *argv[])
     //             generate_instance(p, t);
                 // Data data("ex-instance.txt");
                 Data data(argv[1]);
+                
+                // Create log file name based on input file
+                string input_file = argv[1];
+                string log_file = input_file;
+                size_t last_dot = log_file.find_last_of(".");
+                if (last_dot != string::npos) {
+                    log_file = log_file.substr(0, last_dot) + ".log";
+                } else {
+                    log_file += ".log";
+                }
+                
+                // Redirect cout and cerr to log file
+                ofstream log_stream(log_file);
+                streambuf* cout_buf = cout.rdbuf();
+                streambuf* cerr_buf = cerr.rdbuf();
+                cout.rdbuf(log_stream.rdbuf());
+                cerr.rdbuf(log_stream.rdbuf());
+                
                 data.print_data();
 
                 // uses model to verify if instance is feasible
                 Model model;
                 model.verify_feasibility = true;
-                model.initialize(data);  
+                model.initialize(data, 1);  
                 bool solved = model.run(data);
                 cout << "Resolveu: " << solved << endl;
+                
+                // Restore original buffers and close log file
+                cout.rdbuf(cout_buf);
+                cerr.rdbuf(cerr_buf);
+                log_stream.close();
+                
+                // Print confirmation to console (after restoring buffers)
+                cout << "Log salvo em: " << log_file << endl;
 
                 // // uses enumeration to verify if instance is feasible
                 // Combinations comb(data, stoi(argv[2]), 0, 3600, true);

@@ -15,7 +15,7 @@ def main():
     instance_path = sys.argv[1]
     data = Data(instance_path)
     data.read_data()
-    data.print_data()
+    # data.print_data()
 
     # read method
     if len(sys.argv) < 3:

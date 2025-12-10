@@ -395,11 +395,18 @@ class Heuristic:
                 break
 
             self.execute_candidate_combinations()
+        end_loop_time = time.time()
+        loop_time = end_loop_time - start_time
+        print(f"\n-> Loop time = {loop_time:.2f}")
+        print(overall_best_sol.obj_value)
 
         if not reached_time_limit:
             # unfix final trips
             print("Unfixing final trips from best combination...")
             self.unfix_trips_from_best_combination()
+        end_unfix_time = time.time()
+        unfix_time = end_unfix_time - end_loop_time
+        print(f"\n-> Unfix time = {unfix_time:.2f}")
 
         end_time = time.time()
         total_time = end_time - start_time

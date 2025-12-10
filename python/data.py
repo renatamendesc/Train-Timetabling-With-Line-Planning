@@ -296,8 +296,6 @@ class Data:
         self.is_station = [False] * self.nb_points
         for station in stations:
             self.is_station[station] = True
-        print(f"   > Stations: {stations}")
-        print(f"   > Stations: {self.is_station}")
 
         # --- crossings ---
         print("   > Reading crossings...")
@@ -308,8 +306,6 @@ class Data:
         self.is_crossing = [False] * self.nb_points
         for crossing in crossings:
             self.is_crossing[crossing] = True
-        print(f"   > Crossings: {crossings}")
-        print(f"   > Crossings: {self.is_crossing}")
 
         # --- depots ---
         print("   > Reading depots...")
@@ -320,14 +316,11 @@ class Data:
         self.is_depot = [False] * self.nb_points
         for depot in depots:
             self.is_depot[depot] = True
-        print(f"   > Depots: {depots}")
-        print(f"   > Depots: {self.is_depot}")
 
         # --- initial point ---
         print("   > Reading initial point...")
         skip_hash_line()
         self.initial_point = int(file.readline().strip())
-        print(f"   > Initial point: {self.initial_point}")
 
         # --- Rotas ---
         print("   > Reading routes...")
@@ -340,7 +333,6 @@ class Data:
             row = list(map(int, file.readline().split()))
             row = [v for v in row if v != -1]
             self.route_vertices.append(row)
-        print(f"   > Routes vertices: {self.route_vertices}")
         self.assign_arcs()
 
         # --- service time min ---
@@ -350,9 +342,6 @@ class Data:
         # --- service time max ---
         skip_hash_line()
         aux_max = list(map(int, file.readline().split()))
-
-        print(f"   > Service time min: {len(aux_min)}")
-        print(f"   > Service time max: {len(aux_max)}")
 
         # --- cost matrix ---
         skip_hash_line() # "#cost_matrix"
