@@ -4,9 +4,15 @@
 #      make COMPAT=1 (compila com static linking para melhor compatibilidade)
 #      make GCC_VER=g++-11 (usa versão específica do GCC, ex: g++-11, g++-12)
 
-# Configurações do CPLEX
-CPLEXDIR = /opt/ibm/ILOG/CPLEX_Studio1210/cplex
-CONCERTDIR = /opt/ibm/ILOG/CPLEX_Studio1210/concert
+ifdef CPLEX_VER
+    CPLEX_BASE = /opt/ibm/ILOG/CPLEX_Studio$(CPLEX_VER)
+else
+    # Versão padrão - ajuste conforme sua máquina principal
+    CPLEX_BASE = /opt/ibm/ILOG/CPLEX_Studio1210
+endif
+
+CPLEXDIR = $(CPLEX_BASE)/cplex
+CONCERTDIR = $(CPLEX_BASE)/concert
 
 # Diretórios das bibliotecas
 CPLEXLIBDIR = $(CPLEXDIR)/lib/x86-64_linux/static_pic
