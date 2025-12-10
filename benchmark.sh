@@ -1,20 +1,43 @@
 #!/bin/bash
 
-# Usage: ./benchmark.sh <instances_subfolder> <method> <threads>
+# Usage: ./benchmark.sh <instances_subfolder> <method> <threads> [language]
+# language: "cpp" (default) or "python"
 
 # check input arguments
 if [ $# -lt 3 ]; then
-    echo "Usage: $0 <instances_subfolder> <method> <threads>"
+    echo "Usage: $0 <instances_subfolder> <method> <threads> [language]"
+    echo "  language: 'cpp' (default) or 'python'"
     exit 1
 fi
 
-EXEC=./cbtu
 SUBFOLDER=$(basename "$1")
 METHOD=$2
 THREADS=$3
+LANGUAGE=${4:-cpp}  # default to cpp if not provided
 
-INPUT_FOLDER=./instances/$SUBFOLDER
-OUTPUT_FOLDER=./benchmarking/$SUBFOLDER/${METHOD}_${THREADS}
+# validate language
+if [ "$LANGUAGE" != "cpp" ] && [ "$LANGUAGE" != "python" ]; then
+    echo "Error: language must be 'cpp' or 'python'"
+    exit 1
+fi
+
+# set executable based on language
+if [ "$LANGUAGE" = "python" ]; then
+    # Use python3 from venv if available, otherwise use system python3
+    if [ -f "./python/venv/bin/python3" ]; then
+        PYTHON_EXEC="./python/venv/bin/python3"
+    else
+        PYTHON_EXEC="python3"
+    fi
+    EXEC="$PYTHON_EXEC python/main.py"
+    INPUT_FOLDER=./instances/$SUBFOLDER
+    OUTPUT_FOLDER=./python/benchmarking/$SUBFOLDER/${METHOD}_${THREADS}
+else
+    EXEC=./cpp/cbtu
+    INPUT_FOLDER=./instances/$SUBFOLDER
+    OUTPUT_FOLDER=./cpp/benchmarking/$SUBFOLDER/${METHOD}_${THREADS}
+fi
+
 OUTPUT_FILE=$OUTPUT_FOLDER/benchmark.txt
 
 # validate input folder
@@ -27,15 +50,13 @@ fi
 mkdir -p "$OUTPUT_FOLDER"
 > "$OUTPUT_FILE"
 
-# configure OR-Tools library path
-export LD_LIBRARY_PATH=/home/renata/or-tools/build/lib:$LD_LIBRARY_PATH
 
 # execute each instance
 for f in "$INPUT_FOLDER"/*; do
     [ -f "$f" ] || continue
     INSTANCE=$(basename "$f")
     INSTANCE_NAME="${INSTANCE%.*}"  # remove .txt
-    echo "Running: $INSTANCE | method=$METHOD | threads=$THREADS"
+    echo "Running: $INSTANCE | method=$METHOD | threads=$THREADS | language=$LANGUAGE"
 
     # create individual instance folder
     INSTANCE_FOLDER="$OUTPUT_FOLDER/$INSTANCE_NAME"

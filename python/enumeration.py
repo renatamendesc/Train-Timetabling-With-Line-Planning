@@ -64,7 +64,7 @@ class Enumeration:
             # if valid, reset model for the thread
             model_thread.reset()
             model_thread.create_model_for_combination(current_combination)
-            feasible = model_thread.execute_solver_for_combination("enum")
+            feasible = model_thread.execute_solver_for_combination("enum", self.overall_best_sol.obj_value)
 
             if feasible:
                 with self.best_lock:

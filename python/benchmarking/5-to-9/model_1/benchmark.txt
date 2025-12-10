@@ -1,0 +1,30 @@
+t2p5r2h1.txt:
+    -> Solution value = 31922
+    -> Total time = 29.94
+    -> Gap value = 0
+
+t2p6r7h3.txt:
+    -> Solution value = 42078
+    -> Total time = 4.90
+    -> Gap value = 0
+
+t2p7r8h1.txt:
+    -> Solution value = 17570
+    -> Total time = 62.95
+    -> Gap value = 0
+
+t2p8r2h2.txt:
+    -> Solution value = 20078
+    -> Total time = 6.82
+    -> Gap value = 0
+
+t2p9r2h3.txt:
+    -> Solution value = 37235
+    -> Total time = 116.46
+    -> Gap value = 0
+
+t3p5r7h1.txt:
+    -> Solution value = 7731
+    -> Total time = 33.82
+    -> Gap value = 0
+

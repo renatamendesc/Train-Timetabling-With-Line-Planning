@@ -605,9 +605,10 @@ class ModelTrainTimetabling:
 
         return True
 
-    def execute_solver_for_combination(self, method):
+    def execute_solver_for_combination(self, method, best_bound):
         # setting parameters
         self.model.threads = 1
+        self.model.cutoff = best_bound
         self.model.verbose = 0
 
         status = self.model.optimize(max_seconds=self.time_limit_per_combination)

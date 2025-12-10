@@ -208,7 +208,7 @@ class Heuristic:
         self.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination)
         self.model.initialize()
         self.model.create_model_for_combination(routes)
-        self.model.execute_solver_for_combination("heuristic")
+        self.model.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
     def unfix_trips_from_all_combinations(self):
         self.candidate_combinations.clear()
 
@@ -259,6 +259,7 @@ class Heuristic:
                 new_candidates.append(new_combination)
 
         return new_candidates
+
         # nb_trains = self.data.nb_trains
         # total_combinations = 1 << nb_trains # 2^n possibilidades
         # new_candidates = []
@@ -346,7 +347,7 @@ class Heuristic:
         # if valid, reset model for the thread
         model_thread.reset()
         model_thread.create_model_for_combination(candidate_combination)
-        feasible = model_thread.execute_solver_for_combination("heuristic")
+        feasible = model_thread.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
 
         if feasible:
             with self.best_lock:
