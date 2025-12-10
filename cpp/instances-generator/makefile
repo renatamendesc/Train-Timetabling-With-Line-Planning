@@ -1,6 +1,8 @@
 # Makefile para o random-generator
 # Uso: make (compila o random-generator)
 #      make clean (remove arquivos objeto e executável)
+#      make COMPAT=1 (compila com static linking para melhor compatibilidade)
+#      make GCC_VER=g++-11 (usa versão específica do GCC, ex: g++-11, g++-12)
 
 # Configurações do CPLEX
 CPLEXDIR = /opt/ibm/ILOG/CPLEX_Studio1210/cplex
@@ -10,15 +12,24 @@ CONCERTDIR = /opt/ibm/ILOG/CPLEX_Studio1210/concert
 CPLEXLIBDIR = $(CPLEXDIR)/lib/x86-64_linux/static_pic
 CONCERTLIBDIR = $(CONCERTDIR)/lib/x86-64_linux/static_pic
 
-# Compilador
-CPPC = g++
+# Compilador - permite especificar versão específica do GCC
+ifdef GCC_VER
+    CPPC = $(GCC_VER)
+else
+    CPPC = g++
+endif
 
 # Opções de compilação
 CCOPT = -m64 -O3 -fPIC -fexceptions -DNDEBUG -DIL_STD -std=c++17
 CCFLAGS = $(CCOPT) -fopenmp -I$(CPLEXDIR)/include -I$(CONCERTDIR)/include -I../include
 
 # Flags do linker
-CCLNFLAGS = -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -lpthread -ldl -fopenmp
+# Se COMPAT=1, usa static linking para libstdc++ e libgcc (melhora compatibilidade)
+ifeq ($(COMPAT),1)
+    CCLNFLAGS = -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -static-libgcc -static-libstdc++ -lm -lpthread -ldl -fopenmp
+else
+    CCLNFLAGS = -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -lpthread -ldl -fopenmp
+endif
 
 # Diretórios
 SRCDIR = ../src
@@ -81,10 +92,17 @@ run: $(TARGET)
 # Ajuda
 help:
 	@echo "Comandos disponíveis:"
-	@echo "  make        - Compila o random-generator"
-	@echo "  make clean  - Remove arquivos objeto e executável"
-	@echo "  make rebuild- Recompila tudo do zero"
-	@echo "  make run    - Compila e executa o programa"
-	@echo "  make help   - Mostra esta ajuda"
+	@echo "  make              - Compila o random-generator"
+	@echo "  make clean        - Remove arquivos objeto e executável"
+	@echo "  make rebuild      - Recompila tudo do zero"
+	@echo "  make run          - Compila e executa o programa"
+	@echo "  make COMPAT=1     - Compila com static linking (melhor compatibilidade)"
+	@echo "  make GCC_VER=g++-11 - Usa versão específica do GCC (ex: g++-11, g++-12)"
+	@echo "  make help         - Mostra esta ajuda"
+	@echo ""
+	@echo "Nota sobre compatibilidade GLIBC:"
+	@echo "  Se o executável não funcionar em outra máquina devido a versão do GLIBC,"
+	@echo "  compile na máquina de destino ou use uma versão mais antiga do GCC:"
+	@echo "    make GCC_VER=g++-11 COMPAT=1"
 
 .PHONY: clean rebuild run help
