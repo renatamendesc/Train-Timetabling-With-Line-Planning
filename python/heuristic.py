@@ -70,6 +70,7 @@ class Heuristic:
             if to_be_removed[i] == True:
                 self.cyclical_routes_set.pop(i)
     def create_maximum_size_candidates(self):
+        self.candidate_combinations.clear()
         nb_trains = self.data.nb_trains
         max_trips_per_train = self.data.max_trips_per_train
         max_nb_trips = self.data.max_nb_trips
@@ -184,6 +185,9 @@ class Heuristic:
         self.create_maximum_size_candidates()
 
     def try_new_set_of_routes(self):
+        old_initial_valid_routes_set = copy.deepcopy(self.initial_valid_routes_set)
+        old_cyclical_routes_set = copy.deepcopy(self.cyclical_routes_set)
+
         self.cyclical_routes_set.clear()
         self.initial_valid_routes_set.clear()
 
@@ -193,7 +197,12 @@ class Heuristic:
                 self.cyclical_routes_set.append(i)
         
         self.create_initial_valid_routes_set()
-        self.create_maximum_size_candidates()
+
+        if old_initial_valid_routes_set == self.initial_valid_routes_set and old_cyclical_routes_set == self.cyclical_routes_set:
+            return False
+        else:
+            self.create_maximum_size_candidates()
+            return True
 
     def unfix_trips_from_best_combination(self):
         routes = self.overall_best_sol.routes_combination
@@ -210,8 +219,7 @@ class Heuristic:
         self.model.create_model_for_combination(routes)
         self.model.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
     def unfix_trips_from_all_combinations(self):
-        self.candidate_combinations.clear()
-
+        new_candidates = []
         nb_trains = self.data.nb_trains
         for tested in self.candidate_combinations:
             candidate = [trips[:] for trips in tested]
@@ -223,7 +231,8 @@ class Heuristic:
                     candidate[i][-1] = -1
 
             if self.combinations.normalize_combination(candidate):
-                self.candidate_combinations.append(candidate)
+                new_candidates.append(candidate)
+        self.candidate_combinations = new_candidates
 
     def remove_trips(self, current_combination, max_nb_trips):
         nb_trains = self.data.nb_trains
@@ -315,24 +324,55 @@ class Heuristic:
         self.candidate_combinations = new_candidates
         return True
 
+    def fix_one_train_not_completing_any_trip(self):
+        nb_trains = self.data.nb_trains
+        self.original_candidates = self.candidate_combinations[:]
+        self.candidate_combinations.clear() 
+        for candidate in self.original_candidates:
+            print(f"Candidate: {candidate}")
+            for i in range(nb_trains):
+                new_candidate = copy.deepcopy(candidate)
+                for j in range(len(candidate[i])):
+                    new_candidate[i][j] = self.data.nb_routes
+                print(f"Candidate after fixing train {i}: {new_candidate}")
+                if self.combinations.verify_daily_demands(new_candidate) and self.combinations.normalize_combination(new_candidate):
+                    self.candidate_combinations.append(new_candidate)
+
     def solve_initial_candidates(self):
         self.execute_candidate_combinations()
 
         if not self.improved_sol:
             # create subsets from all candidates combinations
+            print("\nCreating subsets from all candidates combinations...")
             if self.create_subsets_from_all_combinations():
                 self.execute_candidate_combinations()
+                
+                if not self.improved_sol:
+                    # restore candidates after trying to make a train without completing trips
+                    # self.candidate_combinations = self.original_candidates
+                    # update set of valid routes
+                    print("\nUpdating set of valid routes...")
+                    if self.try_new_set_of_routes():
+                        self.execute_candidate_combinations()
 
                 if not self.improved_sol:
-                    # update set of valid routes
-                    self.try_new_set_of_routes()
+                    # allow model to choose the last trips completed by the trains
+                    print("\nUnfixing trips from all combinations...")
+                    self.unfix_trips_from_all_combinations()
                     self.execute_candidate_combinations()
-                    exit(1)
 
-                    if not self.improved_sol:
-                        # allow model to choose the last trips completed by the trains
-                        self.unfix_trips_from_all_combinations()
-                        self.execute_candidate_combinations()
+                # another strategy: fix one train not completing any trip
+                if not self.improved_sol:
+                    print("\nFixing one train not completing any trip...")
+                    self.fix_one_train_not_completing_any_trip()
+                    self.execute_candidate_combinations()
+
+                # # another strategy: keep removing trips
+                # while not self.improved_sol:
+                #     self.iter += 1
+                #     print("\nKeep removing trips from all combinations...")
+                #     self.create_subsets_from_all_combinations()
+                #     self.execute_candidate_combinations()
 
     def solve_combination_task(self, candidate_combination):
 
@@ -343,12 +383,11 @@ class Heuristic:
         model_thread = self.thread_local.model
 
         # check feasibility
-        # print(f"Solving combination: {candidate_combination}")
-        # if candidate_combination == [[3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 6, 6, 6, 6], [6, 6, 6, 6, 10], [6, 6, 6, 10, 10]]:
-        # if candidate_combination[0] == [3, 3, 3, 3, 3]:
-        # print(f"Solving combination: {candidate_combination}")
-        # exit(1)
-        
+        print(f"Solving combination: {candidate_combination}")
+        # if sorted(candidate_combination) == sorted([[3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 6, 6, 6, 6], [6, 6, 6, 6, 10], [6, 6, 6, 10, 10]]):
+        # if sorted(candidate_combination) == sorted([[2, 5, 5, 5, 5], [2, 5, 5, 5, 6], [1, 4, 4, 6, 6], [6, 6, 6, 6, 6], [1, 4, 4, 6, 6]]):
+            # print(f"VAI RESOLVER A VIVAVEL! - idx: {self.counter_solved}")
+
         # if valid, reset model for the thread
         model_thread.reset()
         model_thread.create_model_for_combination(candidate_combination)
@@ -366,7 +405,7 @@ class Heuristic:
 
         with self.progress_lock:
             self.counter_solved += 1
-            print(f"{self.counter_solved}/{len(self.candidate_combinations)} candidate combination(s) tested!")
+            print(f"{self.counter_solved}/{len(self.candidate_combinations)} candidate combination(s) tested! - Feasible: {feasible} - Objective value: {model_thread.best_solution.obj_value}")
 
     def execute_candidate_combinations(self):
 
@@ -383,11 +422,12 @@ class Heuristic:
         reached_time_limit = False
         start_time = time.time()
 
-        iter = 0
+        self.iter = 0
         self.create_initial_candidates()       
         self.solve_initial_candidates()
+        print(f"achou viável? {self.improved_sol}")
         while self.improved_sol:
-            iter += 1
+            self.iter += 1
 
             # verify time limit
             if time.time() - start_time >= self.time_limit_complete:
@@ -402,16 +442,15 @@ class Heuristic:
             self.execute_candidate_combinations()
         end_loop_time = time.time()
         loop_time = end_loop_time - start_time
-        print(f"\n-> Loop time = {loop_time:.2f}")
-        print(overall_best_sol.obj_value)
+        print(f"\n-> Loop time = {loop_time:.2f}\n")
 
-        if not reached_time_limit:
-            # unfix final trips
-            print("Unfixing final trips from best combination...")
-            self.unfix_trips_from_best_combination()
-        end_unfix_time = time.time()
-        unfix_time = end_unfix_time - end_loop_time
-        print(f"\n-> Unfix time = {unfix_time:.2f}")
+        # if not reached_time_limit:
+        #     # unfix final trips
+        #     print("Unfixing final trips from best combination...")
+        #     self.unfix_trips_from_best_combination()
+        # end_unfix_time = time.time()
+        # unfix_time = end_unfix_time - end_loop_time
+        # print(f"\n-> Unfix time = {unfix_time:.2f}")
 
         end_time = time.time()
         total_time = end_time - start_time

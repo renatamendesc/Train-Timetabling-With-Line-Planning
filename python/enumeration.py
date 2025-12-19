@@ -33,13 +33,11 @@ class Enumeration:
         # counter for solved combinations
         self.counter_solved = 0
         self.aux_progress = None
+        
+        # flag to tell if the time limit was reached
+        self.time_limit_reached = False
 
     def solve_combination_task(self, count):
-
-        # # verify time limit
-        # if time.time() - self.start_time > self.time_limit_complete:
-        #     print("Reached time limit!")
-        #     return
 
         if not hasattr(self.thread_local, "model"):
             self.thread_local.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination)
@@ -58,7 +56,7 @@ class Enumeration:
             self.comb.all_trips_combinations[k][indices[k]]
             for k in range(self.nb_trains)
         ]
-
+        
         # check feasibility
         if self.comb.is_valid_combination(current_combination):
             # if valid, reset model for the thread
@@ -84,11 +82,26 @@ class Enumeration:
         if self.aux_progress == 0:
             self.aux_progress = 1
 
+        futures = []
+        
         with ThreadPoolExecutor(max_workers=self.nb_threads) as executor:
             for count in range(self.total_nb_combinations):
-                executor.submit(self.solve_combination_task, count)
+                if self.time_limit_reached:
+                    break
 
-        executor.shutdown(wait=True)
+                future = executor.submit(self.solve_combination_task, count)
+                futures.append(future)
+
+            # if the time limit was reached, cancel the pending tasks
+            if self.time_limit_reached:
+                cancelled = 0
+                for future in futures:
+                    if future.cancel():
+                        cancelled += 1
+                print(f"Cancelled {cancelled} pending tasks. Waiting for running tasks to finish...")
+            
+            # Aguardar apenas as tarefas que já estão em execução terminarem
+            executor.shutdown(wait=True)
 
     def execute_enumeration(self):
         # calculate total number of possible combinations
@@ -105,7 +118,12 @@ class Enumeration:
         end_time = time.time()
 
         total_time = end_time - self.start_time
-        print("\nFinished enumeration!\n")
+        
+        if self.time_limit_reached:
+            print("\n-> Time limit reached. Displaying best solution found so far...\n")
+        else:
+            print("\nFinished enumeration!\n")
+        
         print(f"-> Total time = {total_time:.2f}", end="")
         self.overall_best_sol.display_solution(self.data)
         self.overall_best_sol.save_solution(self.data, total_time, "enum", self.nb_threads)

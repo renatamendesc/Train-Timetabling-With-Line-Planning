@@ -609,7 +609,7 @@ class ModelTrainTimetabling:
         # setting parameters
         self.model.threads = 1
         self.model.cutoff = best_bound
-        self.model.verbose = 0
+        # self.model.verbose = 0
 
         status = self.model.optimize(max_seconds=self.time_limit_per_combination)
 
