@@ -7,7 +7,7 @@ import time
 import copy
 import threading
 from itertools import product
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 class Heuristic:
     def __init__(self, data, nb_threads, time_limit_complete, time_limit_per_combination):
@@ -33,6 +33,11 @@ class Heuristic:
         self.thread_local = threading.local()
         self.best_lock = threading.Lock()
         self.progress_lock = threading.Lock()
+        self.time_limit_lock = threading.Lock()
+        
+        # flag to tell if the time limit was reached
+        self.time_limit_reached = False
+        self.start_time = None
 
     def create_cyclical_routes_set(self):
         have_full_cycles = False
@@ -341,31 +346,31 @@ class Heuristic:
     def solve_initial_candidates(self):
         self.execute_candidate_combinations()
 
-        if not self.improved_sol:
+        if not self.improved_sol and not self.time_limit_reached:
             # create subsets from all candidates combinations
             print("\nCreating subsets from all candidates combinations...")
             if self.create_subsets_from_all_combinations():
                 self.execute_candidate_combinations()
                 
-                if not self.improved_sol:
-                    # restore candidates after trying to make a train without completing trips
-                    # self.candidate_combinations = self.original_candidates
-                    # update set of valid routes
-                    print("\nUpdating set of valid routes...")
-                    if self.try_new_set_of_routes():
-                        self.execute_candidate_combinations()
-
-                if not self.improved_sol:
-                    # allow model to choose the last trips completed by the trains
-                    print("\nUnfixing trips from all combinations...")
-                    self.unfix_trips_from_all_combinations()
+            if not self.improved_sol and not self.time_limit_reached:
+                # restore candidates after trying to make a train without completing trips
+                # self.candidate_combinations = self.original_candidates
+                # update set of valid routes
+                print("\nUpdating set of valid routes...")
+                if self.try_new_set_of_routes():
                     self.execute_candidate_combinations()
 
-                # another strategy: fix one train not completing any trip
-                if not self.improved_sol:
-                    print("\nFixing one train not completing any trip...")
-                    self.fix_one_train_not_completing_any_trip()
-                    self.execute_candidate_combinations()
+            if not self.improved_sol and not self.time_limit_reached:
+                # allow model to choose the last trips completed by the trains
+                print("\nUnfixing trips from all combinations...")
+                self.unfix_trips_from_all_combinations()
+                self.execute_candidate_combinations()
+
+            # another strategy: fix one train not completing any trip
+            if not self.improved_sol and not self.time_limit_reached:
+                print("\nFixing one train not completing any trip...")
+                self.fix_one_train_not_completing_any_trip()
+                self.execute_candidate_combinations()
 
                 # # another strategy: keep removing trips
                 # while not self.improved_sol:
@@ -376,9 +381,28 @@ class Heuristic:
 
     def solve_combination_task(self, candidate_combination):
 
+        # Verificar tempo limite no início
+        if self.start_time is not None:
+            elapsed = time.time() - self.start_time
+            if self.time_limit_reached or elapsed > self.time_limit_complete:
+                with self.time_limit_lock:
+                    self.time_limit_reached = True
+                with self.progress_lock:
+                    self.counter_solved += 1
+                return
+
         if not hasattr(self.thread_local, "model"):
             self.thread_local.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination)
             self.thread_local.model.initialize()
+
+        # Verificar tempo limite novamente após inicialização
+        if self.start_time is not None:
+            if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
+                with self.time_limit_lock:
+                    self.time_limit_reached = True
+                with self.progress_lock:
+                    self.counter_solved += 1
+                return
 
         model_thread = self.thread_local.model
 
@@ -388,12 +412,32 @@ class Heuristic:
         # if sorted(candidate_combination) == sorted([[2, 5, 5, 5, 5], [2, 5, 5, 5, 6], [1, 4, 4, 6, 6], [6, 6, 6, 6, 6], [1, 4, 4, 6, 6]]):
             # print(f"VAI RESOLVER A VIVAVEL! - idx: {self.counter_solved}")
 
+        # Verificar tempo limite antes de executar operações custosas
+        if self.start_time is not None:
+            if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
+                with self.time_limit_lock:
+                    self.time_limit_reached = True
+                with self.progress_lock:
+                    self.counter_solved += 1
+                return
+
         # if valid, reset model for the thread
         model_thread.reset()
         model_thread.create_model_for_combination(candidate_combination)
+        
+        # Verificar tempo limite antes de executar o solver
+        if self.start_time is not None:
+            if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
+                with self.time_limit_lock:
+                    self.time_limit_reached = True
+                with self.progress_lock:
+                    self.counter_solved += 1
+                return
+        
         feasible = model_thread.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
 
-        if feasible:
+        # Verificar novamente após o solver (pode ter demorado)
+        if not self.time_limit_reached and feasible:
             with self.best_lock:
                 if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
                     self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
@@ -411,37 +455,68 @@ class Heuristic:
 
         self.improved_sol = False
         self.counter_solved = 0
+        
+        futures = []
         with ThreadPoolExecutor(max_workers=self.nb_threads) as executor:
+            # Monitorar tempo limite durante o envio de tarefas
             for count in range(len(self.candidate_combinations)):
-                executor.submit(self.solve_combination_task, self.candidate_combinations[count])
+                # Verificar tempo limite antes de submeter nova tarefa
+                if self.start_time is not None:
+                    if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
+                        with self.time_limit_lock:
+                            self.time_limit_reached = True
+                        break
+                
+                future = executor.submit(self.solve_combination_task, self.candidate_combinations[count])
+                futures.append(future)
 
-        executor.shutdown(wait=True)
+            # Se o tempo limite foi atingido, tentar cancelar tarefas pendentes
+            if self.time_limit_reached:
+                cancelled = 0
+                for future in futures:
+                    if future.cancel():
+                        cancelled += 1
+                if cancelled > 0:
+                    print(f"Cancelled {cancelled} pending tasks. Waiting for running tasks to finish...")
+            
+            # Aguardar que as tarefas em execução terminem
+            # As tarefas verificam time_limit_reached e retornam rapidamente se atingido
+            executor.shutdown(wait=True)
 
     def execute_heuristic(self):
 
-        reached_time_limit = False
-        start_time = time.time()
+        self.start_time = time.time()
+        self.time_limit_reached = False
 
         self.iter = 0
-        self.create_initial_candidates()       
+        self.create_initial_candidates()
         self.solve_initial_candidates()
+        
         print(f"achou viável? {self.improved_sol}")
-        while self.improved_sol:
+        while self.improved_sol and not self.time_limit_reached:
             self.iter += 1
 
             # verify time limit
-            if time.time() - start_time >= self.time_limit_complete:
+            if time.time() - self.start_time >= self.time_limit_complete:
+                with self.time_limit_lock:
+                    self.time_limit_reached = True
                 print(f"\n-> Time limit reached ({self.time_limit_complete:.2f}s). Stopping algorithm.")
-                reached_time_limit = True
                 break
 
             # create subsets of candidate combinations
             if not self.create_subsets_from_best_combination():
                 break
 
+            # Verificar tempo limite antes de executar candidatos
+            if time.time() - self.start_time >= self.time_limit_complete:
+                with self.time_limit_lock:
+                    self.time_limit_reached = True
+                print(f"\n-> Time limit reached ({self.time_limit_complete:.2f}s). Stopping algorithm.")
+                break
+
             self.execute_candidate_combinations()
         end_loop_time = time.time()
-        loop_time = end_loop_time - start_time
+        loop_time = end_loop_time - self.start_time
         print(f"\n-> Loop time = {loop_time:.2f}\n")
 
         # if not reached_time_limit:
@@ -453,7 +528,13 @@ class Heuristic:
         # print(f"\n-> Unfix time = {unfix_time:.2f}")
 
         end_time = time.time()
-        total_time = end_time - start_time
-        print(f"\n-> Total time = {total_time:.2f}", end="")
+        total_time = end_time - self.start_time
+        
+        if self.time_limit_reached:
+            print("\n-> Time limit reached. Displaying best solution found so far...\n")
+        else:
+            print("\nFinished heuristic!\n")
+        
+        print(f"-> Total time = {total_time:.2f}", end="")
         self.overall_best_sol.display_solution(self.data)
         self.overall_best_sol.save_solution(self.data, total_time, "heuristic", self.nb_threads)

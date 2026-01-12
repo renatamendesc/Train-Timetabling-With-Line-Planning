@@ -1,4 +1,4 @@
-from mip import Model, xsum, BINARY, minimize, OptimizationStatus
+from mip import Model, xsum, BINARY, minimize, OptimizationStatus, GUROBI
 from solution import Solution
 import os
 import copy
@@ -17,6 +17,9 @@ class ModelTrainTimetabling:
         # solution object
         self.best_solution = Solution()
         self.current_solution = Solution()
+        
+        # contador para gerar arquivos .lp únicos
+        self.lp_file_counter = 0
 
         # decision variables
         self.z_ = None
@@ -32,7 +35,8 @@ class ModelTrainTimetabling:
         self.routes_constraints = []
 
     def initialize(self):
-        self.model = Model(solver_name='HiGHS')
+        # self.model = Model(solver_name='HiGHS')
+        self.model = Model(solver_name='GUROBI')
         # create variables
         self.add_variables()
         # create objective function
@@ -610,6 +614,13 @@ class ModelTrainTimetabling:
         self.model.threads = 1
         self.model.cutoff = best_bound
         # self.model.verbose = 0
+        self.model.mip_gap = 0.01 # 1% tolerance for the objective value
+
+        # Gerar arquivo .mps único para cada chamada
+        self.lp_file_counter += 1
+        mps_file = f"model_{method}_{self.lp_file_counter}.mps"
+        self.model.write(mps_file)
+        print(f"Modelo salvo em: {mps_file}")
 
         status = self.model.optimize(max_seconds=self.time_limit_per_combination)
 

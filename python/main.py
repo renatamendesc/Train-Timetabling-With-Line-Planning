@@ -58,7 +58,7 @@ def main():
         enumeration.execute_enumeration()
 
     elif method == "heuristic":
-        heuristic = Heuristic(data, threads, 43200, 1200)
+        heuristic = Heuristic(data, threads, 21600, 1200)
         heuristic.execute_heuristic()
 
     else:

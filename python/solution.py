@@ -49,6 +49,11 @@ class Solution:
         pass
 
     def display_solution(self, data):
+
+        if not self.feasible:
+            print("\n-> Could not find a feasible solution!\n")
+            exit(1)
+
         print("\n-> Solution value =", round(self.obj_value))
         print("-> Gap value =", self.gap_value)
         print()
