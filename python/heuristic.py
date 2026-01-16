@@ -10,7 +10,7 @@ from itertools import product
 from concurrent.futures import ThreadPoolExecutor
 
 class Heuristic:
-    def __init__(self, data, nb_threads, time_limit_complete, time_limit_per_combination):
+    def __init__(self, data, nb_threads, time_limit_complete, time_limit_per_combination, solver):
         self.data = data
 
         self.nb_threads = nb_threads
@@ -38,6 +38,8 @@ class Heuristic:
         # flag to tell if the time limit was reached
         self.time_limit_reached = False
         self.start_time = None
+
+        self.solver = solver
 
     def create_cyclical_routes_set(self):
         have_full_cycles = False
@@ -80,12 +82,12 @@ class Heuristic:
         max_trips_per_train = self.data.max_trips_per_train
         max_nb_trips = self.data.max_nb_trips
 
-        # Para cada trem, podemos ter:
-        # - Uma rota inicial (obrigatório)
-        # - Uma rota cíclica (se tiver mais de 1 viagem)
+        # for each train, we can have:
+        # - an initial route
+        # - a cyclic route (if there are more than 1 trip)
         all_initial_choices = product(self.initial_valid_routes_set, repeat=nb_trains)
 
-        # Se só há 1 viagem para todos os trens: evitar loops desnecessários
+        # if there is only 1 trip for all trains
         if max_nb_trips == 1:
             for initial_choice in all_initial_choices:
                 combination = [[initial_choice[t]] for t in range(nb_trains)]
@@ -95,7 +97,7 @@ class Heuristic:
                     self.candidate_combinations.append(combination)
             return
 
-        # Caso geral: múltiplas viagens
+        # if there are multiple trips
         for initial_choice in all_initial_choices:
             all_cyclic_choices = product(self.cyclical_routes_set, repeat=nb_trains)
             for cyclic_choice in all_cyclic_choices:
@@ -105,10 +107,10 @@ class Heuristic:
                 for t in range(nb_trains):
                     nb_trips = max_trips_per_train[t]
 
-                    # rota inicial + rota cíclica repetida
+                    # initial route + repeated cyclic route
                     routes = [initial_choice[t]] + [cyclic_choice[t]] * (nb_trips - 1)
 
-                    # teste de viabilidade da sequência por trem
+                    # verify feasibility of the sequence by train
                     if not self.combinations.verify_sequence_feasibility(routes, self.data.nb_routes+1):
                         valid = False
                         break
@@ -117,69 +119,6 @@ class Heuristic:
 
                 if valid and self.combinations.verify_daily_demands(combination) and self.combinations.normalize_combination(combination):
                     self.candidate_combinations.append(combination)
-
-        # # create maximum size combinations
-        # nb_trains = self.data.nb_trains
-        # num_valid = len(self.initial_valid_routes_set)
-        # num_cyclic = len(self.cyclical_routes_set)
-
-        # # map initial routes done by each train
-        # initial_indices = [0] * nb_trains
-        # done_initial = False
-        # while not done_initial:
-        #     # map cyclical routes done by each train
-        #     cyclic_indices = [0] * nb_trains
-        #     done_cyclic = False
-        #     while not done_cyclic:
-        #         combination = []
-        #         valid_combination = True
-
-        #         for t in range(nb_trains):
-        #             nb_trips = self.data.max_trips_per_train[t]
-        #             routes_of_train = [None] * nb_trips
-
-        #             # choose initial trip
-        #             routes_of_train[0] = self.initial_valid_routes_set[initial_indices[t]]
-
-        #             # choose cyclical routes
-        #             for k in range(1, nb_trips):
-        #                 routes_of_train[k] = self.cyclical_routes_set[cyclic_indices[t]]
-
-        #             # verify whether sequence of routes is compatible
-        #             if self.combinations.check_sequence_feasibility(routes_of_train):
-        #                 combination.append(routes_of_train)
-        #             else:
-        #                 valid_combination = False
- 
-        #         # verify whether demands are met
-        #         if (valid_combination and
-        #             self.combinations.verify_daily_demands(combination) and
-        #             self.combinations.normalize_combination(combination)):
-        #             self.candidate_combinations.append(combination)
-
-        #         # stop if only one trip per train
-        #         if data.get_max_nb_trips() == 1:
-        #             break
-
-        #         # increment cyclical indices (base-#num_cyclic counter)
-        #         for i in reversed(range(nb_trains)):
-        #             cyclic_indices[i] += 1
-        #             if cyclic_indices[i] < num_cyclic:
-        #                 break
-        #             else:
-        #                 cyclic_indices[i] = 0
-        #                 if i == 0:
-        #                     done_cyclic = True
-
-        #     # increment initial indices (base-#num_valid counter)
-        #     for i in reversed(range(nb_trains)):
-        #         initial_indices[i] += 1
-        #         if initial_indices[i] < num_valid:
-        #             break
-        #         else:
-        #             initial_indices[i] = 0
-        #             if i == 0:
-        #                 done_initial = True
 
     def create_initial_candidates(self):
         self.create_cyclical_routes_set()
@@ -209,20 +148,20 @@ class Heuristic:
             self.create_maximum_size_candidates()
             return True
 
-    def unfix_trips_from_best_combination(self):
-        routes = self.overall_best_sol.routes_combination
-        nb_trains = self.data.nb_trains
+    # def unfix_trips_from_best_combination(self):
+    #     routes = self.overall_best_sol.routes_combination
+    #     nb_trains = self.data.nb_trains
 
-        for i in range(nb_trains):
-            if not routes[i]: 
-                routes[i].append(-1)
-            else:
-                routes[i][-1] = -1
+    #     for i in range(nb_trains):
+    #         if not routes[i]: 
+    #             routes[i].append(-1)
+    #         else:
+    #             routes[i][-1] = -1
 
-        self.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination)
-        self.model.initialize()
-        self.model.create_model_for_combination(routes)
-        self.model.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
+    #     self.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination, self.solver)
+    #     self.model.initialize()
+    #     self.model.create_model_for_combination(routes)
+    #     self.model.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
     def unfix_trips_from_all_combinations(self):
         new_candidates = []
         nb_trains = self.data.nb_trains
@@ -241,7 +180,7 @@ class Heuristic:
 
     def remove_trips(self, current_combination, max_nb_trips):
         nb_trains = self.data.nb_trains
-        total_combinations = 1 << nb_trains  # 2^n possibilidades
+        total_combinations = 1 << nb_trains # 2^n possibilidades
         new_candidates = []
 
         for mask in range(total_combinations):
@@ -254,7 +193,7 @@ class Heuristic:
             for i in range(nb_trains):
                 trips = current_combination[i]
 
-                if (mask >> i) & 1: # tenta remover a última trip do trem i
+                if (mask >> i) & 1: # tries to remove final trip from train
                     if len(trips) < max_nb_trips:
                         valid = False
                         break
@@ -273,38 +212,6 @@ class Heuristic:
                 new_candidates.append(new_combination)
 
         return new_candidates
-
-        # nb_trains = self.data.nb_trains
-        # total_combinations = 1 << nb_trains # 2^n possibilidades
-        # new_candidates = []
-
-        # print(f"Removing trips from combination: {current_combination}")
-
-        # for mask in range(1, total_combinations):
-        #     new_combination = []
-        #     valid = True
-
-        #     for i in range(nb_trains):
-        #         if mask & (1 << i): # tries to remove trip
-        #             trips = current_combination[i]
-
-        #             if len(trips) < max_nb_trips:
-        #                 valid = False
-        #                 break
-
-        #             new_combination.append(trips[:-1])
-        #         else:
-        #             new_combination.append(trips)
-
-        #     if not valid:
-        #         continue
-
-        #     if (self.combinations.verify_daily_demands(new_combination) and
-        #         self.combinations.normalize_combination(new_combination)):
-        #         new_candidates.append(new_combination)
-
-        # return new_candidates # pending: verify if copy is being created
-
     def create_subsets_from_best_combination(self):
         max_trips = self.data.max_nb_trips - self.iter
 
@@ -353,8 +260,6 @@ class Heuristic:
                 self.execute_candidate_combinations()
                 
             if not self.improved_sol and not self.time_limit_reached:
-                # restore candidates after trying to make a train without completing trips
-                # self.candidate_combinations = self.original_candidates
                 # update set of valid routes
                 print("\nUpdating set of valid routes...")
                 if self.try_new_set_of_routes():
@@ -366,78 +271,43 @@ class Heuristic:
                 self.unfix_trips_from_all_combinations()
                 self.execute_candidate_combinations()
 
-            # another strategy: fix one train not completing any trip
             if not self.improved_sol and not self.time_limit_reached:
+                # fix one train not completing any trip
                 print("\nFixing one train not completing any trip...")
                 self.fix_one_train_not_completing_any_trip()
                 self.execute_candidate_combinations()
 
-                # # another strategy: keep removing trips
-                # while not self.improved_sol:
-                #     self.iter += 1
-                #     print("\nKeep removing trips from all combinations...")
-                #     self.create_subsets_from_all_combinations()
-                #     self.execute_candidate_combinations()
-
     def solve_combination_task(self, candidate_combination):
 
-        # Verificar tempo limite no início
-        if self.start_time is not None:
-            elapsed = time.time() - self.start_time
-            if self.time_limit_reached or elapsed > self.time_limit_complete:
-                with self.time_limit_lock:
-                    self.time_limit_reached = True
-                with self.progress_lock:
-                    self.counter_solved += 1
-                return
+        # verify time limit before starting to solve
+        elapsed = time.time() - self.start_time
+        if self.time_limit_reached or elapsed > self.time_limit_complete:
+            with self.time_limit_lock:
+                self.time_limit_reached = True
+            with self.progress_lock:
+                self.counter_solved += 1
+            return
 
         if not hasattr(self.thread_local, "model"):
-            self.thread_local.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination)
+            self.thread_local.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination, self.solver)
             self.thread_local.model.initialize()
-
-        # Verificar tempo limite novamente após inicialização
-        if self.start_time is not None:
-            if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
-                with self.time_limit_lock:
-                    self.time_limit_reached = True
-                with self.progress_lock:
-                    self.counter_solved += 1
-                return
 
         model_thread = self.thread_local.model
 
-        # check feasibility
         print(f"Solving combination: {candidate_combination}")
-        # if sorted(candidate_combination) == sorted([[3, 3, 3, 3, 3], [3, 3, 3, 3, 3], [3, 6, 6, 6, 6], [6, 6, 6, 6, 10], [6, 6, 6, 10, 10]]):
-        # if sorted(candidate_combination) == sorted([[2, 5, 5, 5, 5], [2, 5, 5, 5, 6], [1, 4, 4, 6, 6], [6, 6, 6, 6, 6], [1, 4, 4, 6, 6]]):
-            # print(f"VAI RESOLVER A VIVAVEL! - idx: {self.counter_solved}")
-
-        # Verificar tempo limite antes de executar operações custosas
-        if self.start_time is not None:
-            if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
-                with self.time_limit_lock:
-                    self.time_limit_reached = True
-                with self.progress_lock:
-                    self.counter_solved += 1
-                return
-
-        # if valid, reset model for the thread
         model_thread.reset()
         model_thread.create_model_for_combination(candidate_combination)
         
-        # Verificar tempo limite antes de executar o solver
-        if self.start_time is not None:
-            if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
-                with self.time_limit_lock:
-                    self.time_limit_reached = True
-                with self.progress_lock:
-                    self.counter_solved += 1
-                return
+        # verify time limit before executing the solver
+        if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
+            with self.time_limit_lock:
+                self.time_limit_reached = True
+            with self.progress_lock:
+                self.counter_solved += 1
+            return
         
         feasible = model_thread.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
-
-        # Verificar novamente após o solver (pode ter demorado)
-        if not self.time_limit_reached and feasible:
+        if feasible:
             with self.best_lock:
                 if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
                     self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
@@ -446,6 +316,14 @@ class Heuristic:
                     if model_thread.best_solution.max_nb_repeated_routes > self.overall_best_sol.max_nb_repeated_routes:
                         self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
                         self.improved_sol = True
+
+        # verify time limit before executing the solver
+        if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
+            with self.time_limit_lock:
+                self.time_limit_reached = True
+            with self.progress_lock:
+                self.counter_solved += 1
+            return
 
         with self.progress_lock:
             self.counter_solved += 1
@@ -458,9 +336,8 @@ class Heuristic:
         
         futures = []
         with ThreadPoolExecutor(max_workers=self.nb_threads) as executor:
-            # Monitorar tempo limite durante o envio de tarefas
             for count in range(len(self.candidate_combinations)):
-                # Verificar tempo limite antes de submeter nova tarefa
+                # verify time limit before submitting new task
                 if self.start_time is not None:
                     if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
                         with self.time_limit_lock:
@@ -470,7 +347,7 @@ class Heuristic:
                 future = executor.submit(self.solve_combination_task, self.candidate_combinations[count])
                 futures.append(future)
 
-            # Se o tempo limite foi atingido, tentar cancelar tarefas pendentes
+            # if time limit was reached, try to cancel pending tasks
             if self.time_limit_reached:
                 cancelled = 0
                 for future in futures:
@@ -479,8 +356,7 @@ class Heuristic:
                 if cancelled > 0:
                     print(f"Cancelled {cancelled} pending tasks. Waiting for running tasks to finish...")
             
-            # Aguardar que as tarefas em execução terminem
-            # As tarefas verificam time_limit_reached e retornam rapidamente se atingido
+            # wait for the tasks to finish
             executor.shutdown(wait=True)
 
     def execute_heuristic(self):
@@ -507,17 +383,11 @@ class Heuristic:
             if not self.create_subsets_from_best_combination():
                 break
 
-            # Verificar tempo limite antes de executar candidatos
-            if time.time() - self.start_time >= self.time_limit_complete:
-                with self.time_limit_lock:
-                    self.time_limit_reached = True
-                print(f"\n-> Time limit reached ({self.time_limit_complete:.2f}s). Stopping algorithm.")
-                break
-
             self.execute_candidate_combinations()
-        end_loop_time = time.time()
-        loop_time = end_loop_time - self.start_time
-        print(f"\n-> Loop time = {loop_time:.2f}\n")
+
+        # end_loop_time = time.time()
+        # loop_time = end_loop_time - self.start_time
+        # print(f"\n-> Loop time = {loop_time:.2f}\n")
 
         # if not reached_time_limit:
         #     # unfix final trips

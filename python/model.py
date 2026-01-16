@@ -4,9 +4,10 @@ import os
 import copy
 
 class ModelTrainTimetabling:
-    BIG_M = 100000
 
-    def __init__(self, data, threads, time_limit, time_limit_per_combination):
+    # BIG_M = 100000
+
+    def __init__(self, data, threads, time_limit, time_limit_per_combination, solver):
         self.data = data
         self.nb_threads = threads
         self.model = None
@@ -34,9 +35,10 @@ class ModelTrainTimetabling:
         # constraints sets
         self.routes_constraints = []
 
+        self.solver = solver
+
     def initialize(self):
-        # self.model = Model(solver_name='HiGHS')
-        self.model = Model(solver_name='GUROBI')
+        self.model = Model(solver_name=self.solver)
         # create variables
         self.add_variables()
         # create objective function
@@ -45,9 +47,11 @@ class ModelTrainTimetabling:
         self.add_constraints()
 
     def reset(self):
-        # remove constraints one by one
-        for constr in self.routes_constraints:
-            self.model.remove(constr)
+        # recreates the model
+        self.model = Model(solver_name=self.solver)
+        self.add_variables()
+        self.model.objective = minimize(self.z_)
+        self.add_constraints()
         self.routes_constraints.clear()
 
     def create_model_for_combination(self, routes_of_trains):
@@ -178,6 +182,9 @@ class ModelTrainTimetabling:
         self.z_ = self.model.add_var(lb=0, ub=float("inf"), name="z")
 
     def add_constraints(self):
+
+        self.BIG_M = self.data.max_time * 2
+
         # constraints to get value of z (2)
         for t in range(self.data.nb_trains):
             for i in range(self.data.max_trips_per_train[t]):
@@ -613,14 +620,8 @@ class ModelTrainTimetabling:
         # setting parameters
         self.model.threads = 1
         self.model.cutoff = best_bound
-        # self.model.verbose = 0
+        self.model.verbose = 0
         self.model.mip_gap = 0.01 # 1% tolerance for the objective value
-
-        # Gerar arquivo .mps único para cada chamada
-        self.lp_file_counter += 1
-        mps_file = f"model_{method}_{self.lp_file_counter}.mps"
-        self.model.write(mps_file)
-        print(f"Modelo salvo em: {mps_file}")
 
         status = self.model.optimize(max_seconds=self.time_limit_per_combination)
 

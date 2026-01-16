@@ -9,7 +9,7 @@ import copy
 import math
 
 class Enumeration:
-    def __init__(self, data, nb_threads, time_limit_complete, time_limit_per_combination):
+    def __init__(self, data, nb_threads, time_limit_complete, time_limit_per_combination, solver):
         self.data = data
 
         self.nb_threads = nb_threads
@@ -22,6 +22,8 @@ class Enumeration:
         self.total_nb_combinations = None
 
         self.overall_best_sol = Solution()
+
+        self.solver = solver
 
         # thread local variables
         self.thread_local = threading.local()
@@ -40,7 +42,7 @@ class Enumeration:
 
     def solve_combination_task(self, count):
 
-        # Verificar tempo limite no início
+        # verify time limit before starting to solve
         elapsed = time.time() - self.start_time
         if self.time_limit_reached or elapsed > self.time_limit_complete:
             with self.time_limit_lock:
@@ -50,16 +52,8 @@ class Enumeration:
             return  
 
         if not hasattr(self.thread_local, "model"):
-            self.thread_local.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination)
+            self.thread_local.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination, self.solver)
             self.thread_local.model.initialize()
-
-        # Verificar tempo limite novamente após inicialização
-        if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
-            with self.time_limit_lock:
-                self.time_limit_reached = True
-            with self.progress_lock:
-                self.counter_solved += 1
-            return
 
         model_thread = self.thread_local.model
 
@@ -77,33 +71,23 @@ class Enumeration:
         
         # check feasibility
         if self.comb.is_valid_combination(current_combination):
-            # Verificar tempo limite antes de executar operações custosas
-            if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
-                with self.time_limit_lock:
-                    self.time_limit_reached = True
-                with self.progress_lock:
-                    self.counter_solved += 1
-                return
 
             # if valid, reset model for the thread
             model_thread.reset()
             model_thread.create_model_for_combination(current_combination)
-            
-            # Verificar tempo limite antes de executar o solver
+            feasible = model_thread.execute_solver_for_combination("enum", self.overall_best_sol.obj_value)
+            if feasible:
+                with self.best_lock:
+                    if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
+                        self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
+
+            # verify time limit before executing the solver
             if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
                 with self.time_limit_lock:
                     self.time_limit_reached = True
                 with self.progress_lock:
                     self.counter_solved += 1
                 return
-
-            feasible = model_thread.execute_solver_for_combination("enum", self.overall_best_sol.obj_value)
-
-            # Verificar novamente após o solver (pode ter demorado)
-            if not self.time_limit_reached and feasible:
-                with self.best_lock:
-                    if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
-                        self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
 
         with self.progress_lock:
             self.counter_solved += 1
@@ -121,9 +105,8 @@ class Enumeration:
         futures = []
         
         with ThreadPoolExecutor(max_workers=self.nb_threads) as executor:
-            # Monitorar tempo limite durante o envio de tarefas
             for count in range(self.total_nb_combinations):
-                # Verificar tempo limite antes de submeter nova tarefa
+                # verify time limit before submitting new task
                 if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
                     with self.time_limit_lock:
                         self.time_limit_reached = True
@@ -132,7 +115,7 @@ class Enumeration:
                 future = executor.submit(self.solve_combination_task, count)
                 futures.append(future)
 
-            # Se o tempo limite foi atingido, tentar cancelar tarefas pendentes
+            # if time limit was reached, try to cancel pending tasks
             if self.time_limit_reached:
                 cancelled = 0
                 for future in futures:
@@ -141,8 +124,7 @@ class Enumeration:
                 if cancelled > 0:
                     print(f"Cancelled {cancelled} pending tasks. Waiting for running tasks to finish...")
             
-            # Aguardar que as tarefas em execução terminem
-            # As tarefas verificam time_limit_reached e retornam rapidamente se atingido
+            # wait for the tasks to finish
             executor.shutdown(wait=True)
 
     def execute_enumeration(self):

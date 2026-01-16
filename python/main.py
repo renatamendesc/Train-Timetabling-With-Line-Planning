@@ -7,6 +7,9 @@ from model import ModelTrainTimetabling
 from enumeration import Enumeration
 from heuristic import Heuristic
 
+# solver = "HiGHS"
+solver = "GUROBI"
+
 def main():
     # read instance
     if len(sys.argv) < 2:
@@ -15,7 +18,7 @@ def main():
     instance_path = sys.argv[1]
     data = Data(instance_path)
     data.read_data()
-    # data.print_data()
+    data.print_data()
 
     # read method
     if len(sys.argv) < 3:
@@ -44,7 +47,7 @@ def main():
     # execute selected method
     if method == "model":
         start_time = time.time()
-        model = ModelTrainTimetabling(data, threads, 43200, 43200)
+        model = ModelTrainTimetabling(data, threads, 21600, 21600, solver)
         model.initialize()
         model.execute_solver_for_full_model()
         end_time = time.time()
@@ -54,11 +57,11 @@ def main():
         model.current_solution.save_solution(data, total_time, "model", threads)
         
     elif method == "enum":
-        enumeration = Enumeration(data, threads, 43200, 1200)
+        enumeration = Enumeration(data, threads, 21600, 1200, solver)
         enumeration.execute_enumeration()
 
     elif method == "heuristic":
-        heuristic = Heuristic(data, threads, 21600, 1200)
+        heuristic = Heuristic(data, threads, 21600, 1200, solver)
         heuristic.execute_heuristic()
 
     else:
@@ -66,7 +69,6 @@ def main():
         return 1
 
     return 0
-
 
 if __name__ == "__main__":
     main()

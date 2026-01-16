@@ -29,7 +29,7 @@ void Model::reset (Data &data, int threads)
 int Model::run (Data &data)
 {   
     // set time limit
-    int time_limit = 43200;
+    int time_limit = 3600;
 
     // create decision variables
     add_variables(data);

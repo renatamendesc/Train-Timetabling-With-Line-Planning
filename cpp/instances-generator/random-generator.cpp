@@ -812,7 +812,7 @@ void generate_instance (int p, int t)
 // Create instances according to size: number of points and number of trains
 int main(int argc, char *argv[])
 {
-    // set_name = argv[1]; // 5-to-9, 10-to-14, 15-to-19, 20-to-24...
+    set_name = argv[1]; // 5-to-9, 10-to-14, 15-to-19, 20-to-24...
 
     // pair <int, int> trains_range;
     // pair <int, int> points_range;
@@ -859,29 +859,30 @@ int main(int argc, char *argv[])
 
     //         cout << "Generating instance with " << p << " points and " << t << " trains..." << endl;
 
-    //         bool not_feasible = true;
+            bool not_feasible = true;
     //         while (not_feasible)
     //         {
-    //             generate_instance(p, t);
-                // Data data("ex-instance.txt");
-                Data data(argv[1]);
+                int p = 13, t = 5;
+                generate_instance(p, t);
+                Data data("ex-instance.txt");
+                // Data data(argv[1]);
                 
-                // Create log file name based on input file
-                string input_file = argv[1];
-                string log_file = input_file;
-                size_t last_dot = log_file.find_last_of(".");
-                if (last_dot != string::npos) {
-                    log_file = log_file.substr(0, last_dot) + ".log";
-                } else {
-                    log_file += ".log";
-                }
+                // // Create log file name based on input file
+                // string input_file = argv[1];
+                // string log_file = input_file;
+                // size_t last_dot = log_file.find_last_of(".");
+                // if (last_dot != string::npos) {
+                //     log_file = log_file.substr(0, last_dot) + ".log";
+                // } else {
+                //     log_file += ".log";
+                // }
                 
-                // Redirect cout and cerr to log file
-                ofstream log_stream(log_file);
-                streambuf* cout_buf = cout.rdbuf();
-                streambuf* cerr_buf = cerr.rdbuf();
-                cout.rdbuf(log_stream.rdbuf());
-                cerr.rdbuf(log_stream.rdbuf());
+                // // Redirect cout and cerr to log file
+                // ofstream log_stream(log_file);
+                // streambuf* cout_buf = cout.rdbuf();
+                // streambuf* cerr_buf = cerr.rdbuf();
+                // cout.rdbuf(log_stream.rdbuf());
+                // cerr.rdbuf(log_stream.rdbuf());
                 
                 data.print_data();
 
@@ -892,43 +893,43 @@ int main(int argc, char *argv[])
                 bool solved = model.run(data);
                 cout << "Resolveu: " << solved << endl;
                 
-                // Restore original buffers and close log file
-                cout.rdbuf(cout_buf);
-                cerr.rdbuf(cerr_buf);
-                log_stream.close();
+                // // Restore original buffers and close log file
+                // cout.rdbuf(cout_buf);
+                // cerr.rdbuf(cerr_buf);
+                // log_stream.close();
                 
-                // Print confirmation to console (after restoring buffers)
-                cout << "Log salvo em: " << log_file << endl;
+                // // Print confirmation to console (after restoring buffers)
+                // cout << "Log salvo em: " << log_file << endl;
 
                 // // uses enumeration to verify if instance is feasible
                 // Combinations comb(data, stoi(argv[2]), 0, 3600, true);
                 // bool solved = comb.nb_feasible_combinations > 0;
 
-    //             if (solved)
-    //             {
-    //                 // save instance on file
-    //                 string origem = "ex-instance.txt";
-    //                 ostringstream nome_destino;
-    //                 nome_destino << "t" << data.get_nb_trains() << "p" << data.get_nb_points()
-    //                              << "r" << data.get_nb_routes() <<  "h" << data.get_nb_intervals();
+                if (solved)
+                {
+                    // save instance on file
+                    string origem = "ex-instance.txt";
+                    ostringstream nome_destino;
+                    nome_destino << "t" << data.get_nb_trains() << "p" << data.get_nb_points()
+                                 << "r" << data.get_nb_routes() <<  "h" << data.get_nb_intervals();
                     
-    //                 // create directory if it doesn't exist
-    //                 string dir_path = "../experiments/" + set_name;
-    //                 if (!filesystem::exists(dir_path))
-    //                     filesystem::create_directories(dir_path);
-    //                 string destino = dir_path + "/" + nome_destino.str() + ".txt";
+                    // create directory if it doesn't exist
+                    string dir_path = "../new-instances/" + set_name;
+                    if (!filesystem::exists(dir_path))
+                        filesystem::create_directories(dir_path);
+                    string destino = dir_path + "/" + nome_destino.str() + ".txt";
                             
-    //                 try
-    //                 {
-    //                     not_feasible = false;
-    //                     filesystem::copy(origem, destino, filesystem::copy_options::overwrite_existing);
-    //                     cout << "Instância criada com sucesso! - " << p << ", " << t << endl;
-    //                 }
-    //                 catch (filesystem::filesystem_error& e)
-    //                 {
-    //                     cerr << "Erro ao copiar: " << e.what() << endl;
-    //                 }
-    //             }
+                    try
+                    {
+                        not_feasible = false;
+                        filesystem::copy(origem, destino, filesystem::copy_options::overwrite_existing);
+                        cout << "Instância criada com sucesso! - " << p << ", " << t << endl;
+                    }
+                    catch (filesystem::filesystem_error& e)
+                    {
+                        cerr << "Erro ao copiar: " << e.what() << endl;
+                    }
+                }
     //         }
     //     }    
     // }
