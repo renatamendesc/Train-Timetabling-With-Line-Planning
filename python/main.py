@@ -57,11 +57,11 @@ def main():
         model.current_solution.save_solution(data, total_time, "model", threads)
         
     elif method == "enum":
-        enumeration = Enumeration(data, threads, 21600, 1200, solver)
+        enumeration = Enumeration(data, threads, 21600, 3600, solver)
         enumeration.execute_enumeration()
 
     elif method == "heuristic":
-        heuristic = Heuristic(data, threads, 21600, 1200, solver)
+        heuristic = Heuristic(data, threads, 21600, 3600, solver)
         heuristic.execute_heuristic()
 
     else:
