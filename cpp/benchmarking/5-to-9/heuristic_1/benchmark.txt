@@ -1,0 +1,100 @@
+t2p5r2h1.txt:
+    
+    
+        -> Could not prove optimality!
+
+t2p6r7h3.txt:
+    
+    
+        -> Could not prove optimality!
+
+t2p7r8h1.txt:
+    
+    
+        -> Could not prove optimality!
+
+t2p8r2h2.txt:
+    
+    
+        -> Could not prove optimality!
+
+t2p9r2h3.txt:
+    
+    
+        -> Could not prove optimality!
+
+t3p5r7h1.txt:
+    
+    
+        -> Could not prove optimality!
+
+t3p6r2h1.txt:
+    
+    
+        -> Could not prove optimality!
+
+t3p7r6h3.txt:
+    
+    
+        -> Could not prove optimality!
+
+t3p8r7h1.txt:
+    
+    
+        -> Could not prove optimality!
+
+t3p9r7h3.txt:
+    
+    
+        -> Could not prove optimality!
+
+t4p5r7h2.txt:
+    
+    
+        -> Could not prove optimality!
+
+t4p6r7h1.txt:
+    
+    
+        -> Could not prove optimality!
+
+t4p7r7h4.txt:
+    
+    
+        -> Could not prove optimality!
+
+t4p8r2h1.txt:
+    
+    
+        -> Could not prove optimality!
+
+t4p9r2h1.txt:
+    
+    
+        -> Could not prove optimality!
+
+t5p5r2h5.txt:
+    
+    
+        -> Could not prove optimality!
+
+t5p6r6h1.txt:
+    
+    
+        -> Could not prove optimality!
+
+t5p7r2h2.txt:
+    
+    
+        -> Could not prove optimality!
+
+t5p8r8h3.txt:
+    
+    
+        -> Could not prove optimality!
+
+t5p9r2h3.txt:
+    
+    
+        -> Could not prove optimality!
+
