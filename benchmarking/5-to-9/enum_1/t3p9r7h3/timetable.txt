@@ -1,4 +1,4 @@
--> Total time = 4.90
+-> Total time = 4.70
 -> Solution value = 19386
 -> Gap value = 0
 
