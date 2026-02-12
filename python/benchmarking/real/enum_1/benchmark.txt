@@ -1,0 +1,10 @@
+t3p16r10h1.txt:
+    -> Solution value = 38080
+    -> Total time = 21609.22
+    -> Gap value = 0
+
+t3p16r6h1.txt:
+    -> Solution value = 40360
+    -> Total time = 625.86
+    -> Gap value = 0
+

@@ -1,0 +1,100 @@
+t3p10r6h3.txt:
+    -> Solution value = 37612
+    -> Total time = 8.23
+    -> Gap value = 0
+
+t3p11r2h1.txt:
+    -> Solution value = 38040
+    -> Total time = 3607.07
+    -> Gap value = 0
+
+t3p12r2h3.txt:
+    -> Solution value = 36985
+    -> Total time = 3.43
+    -> Gap value = 0
+
+t3p13r12h2.txt:
+    -> Solution value = 17968
+    -> Total time = 72.09
+    -> Gap value = 0
+
+t3p14r8h5.txt:
+    -> Solution value = 31596
+    -> Total time = 13809.30
+    -> Gap value = 0
+
+t4p10r6h3.txt:
+    -> Solution value = 27620
+    -> Total time = 173.12
+    -> Gap value = 0
+
+t4p11r2h2.txt:
+    -> Solution value = 40927
+    -> Total time = 3611.27
+    -> Gap value = 0
+
+t4p12r2h2.txt:
+    -> Solution value = 34230
+    -> Total time = 3606.69
+    -> Gap value = 0
+
+t4p13r8h1.txt:
+    -> Solution value = 31548
+    -> Total time = 5160.34
+    -> Gap value = 0
+
+t4p14r2h4.txt:
+    -> Solution value = 42728
+    -> Total time = 100.31
+    -> Gap value = 0
+
+t5p10r2h4.txt:
+    -> Solution value = 31790
+    -> Total time = 3655.29
+    -> Gap value = 0
+
+t5p11r8h3.txt:
+    -> Solution value = 38459
+    -> Total time = 38.29
+    -> Gap value = 0
+
+t5p12r2h2.txt:
+    -> Solution value = 25303
+    -> Total time = 3603.13
+    -> Gap value = 0
+
+t5p13r15h2.txt:
+    -> Solution value = 16698
+    -> Total time = 3780.10
+    -> Gap value = 0
+
+t5p14r2h1.txt:
+    -> Solution value = 17306
+    -> Total time = 73.35
+    -> Gap value = 0
+
+t6p10r6h2.txt:
+    -> Solution value = 21760
+    -> Total time = 3621.75
+    -> Gap value = 0
+
+t6p11r15h2.txt:
+    -> Solution value = 18908
+    -> Total time = 4299.18
+    -> Gap value = 0
+
+t6p12r10h2.txt:
+    -> Solution value = 23912
+    -> Total time = 3725.56
+    -> Gap value = 0
+
+t6p13r2h2.txt:
+    -> Solution value = 23975
+    -> Total time = 3604.80
+    -> Gap value = 0
+
+t6p14r2h1.txt:
+    -> Solution value = 34879
+    -> Total time = 5962.40
+    -> Gap value = 0
+
