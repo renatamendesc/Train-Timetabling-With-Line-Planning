@@ -611,8 +611,8 @@ class ModelTrainTimetabling:
         self.store_value_of_variables()
         self.current_solution.feasible = True
 
-        if status == OptimizationStatus.OPTIMAL:
-            self.current_solution.proven_optimal = True
+        if status != OptimizationStatus.OPTIMAL:
+            self.current_solution.proven_optimal = False
 
         return True
 
@@ -635,8 +635,10 @@ class ModelTrainTimetabling:
                 self.store_value_of_variables()
                 self.current_solution.feasible = True
 
-                if status == OptimizationStatus.OPTIMAL:
-                    self.current_solution.proven_optimal = True
+                if status != OptimizationStatus.OPTIMAL:
+                    # if any solution for combination is not proven optimal, 
+                    # we cannot prove global optimality of the best solution
+                    self.best_solution.proven_optimal = False
 
                 self.best_solution = copy.deepcopy(self.current_solution)
             return True
@@ -647,9 +649,6 @@ class ModelTrainTimetabling:
                 self.store_value_of_variables()
                 self.current_solution.extract_routes_combination(self.data)
                 self.current_solution.feasible = True
-
-                if status == OptimizationStatus.OPTIMAL:
-                    self.current_solution.proven_optimal = True
 
                 self.best_solution = copy.deepcopy(self.current_solution)
             elif self.model.objective_value == self.best_solution.obj_value:
@@ -668,8 +667,8 @@ class ModelTrainTimetabling:
 
     def get_gap_value(self):
         # calculate gap value
-        best_bound = self.model.objective_bound # lower bound
-        if self.best_solution.obj_value != 0:
-            self.best_solution.gap_value = abs(best_bound - self.best_solution.obj_value) / abs(self.best_solution.obj_value)
+        self.current_solution.lower_bound = self.model.objective_bound # lower bound
+        if self.current_solution.obj_value != 0:
+            self.current_solution.gap_value = abs(self.current_solution.lower_bound - self.current_solution.obj_value) / abs(self.current_solution.obj_value)
         else:
-            self.best_solution.gap_value = None # not a valid gap value
+            self.current_solution.gap_value = None # not a valid gap value

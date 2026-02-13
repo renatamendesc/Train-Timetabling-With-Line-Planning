@@ -28,7 +28,7 @@ class Enumeration:
         # thread local variables
         self.thread_local = threading.local()
 
-        # locks needed
+        # locks
         self.progress_lock = threading.Lock()
         self.best_lock = threading.Lock()
         self.time_limit_lock = threading.Lock()
@@ -79,11 +79,10 @@ class Enumeration:
             if feasible:
                 with self.best_lock:
                     if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
-                        # Only copy when we have a better solution
-                        # Use deepcopy as Solution contains nested structures
+                        # only copy when a better solution was found
                         self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
 
-            # verify time limit before executing the solver
+            # verify time limit
             if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
                 with self.time_limit_lock:
                     self.time_limit_reached = True
@@ -104,17 +103,14 @@ class Enumeration:
         if self.aux_progress == 0:
             self.aux_progress = 1
 
-        # Process tasks in batches to avoid memory issues
-        # Batch size: 3x the number of threads to ensure pipeline stays full
-        # This provides a buffer to prevent threads from being idle while
-        # new tasks are being submitted
+        # process tasks in batches to avoid memory issues
+        # batch size: 3x the number of threads to ensure pipeline stays full
         batch_size = max(self.nb_threads * 3, 10)
         
         with ThreadPoolExecutor(max_workers=self.nb_threads) as executor:
             count = 0
             pending_futures = {}
             
-            # Submit initial batch to fill the pipeline
             while count < self.total_nb_combinations and len(pending_futures) < batch_size:
                 # verify time limit before submitting new task
                 if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
@@ -126,23 +122,19 @@ class Enumeration:
                 pending_futures[future] = count
                 count += 1
             
-            # Process completed tasks and submit new ones as they finish
-            # This loop ensures we immediately replace completed tasks with new ones
+            # process completed tasks and submit new ones as they finish
             while pending_futures:
-                # Check for completed tasks (more efficient: check all at once)
-                done = [f for f in pending_futures if f.done()]
+                done = [f for f in pending_futures if f.done()] # check for completed tasks
                 
-                # Process completed tasks immediately
+                # process completed tasks immediately
                 for future in done:
                     try:
-                        future.result()  # This will raise any exceptions that occurred
+                        future.result()
                     except Exception as e:
-                        # Log error but continue processing
                         pass
                     del pending_futures[future]
                 
-                # Immediately submit new tasks to replace completed ones
-                # This keeps the pipeline full and prevents thread idleness
+                # submit new tasks to replace completed ones
                 while count < self.total_nb_combinations and len(pending_futures) < batch_size:
                     # verify time limit before submitting new task
                     if self.time_limit_reached or (time.time() - self.start_time > self.time_limit_complete):
@@ -154,7 +146,7 @@ class Enumeration:
                     pending_futures[future] = count
                     count += 1
                 
-                # If time limit reached, try to cancel remaining pending tasks
+                # if time limit reached, try to cancel remaining pending tasks
                 if self.time_limit_reached:
                     cancelled = 0
                     for future in list(pending_futures.keys()):
@@ -163,18 +155,16 @@ class Enumeration:
                             del pending_futures[future]
                     if cancelled > 0:
                         print(f"Cancelled {cancelled} pending tasks. Waiting for running tasks to finish...")
-                    # Wait for remaining tasks to complete
+                    # wait for remaining tasks to complete
                     for future in list(pending_futures.keys()):
                         try:
                             future.result()
                         except Exception:
                             pass
                     break
-                
-                # Only sleep if no tasks completed (to avoid busy waiting)
-                # This ensures we check for new completions frequently
+                # only sleep if no tasks completed (to avoid busy waiting)
                 if not done:
-                    time.sleep(0.0001)  # Reduced sleep time for faster response
+                    time.sleep(0.0001)
 
     def execute_enumeration(self):
         # calculate total number of possible combinations
@@ -198,5 +188,5 @@ class Enumeration:
             print("\nFinished enumeration!\n")
         
         print(f"-> Total time = {total_time:.2f}", end="")
-        self.overall_best_sol.display_solution(self.data)
-        self.overall_best_sol.save_solution(self.data, total_time, "enum", self.nb_threads)
+        self.overall_best_sol.display_solution(self.data, "enum", self.time_limit_reached)
+        self.overall_best_sol.save_solution(self.data, total_time, "enum", self.time_limit_reached, self.nb_threads)

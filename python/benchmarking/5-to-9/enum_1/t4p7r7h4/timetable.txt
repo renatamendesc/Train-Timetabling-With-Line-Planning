@@ -1,6 +1,6 @@
--> Total time = 704.83
+-> Total time = 60.00
 -> Solution value = 36082
--> Gap value = 0
+Cannot prove optimality!
 
 =============
 Train 0

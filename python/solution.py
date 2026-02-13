@@ -5,7 +5,6 @@ class Solution:
         self.obj_value = float('inf')
         self.gap_value = 0
 
-        self.proven_optimal = False
         self.feasible = False
 
         # value of variables
@@ -21,6 +20,8 @@ class Solution:
         # routes combination
         self.routes_combination = None
         self.max_nb_repeated_routes = None
+
+        self.proven_optimal = None
 
     def extract_routes_combination(self, data):
         self.routes_combination = []
@@ -48,14 +49,21 @@ class Solution:
     def display_value_of_variables(self):
         pass
 
-    def display_solution(self, data):
+    def display_solution(self, data, method, time_limit_reached=False):
 
         if not self.feasible:
             print("\n-> Could not find a feasible solution!\n")
             exit(1)
 
         print("\n-> Solution value =", round(self.obj_value))
-        print("-> Gap value =", self.gap_value)
+        if method == "model":
+            print("-> Lower bound =", round(self.lower_bound))
+            print("-> Gap value =", f"{self.gap_value*100:.2f}%")
+        elif method == "enum":
+            if time_limit_reached or self.proven_optimal is False:
+                print("Cannot prove optimality!")
+            else:
+                print("-> Gap value =", f"{self.gap_value*100:.2f}%")
         print()
 
         def convert_time(seconds):
@@ -86,7 +94,7 @@ class Solution:
                                 )
                             print(arrival)
 
-    def save_solution(self, data, total_time, method, threads):
+    def save_solution(self, data, total_time, method, time_limit_reached=False, threads=1):
 
         output_file = f"benchmarking/{data.instance_set}/{method}_{threads}/{data.instance_name}/timetable.txt"
         
@@ -96,7 +104,14 @@ class Solution:
         with open(output_file, 'w') as f:
             f.write(f"-> Total time = {total_time:.2f}\n")
             f.write(f"-> Solution value = {round(self.obj_value)}\n")
-            f.write(f"-> Gap value = {self.gap_value}\n")
+            if method == "model":
+                f.write(f"-> Lower bound = {round(self.lower_bound)}\n")
+                f.write(f"-> Gap value = {self.gap_value * 100:.2f}%\n")
+            elif method == "enum":
+                if time_limit_reached or self.proven_optimal is False:
+                    f.write("Cannot prove optimality!\n")
+                else:
+                    f.write(f"-> Gap value = {self.gap_value * 100:.2f}%\n")
             f.write("\n")
             
             def convert_time(seconds):

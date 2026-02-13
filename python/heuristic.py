@@ -29,8 +29,10 @@ class Heuristic:
 
         self.iter = 0
 
-        # threading-related attributes
+        # thread local variables
         self.thread_local = threading.local()
+
+        # locks
         self.best_lock = threading.Lock()
         self.progress_lock = threading.Lock()
         self.time_limit_lock = threading.Lock()
@@ -162,6 +164,7 @@ class Heuristic:
     #     self.model.initialize()
     #     self.model.create_model_for_combination(routes)
     #     self.model.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
+
     def unfix_trips_from_all_combinations(self):
         new_candidates = []
         nb_trains = self.data.nb_trains
@@ -368,7 +371,7 @@ class Heuristic:
         self.create_initial_candidates()
         self.solve_initial_candidates()
         
-        print(f"achou viável? {self.improved_sol}")
+        # print(f"found feasible solution? {self.improved_sol}")
         while self.improved_sol and not self.time_limit_reached:
             self.iter += 1
 
@@ -385,18 +388,6 @@ class Heuristic:
 
             self.execute_candidate_combinations()
 
-        # end_loop_time = time.time()
-        # loop_time = end_loop_time - self.start_time
-        # print(f"\n-> Loop time = {loop_time:.2f}\n")
-
-        # if not reached_time_limit:
-        #     # unfix final trips
-        #     print("Unfixing final trips from best combination...")
-        #     self.unfix_trips_from_best_combination()
-        # end_unfix_time = time.time()
-        # unfix_time = end_unfix_time - end_loop_time
-        # print(f"\n-> Unfix time = {unfix_time:.2f}")
-
         end_time = time.time()
         total_time = end_time - self.start_time
         
@@ -406,5 +397,5 @@ class Heuristic:
             print("\nFinished heuristic!\n")
         
         print(f"-> Total time = {total_time:.2f}", end="")
-        self.overall_best_sol.display_solution(self.data)
-        self.overall_best_sol.save_solution(self.data, total_time, "heuristic", self.nb_threads)
+        self.overall_best_sol.display_solution(self.data, "heuristic", self.time_limit_reached)
+        self.overall_best_sol.save_solution(self.data, total_time, "heuristic", self.time_limit_reached, self.nb_threads)

@@ -58,3 +58,44 @@ t5p16r15h2.txt:
     -> Total time = 3758.01
     -> Gap value = 0
 
+t5p17r6h1.txt:
+    -> Solution value = 22620
+    -> Total time = 3622.81
+    -> Gap value = 0
+
+t5p18r6h1.txt:
+    -> Solution value = 17834
+    -> Total time = 3623.59
+    -> Gap value = 0
+
+t5p19r16h1.txt:
+    -> Solution value = 26184
+    -> Total time = 1536.10
+    -> Gap value = 0
+
+t6p15r7h1.txt:
+    -> Solution value = 29656
+    -> Total time = 6684.10
+    -> Gap value = 0
+
+t6p16r6h1.txt:
+    -> Solution value = 43922
+    -> Total time = 13490.60
+    -> Gap value = 0
+
+t6p17r10h1.txt:
+    -> Solution value = 14914
+    -> Total time = 3702.08
+    -> Gap value = 0
+
+t6p18r15h3.txt:
+    -> Solution value = 58217
+    -> Total time = 1890.18
+    -> Gap value = 0
+
+t6p19r2h1.txt:
+    -> Solution value = 44639
+    -> Total time = 7731.83
+    -> Gap value = 0
+
+
