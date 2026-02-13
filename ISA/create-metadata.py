@@ -171,51 +171,54 @@ def extract_features(inst):
     return feats
 
 def get_algo_times(filepath, method):
-
-    # print(method)
-
     set_name = Path(filepath).parent.name
     instance_name = Path(filepath).name
 
-    # print(set_name) 
-    # print(instance_name)  
+    # benchmark-gurobi-servidor.txt existe só em heuristic_1/5-to-9; nos outros use benchmark.txt
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    p = project_root / "python" / "benchmarking" / set_name / method / "benchmark.txt"
 
-    lines = open(f"../python/benchmarking/{set_name}/{method}/benchmark-gurobi-servidor.txt", "r").read().splitlines()
+    lines = p.read_text().splitlines()
     for i, line in enumerate(lines):
         if line.strip() == f"{instance_name}:":
-            total_time = float(lines[i+2].split("=")[1])
-            break
+            # search for total time in the next lines of the block
+            for j in range(i + 1, min(i + 5, len(lines))):
+                if "Total time" in lines[j] and "=" in lines[j]:
+                    total_time = float(lines[j].split("=")[1].strip())
+                    return total_time
+            # incomplete benchmark (ex.: real/enum_1)
+            return np.nan
+    raise ValueError(f"Instance {instance_name!r} not found in {p}")
 
-    # print(total_time)
-    return np.log10(total_time + 1) # log 10 to normalize the time
-
-def main(instance_set, out_csv="metadata.csv"):
+def main(out_csv):
     rows = []
-    
-    # convert instance_set to Path and get all .txt files in the directory
-    instance_dir = Path(instance_set)
-    instance_files = sorted(instance_dir.glob("*.txt"))
+    project_root = Path(__file__).resolve().parent.parent
 
-    for fpath in instance_files:
-        inst = read_instance(fpath)
-        feats = extract_features(inst)
-        feats["Instances"] = Path(fpath).stem
-        # feats["algo_Model"] = get_algo_times(fpath, "model_1")
-        # feats["algo_Enum"] = get_algo_times(fpath, "enum_1")
-        feats["algo_Heuristic"] = get_algo_times(fpath, "heuristic_1")
+    for instance_set in ["5-to-9", "10-to-14", "15-to-19", "20-to-24", "real"]:
+        instance_dir = project_root / "instances" / instance_set
+        instance_files = sorted(instance_dir.glob("*.txt"))
 
-        rows.append(feats)
+        for fpath in instance_files:
+            inst = read_instance(fpath)
+            feats = extract_features(inst)
+
+            feats["Instances"] = Path(fpath).stem
+
+            feats["algo_Model"] = get_algo_times(fpath, "model_1")
+            feats["algo_Enum"] = get_algo_times(fpath, "enum_1")
+            feats["algo_Heuristic"] = get_algo_times(fpath, "heuristic_1")
+
+            rows.append(feats)
 
     df = pd.DataFrame(rows)
-    df = df.set_index("Instances")
-    df.to_csv(out_csv)
-
-    print(f"Metadata file written to {out_csv}")
+    out_path = Path(out_csv)
+    if not out_path.is_absolute():
+        out_path = project_root / "ISA" / out_path
+    df.to_csv(out_path, index=False)
+    print(f"Metadata file written to {out_path}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python3 create-metadata.py <instance_directory>")
-        sys.exit(1)
 
-    main(sys.argv[1]) # giving the instance directory as argument
+    main("metadata.csv") # giving the output file as argument
