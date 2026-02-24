@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: ./benchmark.sh <instances_subfolder> <method> <threads> [language]
+# Usage: ./benchmark.sh <instances_subfolder> <method> <threads> <solver> [language]
 # language: "cpp" (default) or "python"
 
 # check input arguments
@@ -13,7 +13,8 @@ fi
 SUBFOLDER=$(basename "$1")
 METHOD=$2
 THREADS=$3
-LANGUAGE=${4:-cpp}  # default to cpp if not provided
+SOLVER=$4
+LANGUAGE=${5:-cpp}  # default to cpp if not provided
 
 # validate language
 if [ "$LANGUAGE" != "cpp" ] && [ "$LANGUAGE" != "python" ]; then
@@ -23,7 +24,7 @@ fi
 
 # set executable based on language
 if [ "$LANGUAGE" = "python" ]; then
-    # Use python3 from venv if available, otherwise use system python3
+    # use python3 from venv if available, otherwise use system python3
     if [ -f "./python/venv/bin/python3" ]; then
         PYTHON_EXEC="./python/venv/bin/python3"
     else
@@ -31,14 +32,14 @@ if [ "$LANGUAGE" = "python" ]; then
     fi
     EXEC="$PYTHON_EXEC python/main.py"
     INPUT_FOLDER=./instances/$SUBFOLDER
-    OUTPUT_FOLDER=./python/benchmarking/$SUBFOLDER/${METHOD}_${THREADS}
+    OUTPUT_FOLDER=./python/benchmarking/$SUBFOLDER/${METHOD}_${THREADS}_${SOLVER}
 else
     EXEC=./cpp/cbtu
     INPUT_FOLDER=./instances/$SUBFOLDER
-    OUTPUT_FOLDER=./cpp/benchmarking/$SUBFOLDER/${METHOD}_${THREADS}
+    OUTPUT_FOLDER=./cpp/benchmarking/$SUBFOLDER/${METHOD}_${THREADS}_${SOLVER}
 fi
 
-OUTPUT_FILE=$OUTPUT_FOLDER/benchmark.txt
+OUTPUT_FILE=$OUTPUT_FOLDER/benchmark-${SOLVER}.txt
 
 # validate input folder
 if [ ! -d "$INPUT_FOLDER" ]; then
@@ -56,14 +57,14 @@ for f in "$INPUT_FOLDER"/*; do
     [ -f "$f" ] || continue
     INSTANCE=$(basename "$f")
     INSTANCE_NAME="${INSTANCE%.*}"  # remove .txt
-    echo "Running: $INSTANCE | method=$METHOD | threads=$THREADS | language=$LANGUAGE"
+    echo "Running: $INSTANCE | method=$METHOD | threads=$THREADS | solver=$SOLVER | language=$LANGUAGE"
 
     # create individual instance folder
     INSTANCE_FOLDER="$OUTPUT_FOLDER/$INSTANCE_NAME"
     mkdir -p "$INSTANCE_FOLDER"
 
     # execute the program and capture output
-    OUTPUT=$($EXEC "$f" $METHOD $THREADS 2>&1)
+    OUTPUT=$($EXEC "$f" $METHOD $THREADS $SOLVER 2>&1)
 
     # save complete log to instance folder
     echo "$OUTPUT" > "$INSTANCE_FOLDER/output.log"

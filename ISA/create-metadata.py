@@ -45,30 +45,13 @@ def read_instance(filepath):
                 inst["num_stations"] = int(lines[i+1])
                 i += 2
 
-            # elif key == "stations":
-            #     inst["stations"] = list(map(int, lines[i+1].split()))
-            #     i += 2
-
             elif key == "num_crossings":
                 inst["num_crossings"] = int(lines[i+1])
                 i += 2
 
-            # elif key == "crossings":
-            #     inst["crossings"] = list(map(int, lines[i+1].split()))
-            #     i += 2
-
             elif key == "num_depots":
                 inst["num_depots"] = int(lines[i+1])
                 i += 2
-
-            # elif key == "depots":
-            #     inst["depots"] = list(map(int, lines[i+1].split()))
-            #     i += 2
-
-            # (don´t think this is a relevant info)
-            # elif key == "initial_point":
-            #     inst["initial_point"] = int(lines[i+1])
-            #     i += 2
 
             elif key == "num_routes":
                 inst["num_routes"] = int(lines[i+1])
@@ -156,25 +139,77 @@ def extract_features(inst):
     feats["feature_avg_arcs_in_cost_matrix"] = np.mean(inst["cost_matrix"][(inst["cost_matrix"] != -1) & (inst["cost_matrix"] != 0)])
     
     # get average demands per day (calculate demands of a day)
-    # print(inst["demands"])
     demands_per_day = [0]*(inst["num_points"]*2)
     for i in range(inst["num_points"]*2):
         for j in range(inst["num_intervals"]):
             demands_per_day[i] += inst["demands"][i][j]
-    # print(demands_per_day)
     feats["feature_avg_demands_per_day"] = np.mean(demands_per_day)
 
-    # some features to be futurely added: 
-    # - ratio between points and stations, crossings, depots; 
-    # - size of a single interval;
+    # new features (decide whether to keep them or not):
+    # get ratio between points and trains
+    feats["feature_ratio_points_trains"] = inst["num_points"] / inst["num_trains"]
+    
+    # get ratio between points and stations, crossings and depots
+    feats["feature_ratio_points_stations"] = inst["num_points"] / inst["num_stations"]
+    feats["feature_ratio_points_crossings"] = inst["num_points"] / inst["num_crossings"]
+    feats["feature_ratio_points_depots"] = inst["num_points"] / inst["num_depots"]
+
+    # get standard deviation of arcs in cost matrix
+    feats["feature_std_arcs_in_cost_matrix"] = np.std(inst["cost_matrix"][(inst["cost_matrix"] != -1) & (inst["cost_matrix"] != 0)])
 
     return feats
+
+def get_solution_value_from_benchmark(project_root, set_name, instance_name, method):
+    # read solution value for one instance from a method's benchmark.txt
+    p = project_root / "python" / "benchmarking" / set_name / method / "benchmark.txt"
+    if not p.exists():
+        return np.nan
+    lines = p.read_text().splitlines()
+    for i, line in enumerate(lines):
+        if line.strip() == f"{instance_name}:":
+            for j in range(i + 1, min(i + 5, len(lines))):
+                if "Solution value" in lines[j] and "=" in lines[j]:
+                    return float(lines[j].split("=")[1].strip())
+            return np.nan
+    return np.nan
+
+
+def get_best_ub(project_root):
+    # list of dicts: solution value per instance and per method (from each method's benchmark.txt)
+    methods = ["model_1", "enum_1", "heuristic_1"]
+    result = []
+    for instance_set in ["5-to-9", "10-to-14", "15-to-19", "20-to-24", "real"]:
+        instance_dir = project_root / "instances" / instance_set
+        instance_files = sorted(instance_dir.glob("*.txt"))
+        for fpath in instance_files:
+            instance_name = fpath.name
+            instance_stem = fpath.stem
+            row = {"set": instance_set, "instance": instance_stem}
+            for method in methods:
+                row[method] = get_solution_value_from_benchmark(project_root, instance_set, instance_name, method)
+            row["best_ub"] = np.nanmin([row[m] for m in methods])
+            result.append(row)
+    return result
+
+
+def get_algo_gaps(filepath, method):
+    # return % gap to best_ub for this instance and method
+    set_name = Path(filepath).parent.name
+    instance_name = Path(filepath).name
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    methods = ["model_1", "enum_1", "heuristic_1"]
+    values = [get_solution_value_from_benchmark(project_root, set_name, instance_name, m) for m in methods]
+    best_ub = np.nanmin(values)
+    val = get_solution_value_from_benchmark(project_root, set_name, instance_name, method)
+    if np.isnan(best_ub) or best_ub == 0 or np.isnan(val):
+        return np.nan
+    return ((val - best_ub) / best_ub) * 100
 
 def get_algo_times(filepath, method):
     set_name = Path(filepath).parent.name
     instance_name = Path(filepath).name
 
-    # benchmark-gurobi-servidor.txt existe só em heuristic_1/5-to-9; nos outros use benchmark.txt
     script_dir = Path(__file__).resolve().parent
     project_root = script_dir.parent
     p = project_root / "python" / "benchmarking" / set_name / method / "benchmark.txt"
@@ -187,11 +222,11 @@ def get_algo_times(filepath, method):
                 if "Total time" in lines[j] and "=" in lines[j]:
                     total_time = float(lines[j].split("=")[1].strip())
                     return total_time
-            # incomplete benchmark (ex.: real/enum_1)
-            return np.nan
+            
+            return np.nan # incomplete benchmark 
     raise ValueError(f"Instance {instance_name!r} not found in {p}")
 
-def main(out_csv):
+def main(out_csv, metadata_type):
     rows = []
     project_root = Path(__file__).resolve().parent.parent
 
@@ -205,9 +240,14 @@ def main(out_csv):
 
             feats["Instances"] = Path(fpath).stem
 
-            feats["algo_Model"] = get_algo_times(fpath, "model_1")
-            feats["algo_Enum"] = get_algo_times(fpath, "enum_1")
-            feats["algo_Heuristic"] = get_algo_times(fpath, "heuristic_1")
+            if metadata_type == "gaps":
+                feats["algo_Model"] = get_algo_gaps(fpath, "model_1")
+                feats["algo_Enum"] = get_algo_gaps(fpath, "enum_1")
+                feats["algo_Heuristic"] = get_algo_gaps(fpath, "heuristic_1")
+            elif metadata_type == "times":
+                feats["algo_Model"] = get_algo_times(fpath, "model_1")
+                feats["algo_Enum"] = get_algo_times(fpath, "enum_1")
+                feats["algo_Heuristic"] = get_algo_times(fpath, "heuristic_1")
 
             rows.append(feats)
 
@@ -220,5 +260,11 @@ def main(out_csv):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Error: Metadata type and output file not provided!")
+        exit(1)
 
-    main("metadata.csv") # giving the output file as argument
+    out_csv = sys.argv[1]
+    metadata_type = sys.argv[2]
+    
+    main(out_csv, metadata_type)

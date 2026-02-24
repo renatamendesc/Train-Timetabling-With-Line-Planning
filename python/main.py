@@ -8,7 +8,7 @@ from enumeration import Enumeration
 from heuristic import Heuristic
 
 # solver = "HiGHS"
-solver = "GUROBI"
+# solver = "GUROBI"
 
 def main():
     # read instance
@@ -35,6 +35,17 @@ def main():
         threads = int(sys.argv[3])
         if threads < 1 or threads > max_threads:
             print("Error: Number of threads is not valid!")
+            return 1
+
+    # read solver ("HiGHS" or "GUROBI")
+    solver = 0
+    if len(sys.argv) < 5:
+        print("Solver not provided! - Using default solver: Gurobi")
+        solver = "GUROBI"
+    else:
+        solver = sys.argv[4]
+        if solver != "HiGHS" and solver != "GUROBI":
+            print("Error: Solver is not valid!")
             return 1
 
     print("\n\t================================================================")
