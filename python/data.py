@@ -191,28 +191,31 @@ class Data:
                 # considering that the train in the upper section departs first
                 k = i
                 v = next_crossing
-                q = next_crossing - self.nb_points - 1
-                a = None
-                for arc in self.arcs:
-                    # find arc a = (q, q + 1)
-                    if arc["out"] == q and arc["inc"] == q + 1:
-                        a = arc
-                        break
+                q = next_crossing - self.nb_points # - 1
+                # a = None
+                # for arc in self.arcs:
+                #     # find arc a = (q, q + 1)
+                #     if arc["out"] == q and arc["inc"] == q + 1:
+                #         a = arc
+                #         break
 
-                self.inc_points.append((k, q, v, a))
+                # self.inc_points.append((k, q, v, a))
+                self.inc_points.append((k, q, v))
+
 
                 # considering that the train in the lower section departs first
                 k = next_crossing
                 v = i
-                q = i + self.nb_points + 1
-                a = None
-                for arc in self.arcs:
-                    # find arc a = (q, q - 1)
-                    if arc["out"] == q and arc["inc"] == q - 1:
-                        a = arc
-                        break
+                q = i + self.nb_points # + 1
+                # a = None
+                # for arc in self.arcs:
+                #     # find arc a = (q, q - 1)
+                #     if arc["out"] == q and arc["inc"] == q - 1:
+                #         a = arc
+                #         break
 
-                self.inc_points.append((k, q, v, a))
+                # self.inc_points.append((k, q, v, a))
+                self.inc_points.append((k, q, v))
     
     # =====================================================================
     #            Methods to read and display data from the instance
@@ -512,7 +515,8 @@ class Data:
         # display set of incompatible points (collisions)
         print(f"incompatible points...")
         for i in range(len(self.inc_points)):
-            print(f"\t[{self.inc_points[i][0]}, {self.inc_points[i][1]}, {self.inc_points[i][2]}, ({self.inc_points[i][3]['out']}, {self.inc_points[i][3]['inc']})]")
+            print(f"\t[{self.inc_points[i][0]}, {self.inc_points[i][1]}, {self.inc_points[i][2]}]")
+            # print(f"\t[{self.inc_points[i][0]}, {self.inc_points[i][1]}, {self.inc_points[i][2]}, ({self.inc_points[i][3]['out']}, {self.inc_points[i][3]['inc']})]")
         print(end="\n")
 
         # display non cyclical routes

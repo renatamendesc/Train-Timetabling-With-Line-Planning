@@ -490,12 +490,21 @@ class ModelTrainTimetabling:
                                 k = inc_point[0]
                                 q = inc_point[1]
                                 v = inc_point[2]
-                                a = inc_point[3]["idx"]
+
+                                # k = inc_point[0]
+                                # q = inc_point[1]
+                                # v = inc_point[2]
+                                # a = inc_point[3]["idx"]
 
                                 self.model += (
-                                    self.y_[t][i][v] >= self.y_[l][j][q] + self.data.distance[a] - self.BIG_M * (1 - self.w_[t][i][v][l][j][k]),
+                                    self.y_[t][i][v] >= self.y_bar_[l][j][q] - self.BIG_M * (1 - self.w_[t][i][v][l][j][k]),
                                     f"collisions_diff_directions({t})({i})({v})({l})({j})({k})"
                                 )
+
+                                # self.model += (
+                                #     self.y_[t][i][v] >= self.y_[l][j][q] + self.data.distance[a] - self.BIG_M * (1 - self.w_[t][i][v][l][j][k]),
+                                #     f"collisions_diff_directions({t})({i})({v})({l})({j})({k})"
+                                # )
 
         # constraints to avoid collisions in the same direction (overtakings) (25)
         for t in range(self.data.nb_trains):
