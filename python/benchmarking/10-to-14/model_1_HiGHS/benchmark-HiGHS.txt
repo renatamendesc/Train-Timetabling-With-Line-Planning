@@ -1,0 +1,100 @@
+t3p10r6h3.txt:
+    -> Solution value = 37612
+    -> Total time = 215.15
+    -> Gap value = 0.00%
+
+t3p11r2h1.txt:
+    -> Solution value = 38040
+    -> Total time = 21601.89
+    -> Gap value = 7.26%
+
+t3p12r2h3.txt:
+    -> Solution value = 36985
+    -> Total time = 37.19
+    -> Gap value = 0.00%
+
+t3p13r12h2.txt:
+    -> Solution value = 17968
+    -> Total time = 803.36
+    -> Gap value = 0.00%
+
+t3p14r8h5.txt:
+    -> Solution value = 39947
+    -> Total time = 21601.47
+    -> Gap value = 60.50%
+
+t4p10r6h3.txt:
+    -> Solution value = 27620
+    -> Total time = 18923.66
+    -> Gap value = 0.00%
+
+t4p11r2h2.txt:
+    -> Solution value = 40927
+    -> Total time = 21602.68
+    -> Gap value = 22.70%
+
+t4p12r2h2.txt:
+    -> Solution value = 36736
+    -> Total time = 4259.65
+    -> Gap value = 0.01%
+
+t4p13r8h1.txt:
+    -> Solution value = 41148
+    -> Total time = 21601.85
+    -> Gap value = 32.67%
+
+t4p14r2h4.txt:
+    -> Solution value = 45277
+    -> Total time = 21602.29
+    -> Gap value = 11.51%
+
+t5p10r2h4.txt:
+    
+    -> Total time = 21603.84
+        -> Could not prove optimality!
+
+t5p11r8h3.txt:
+    -> Solution value = 38459
+    -> Total time = 1309.84
+    -> Gap value = 0.00%
+
+t5p12r2h2.txt:
+    -> Solution value = 37818
+    -> Total time = 21601.63
+    -> Gap value = 1.02%
+
+t5p13r15h2.txt:
+    -> Solution value = 16698
+    -> Total time = 18697.35
+    -> Gap value = 0.01%
+
+t5p14r2h1.txt:
+    -> Solution value = 17306
+    -> Total time = 800.36
+    -> Gap value = 0.00%
+
+t6p10r6h2.txt:
+    -> Solution value = 25672
+    -> Total time = 3147.43
+    -> Gap value = 0.00%
+
+t6p11r15h2.txt:
+    -> Solution value = 36406
+    -> Total time = 8300.51
+    -> Gap value = 0.01%
+
+t6p12r10h2.txt:
+    -> Solution value = 43027
+    -> Total time = 858.54
+    -> Gap value = 0.00%
+
+t6p13r2h2.txt:
+    -> Solution value = 26000
+    -> Total time = 9725.83
+    -> Gap value = 0.00%
+
+t6p14r2h1.txt:
+    -> Solution value = 23633
+    -> Total time = 21601.30
+    -> Gap value = 29.32%
+

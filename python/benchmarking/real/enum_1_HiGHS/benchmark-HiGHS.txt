@@ -1,0 +1,20 @@
+t3p16r10h1.txt:
+    -> Solution value = 38080
+    -> Total time = 21614.10
+        -> Could not prove optimality!
+
+t3p16r6h1.txt:
+    -> Solution value = 40360
+    -> Total time = 4112.36
+    -> Gap value = 0.00%
+
+t3p16r6h4.txt:
+    -> Solution value = 47056
+    -> Total time = 2807.73
+    -> Gap value = 0.00%
+
+t3p16r6h6.txt:
+    -> Solution value = 47031
+    -> Total time = 1623.92
+    -> Gap value = 0.00%
+

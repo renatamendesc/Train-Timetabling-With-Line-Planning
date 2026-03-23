@@ -1,0 +1,100 @@
+t3p15r13h2.txt:
+    -> Solution value = 31927
+    -> Total time = 26.45
+    -> Gap value = 0.00%
+
+t3p16r2h1.txt:
+    -> Solution value = 13579
+    -> Total time = 39.40
+    -> Gap value = 0.00%
+
+t3p17r6h3.txt:
+    -> Solution value = 25404
+    -> Total time = 39.49
+    -> Gap value = 0.00%
+
+t3p18r2h4.txt:
+    -> Solution value = 31463
+    -> Total time = 348.16
+    -> Gap value = 0.00%
+
+t3p19r2h5.txt:
+    -> Solution value = 41170
+    -> Total time = 324.19
+    -> Gap value = 0.00%
+
+t4p15r2h1.txt:
+    
+    -> Total time = 14422.03
+        -> Could not prove optimality!
+
+t4p16r2h2.txt:
+    -> Solution value = 30626
+    -> Total time = 3615.43
+    -> Gap value = 0.00%
+
+t4p17r11h3.txt:
+    -> Solution value = 38010
+    -> Total time = 443.72
+    -> Gap value = 0.00%
+
+t4p18r2h4.txt:
+    -> Solution value = 39382
+    -> Total time = 1316.77
+    -> Gap value = 0.00%
+
+t4p19r15h1.txt:
+    -> Solution value = 5008
+    -> Total time = 104.94
+    -> Gap value = 0.00%
+
+t5p15r2h2.txt:
+    -> Solution value = 24939
+    -> Total time = 3606.17
+    -> Gap value = 0.00%
+
+t5p16r15h2.txt:
+    -> Solution value = 18440
+    -> Total time = 3937.82
+    -> Gap value = 0.00%
+
+t5p17r6h1.txt:
+    -> Solution value = 22620
+    -> Total time = 3646.49
+    -> Gap value = 0.00%
+
+t5p18r6h1.txt:
+    -> Solution value = 17834
+    -> Total time = 3649.61
+    -> Gap value = 0.00%
+
+t5p19r16h1.txt:
+    -> Solution value = 26184
+    -> Total time = 11312.82
+    -> Gap value = 0.00%
+
+t6p15r7h1.txt:
+    -> Solution value = 29656
+    -> Total time = 15937.69
+    -> Gap value = 0.00%
+
+t6p16r6h1.txt:
+    -> Solution value = 43922
+    -> Total time = 18831.17
+    -> Gap value = 0.00%
+
+t6p17r10h1.txt:
+    -> Solution value = 15186
+    -> Total time = 3747.59
+    -> Gap value = 0.00%
+
+t6p18r15h3.txt:
+    -> Solution value = 58217
+    -> Total time = 9691.64
+    -> Gap value = 0.00%
+
+t6p19r2h1.txt:
+    -> Solution value = 44639
+    -> Total time = 14406.93
+    -> Gap value = 0.00%
+
