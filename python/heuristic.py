@@ -244,12 +244,10 @@ class Heuristic:
         self.original_candidates = self.candidate_combinations[:]
         self.candidate_combinations.clear() 
         for candidate in self.original_candidates:
-            print(f"Candidate: {candidate}")
             for i in range(nb_trains):
                 new_candidate = copy.deepcopy(candidate)
                 for j in range(len(candidate[i])):
                     new_candidate[i][j] = self.data.nb_routes
-                print(f"Candidate after fixing train {i}: {new_candidate}")
                 if self.combinations.verify_daily_demands(new_candidate) and self.combinations.normalize_combination(new_candidate):
                     self.candidate_combinations.append(new_candidate)
 
@@ -278,7 +276,9 @@ class Heuristic:
                 # fix one train not completing any trip
                 print("\nFixing one train not completing any trip...")
                 self.fix_one_train_not_completing_any_trip()
+                print(f"Candidate combinations: {self.candidate_combinations}")
                 self.execute_candidate_combinations()
+                print(f"Combinacoes executadas!")
 
     def solve_combination_task(self, candidate_combination):
 
@@ -297,6 +297,15 @@ class Heuristic:
 
         model_thread = self.thread_local.model
 
+        # flag_optimal = False
+        # if set(map(tuple, candidate_combination)) == {
+        #     (5, 5, 5, 5, 5, 5, 5),
+        #     (5, 5, 5, 5, 5, 5, 8),
+        #     (4, 4, 4, 8, 8, 8, 8),
+        # }:
+        #     print("VAI RESOLVER BASE DO OTIMO")
+        #     flag_optimal = True
+            
         print(f"Solving combination: {candidate_combination}")
         model_thread.reset()
         model_thread.create_model_for_combination(candidate_combination)
@@ -310,6 +319,13 @@ class Heuristic:
             return
         
         feasible = model_thread.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
+
+        # if flag_optimal:
+        #     if feasible:
+        #         print("BASE DO OTIMO VIAVEL")
+        #     else:
+        #         print("BASE DO OTIMO INVIÁVEL")
+
         if feasible:
             with self.best_lock:
                 if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
@@ -399,3 +415,4 @@ class Heuristic:
         print(f"-> Total time = {total_time:.2f}", end="")
         self.overall_best_sol.display_solution(self.data, "heuristic", self.time_limit_reached)
         self.overall_best_sol.save_solution(self.data, total_time, "heuristic", self.time_limit_reached, self.nb_threads)
+        self.overall_best_sol.create_graph(self.data, "heuristic", self.nb_threads)

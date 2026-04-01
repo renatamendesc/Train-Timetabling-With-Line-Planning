@@ -1,0 +1,53 @@
+t3p16r10h1.txt:
+    -> Solution value = 38080
+    -> Total time = 21609.22
+
+t3p16r6h1.txt:
+    -> Solution value = 40360
+    -> Total time = 625.86
+
+t3p16r6h4.txt:
+    -> Solution value = 47056
+    -> Total time = 701.86
+
+t3p16r6h6.txt:
+    -> Solution value = 47031
+    -> Total time = 714.26
+
+t3p16r8h1.txt:
+    -> Solution value = 34480
+    -> Total time = 21600.98
+
+t4p16r10h1.txt:
+    -> Solution value = 26180
+    -> Total time = 21600.02
+
+t4p16r6h1.txt:
+    -> Solution value = 30520
+    -> Total time = 21601.42
+
+t4p16r6h4.txt:
+    -> Solution value = 46816
+    -> Total time = 21600.75
+
+t4p16r6h6.txt:
+    -> Solution value = 47031
+    -> Total time = 21601.54
+
+t4p16r8h1.txt:
+
+t5p16r6h1.txt:
+
+t5p16r6h4.txt:
+
+t5p16r6h6.txt:
+    -> Solution value = 47031
+    -> Total time = 14548.33
+
+t5p16r8h1.txt:
+
+t5p16r10h1.txt:
+
+
+
+

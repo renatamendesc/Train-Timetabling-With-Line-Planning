@@ -66,6 +66,7 @@ def main():
         print(f"\n-> Total time = {total_time:.2f}", end="")
         model.current_solution.display_solution(data, "model")
         model.current_solution.save_solution(data, total_time, "model", False, threads)
+        model.current_solution.create_graph(data, "model", threads)
         
     elif method == "enum":
         enumeration = Enumeration(data, threads, 21600, 3600, solver)

@@ -42,7 +42,11 @@ class Combinations:
             if not self.data.is_valid_route(0, 0, seq[0]):
                 return False
         else:
-            return False
+            # verify whether other routes are also not completed
+            if not all(route == route_not_completed for route in seq[1:]):
+                return False
+            else:
+                return True
 
         return self.verify_sequence_feasibility(seq, route_not_completed)
 
@@ -117,7 +121,9 @@ class Combinations:
         times_vertex_was_visited = [0] * self.data.get_nb_vertices()
         for i in range(len(combination)):
             for j in range(len(combination[i])):
-                if combination[i][j] != self.data.nb_routes and combination[i][j] != -1:
+                if combination[i][j] == -1: # if route is undefined cannot calculate if demands were met
+                    return True
+                if combination[i][j] != self.data.nb_routes:
                     route = combination[i][j]
                     for vertex in self.data.route_vertices[route]:
                         times_vertex_was_visited[vertex] += 1

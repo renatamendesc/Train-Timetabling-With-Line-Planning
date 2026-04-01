@@ -143,5 +143,36 @@ class Solution:
         
         print(f"\nSolution saved to {output_file}")
 
-    def create_graph(self):
-        pass
+    def create_graph(self, data, method, threads=1):
+        # auxiliate file to create the graph
+        with open("../script-solution.txt", "w") as solution_script:
+            solution_script.write(f"num_points {data.nb_points}\n")
+            solution_script.write("---\n")
+
+            for t in range(data.nb_trains):
+                for i in range(data.max_trips_per_train[t]):
+                    for r in range(data.nb_routes):
+                        if data.is_valid_route(t, i, r):
+                            if self.lambda_values[t][i][r] > 0:
+                                for arc in data.route_arcs[r]:
+                                    departure = arc["out"]
+                                    arrival = arc["inc"]
+
+                                    solution_script.write(
+                                        f"{t},{i},{data.vertex_to_point[departure]}: {self.y_values[t][i][departure]} -> "
+                                    )
+                                    solution_script.write(
+                                        f"{t},{i},{data.vertex_to_point[arrival]}: "
+                                        f"{self.y_values[t][i][departure] + data.distance[arc['idx']]} // "
+                                    )
+                    solution_script.write("\n")
+                solution_script.write("\n")
+
+        # call python script
+        import subprocess
+        import sys
+        file_name = "../script-graph.py"
+        instance = f"{data.instance_set}/{method}_{threads}/{data.instance_name}"
+
+        command = [sys.executable, file_name, instance]
+        subprocess.run(command, check=True)

@@ -17,3 +17,5 @@ psutil
 
 numpy
 
+matplotlib
+

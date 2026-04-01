@@ -41,6 +41,7 @@ cbtu.lp
 
 # File to generate graphs
 script-solution.txt
+script-latex-table.py
 
 # useful scripts
 latex-table.py
@@ -62,3 +63,5 @@ python/server-benchmarking/
 drafts.txt
 
 benchmarking-old/
+
+results_table.tex

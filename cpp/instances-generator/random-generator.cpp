@@ -860,9 +860,9 @@ int main(int argc, char *argv[])
     //         cout << "Generating instance with " << p << " points and " << t << " trains..." << endl;
 
             bool not_feasible = true;
-    //         while (not_feasible)
-    //         {
-                int p = 13, t = 5;
+            while (not_feasible)
+            {
+                int p = 10, t = 6;
                 generate_instance(p, t);
                 Data data("ex-instance.txt");
                 // Data data(argv[1]);
@@ -930,7 +930,7 @@ int main(int argc, char *argv[])
                         cerr << "Erro ao copiar: " << e.what() << endl;
                     }
                 }
-    //         }
+            }
     //     }    
     // }
 

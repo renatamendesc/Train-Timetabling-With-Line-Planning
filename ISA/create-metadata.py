@@ -173,7 +173,6 @@ def get_solution_value_from_benchmark(project_root, set_name, instance_name, met
             return np.nan
     return np.nan
 
-
 def get_best_ub(project_root):
     # list of dicts: solution value per instance and per method (from each method's benchmark.txt)
     methods = ["model_1", "enum_1", "heuristic_1"]
