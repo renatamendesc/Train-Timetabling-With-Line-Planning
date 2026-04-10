@@ -13,14 +13,13 @@ class Combinations:
         self.lock = Lock()
 
     def verify_sequence_feasibility(self, seq, route_not_completed):
-        flag = False  # flag to tell whether train completes any trips during the day
+        flag = True
         last_idx = len(seq) - 1
         for i in range(last_idx):
             cur = seq[i]
             nxt = seq[i + 1]
 
             if cur != route_not_completed:
-                flag = True
                 # verify compatibility between consecutive routes
                 if nxt != route_not_completed:
                     if self.data.are_incompatible_routes(cur, nxt):

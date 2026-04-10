@@ -37,20 +37,22 @@ class ModelTrainTimetabling:
 
         self.solver = solver
 
-    def initialize(self):
+    def initialize(self, find_feasible=False):
         self.model = Model(solver_name=self.solver)
         # create variables
         self.add_variables()
         # create objective function
-        self.model.objective = minimize(self.z_)
+        if not find_feasible:
+            self.model.objective = minimize(self.z_)
         # add general constraints
         self.add_constraints()
 
-    def reset(self):
+    def reset(self, find_feasible=False):
         # recreates the model
         self.model = Model(solver_name=self.solver)
         self.add_variables()
-        self.model.objective = minimize(self.z_)
+        if not find_feasible:
+            self.model.objective = minimize(self.z_)
         self.add_constraints()
         self.routes_constraints.clear()
 
@@ -79,6 +81,14 @@ class ModelTrainTimetabling:
                             # set route to 1
                             constr = self.model.add_constr(self.lambda_[t][i][current[i]] == 1, name=f"route_lambda_one({t})({i})({current[i]})")
                             self.routes_constraints.append(constr)
+
+    def disable_trips(self, current_max_trips_per_train):
+        for t in range(self.data.nb_trains):
+            for i in range(self.data.max_trips_per_train[t]):
+                if i >= current_max_trips_per_train[t]:
+                    for r in range(self.data.nb_routes):
+                        constr = self.model.add_constr(self.lambda_[t][i][r] == 0, name=f"route_lambda_zero({t})({i})({r})")
+                        self.routes_constraints.append(constr)
 
     def add_variables(self):
         self.x_ = [
@@ -622,7 +632,6 @@ class ModelTrainTimetabling:
 
         if status != OptimizationStatus.OPTIMAL:
             self.current_solution.proven_optimal = False
-
         return True
 
     def execute_solver_for_combination(self, method, best_bound):

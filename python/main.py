@@ -76,6 +76,12 @@ def main():
         heuristic = Heuristic(data, threads, 21600, 3600, solver)
         heuristic.execute_heuristic()
 
+    elif method == "new-heuristic":
+        heuristic = Heuristic(data, threads, 21600, 3600, solver)
+        heuristic.execute_new_heuristic()
+        
+
+
     else:
         print("Did not provide a valid method!")
         return 1

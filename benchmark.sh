@@ -40,6 +40,8 @@ else
 fi
 
 OUTPUT_FILE=$OUTPUT_FOLDER/benchmark-${SOLVER}.txt
+# OUTPUT_FILE=$OUTPUT_FOLDER/benchmark-${SOLVER}-test.txt
+
 
 # validate input folder
 if [ ! -d "$INPUT_FOLDER" ]; then
