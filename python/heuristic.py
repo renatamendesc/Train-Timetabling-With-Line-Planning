@@ -46,10 +46,6 @@ class Heuristic:
 
         self.solver = solver
 
-    # ===================================================================== #
-    # new functions for new version of heuristic
-    # ===================================================================== #
-
     def calculate_max_trips_per_train(self, S, max_trips):
         
         n = len(max_trips)
@@ -65,7 +61,7 @@ class Heuristic:
                 p for p in set(permutations(comb))
                 if is_valid(p)
             ]
-            return min(perms_valids)  # main combination
+            return min(perms_valids) # main combination
 
         def backtrack(pos, remaining, combination):
             if pos == n:
@@ -108,26 +104,25 @@ class Heuristic:
             if self.improved_sol:
                 self.improved_sol_iter = True
 
-    def feasibily_search(self):
-        
-        for S in range(sum(self.data.max_trips_per_train), 0, -1):
-            self.current_max_trips_per_train_list = self.calculate_max_trips_per_train(S, self.data.max_trips_per_train)
-            self.try_combinations()
-            # print(f"Improved sol: {self.improved_sol}")
-            if self.overall_best_sol.feasible and not self.improved_sol_iter:
-                break
-
-    def execute_new_heuristic(self):
+    def execute_heuristic(self):
 
         self.start_time = time.time()
         self.time_limit_reached = False
 
         self.create_initial_candidates() # create baseline combinations
-        self.feasibily_search()
+        for S in range(sum(self.data.max_trips_per_train), 0, -1):
+            self.current_max_trips_per_train_list = self.calculate_max_trips_per_train(S, self.data.max_trips_per_train)
+            self.try_combinations()
+            if self.overall_best_sol.feasible and not self.improved_sol_iter:
+                break
 
         # if did not find any feasible solution, try again considering new routes 
         if not self.overall_best_sol.feasible and self.try_new_set_of_routes():
-            self.feasibily_search()
+            for S in range(sum(self.data.max_trips_per_train), 0, -1):
+                self.current_max_trips_per_train_list = self.calculate_max_trips_per_train(S, self.data.max_trips_per_train)
+                self.try_combinations()
+                if self.overall_best_sol.feasible and not self.improved_sol_iter:
+                    break
         
         end_time = time.time()
         total_time = end_time - self.start_time
@@ -141,9 +136,6 @@ class Heuristic:
         self.overall_best_sol.display_solution(self.data, "heuristic", self.time_limit_reached)
         self.overall_best_sol.save_solution(self.data, total_time, "heuristic", self.time_limit_reached, self.nb_threads)
         self.overall_best_sol.create_graph(self.data, "heuristic", self.nb_threads)
-
-    # ===================================================================== #
-
 
     def create_cyclical_routes_set(self):
         have_full_cycles = False
@@ -180,7 +172,7 @@ class Heuristic:
         for i in range(len(to_be_removed)):
             if to_be_removed[i] == True:
                 self.cyclical_routes_set.pop(i)
-    def create_maximum_size_candidates(self):
+    def create_baseline_combinations(self):
         self.baseline_combinations.clear()
         nb_trains = self.data.nb_trains
         max_trips_per_train = self.data.max_trips_per_train
@@ -221,15 +213,7 @@ class Heuristic:
 
                     combination.append(routes)
 
-                # if max_trips_per_train == [7, 6, 0]:
-                #     print(f"Combination: {combination}")
-                #     print("daily demands: ", self.combinations.verify_daily_demands(combination))
-                #     print("normalize combination: ", self.combinations.normalize_combination(combination))
-                #     print("valid: ", valid)
-
                 if valid and self.combinations.verify_daily_demands(combination):
-                    # print("Combination added to baseline combinations!")
-                    # print(f"Combination: {combination}")
                     self.baseline_combinations.append(combination)
 
     def create_initial_candidates(self):
@@ -240,9 +224,9 @@ class Heuristic:
         self.create_cyclical_routes_set()
         self.create_initial_valid_routes_set()
 
-        print(f"Creating initial set of candidate combinations...")
+        print(f"\nCreating initial set of candidate combinations...")
 
-        self.create_maximum_size_candidates()
+        self.create_baseline_combinations()
 
     def try_new_set_of_routes(self):
         old_initial_valid_routes_set = copy.deepcopy(self.initial_valid_routes_set)
@@ -261,138 +245,8 @@ class Heuristic:
         if old_initial_valid_routes_set == self.initial_valid_routes_set and old_cyclical_routes_set == self.cyclical_routes_set:
             return False
         else:
-            self.create_maximum_size_candidates()
+            self.create_baseline_combinations()
             return True
-
-    # def unfix_trips_from_best_combination(self):
-    #     routes = self.overall_best_sol.routes_combination
-    #     nb_trains = self.data.nb_trains
-
-    #     for i in range(nb_trains):
-    #         if not routes[i]: 
-    #             routes[i].append(-1)
-    #         else:
-    #             routes[i][-1] = -1
-
-    #     self.model = ModelTrainTimetabling(self.data, self.nb_threads, self.time_limit_complete, self.time_limit_per_combination, self.solver)
-    #     self.model.initialize()
-    #     self.model.create_model_for_combination(routes)
-    #     self.model.execute_solver_for_combination("heuristic", self.overall_best_sol.obj_value)
-
-    def unfix_trips_from_all_combinations(self):
-        new_candidates = []
-        nb_trains = self.data.nb_trains
-        for tested in self.candidate_combinations:
-            candidate = [trips[:] for trips in tested]
-
-            for i in range(nb_trains):
-                if not candidate[i]:
-                    candidate[i].append(-1)
-                else:
-                    candidate[i][-1] = -1
-
-            if self.combinations.normalize_combination(candidate):
-                new_candidates.append(candidate)
-        self.candidate_combinations = new_candidates
-
-    def remove_trips(self, current_combination, max_nb_trips):
-        nb_trains = self.data.nb_trains
-        total_combinations = 1 << nb_trains # 2^n possibilidades
-        new_candidates = []
-
-        for mask in range(total_combinations):
-            if mask == 0:
-                continue
-
-            new_combination = []
-            valid = True
-
-            for i in range(nb_trains):
-                trips = current_combination[i]
-
-                if (mask >> i) & 1: # tries to remove final trip from train
-                    if len(trips) < max_nb_trips:
-                        valid = False
-                        break
-
-                    new_combination.append(trips[:-1])
-                else:
-                    new_combination.append(list(trips))
-
-            if not valid:
-                continue
-
-            # print("New combination:", new_combination)
-
-            if (self.combinations.verify_daily_demands(new_combination) and
-                self.combinations.normalize_combination(new_combination)):
-                new_candidates.append(new_combination)
-
-        return new_candidates
-    def create_subsets_from_best_combination(self):
-        max_trips = self.data.max_nb_trips - self.iter
-
-        new_candidates = self.remove_trips(self.overall_best_sol.routes_combination, max_trips)
-
-        if not new_candidates:
-            return False
-
-        self.candidate_combinations = new_candidates
-        return True
-    def create_subsets_from_all_combinations(self):
-        max_trips = self.data.max_nb_trips - self.iter
-        print("Novo maximo de viagens por trem:", max_trips)
-        new_candidates = []
-
-        for candidate in self.candidate_combinations:
-            new_candidates.extend(self.remove_trips(candidate, max_trips))
-
-        if not new_candidates:
-            return False
-
-        self.candidate_combinations = new_candidates
-        return True
-
-    def fix_one_train_not_completing_any_trip(self):
-        nb_trains = self.data.nb_trains
-        self.original_candidates = self.candidate_combinations[:]
-        self.candidate_combinations.clear() 
-        for candidate in self.original_candidates:
-            for i in range(nb_trains):
-                new_candidate = copy.deepcopy(candidate)
-                for j in range(len(candidate[i])):
-                    new_candidate[i][j] = self.data.nb_routes
-                if self.combinations.verify_daily_demands(new_candidate) and self.combinations.normalize_combination(new_candidate):
-                    self.candidate_combinations.append(new_candidate)
-
-    # def solve_initial_candidates(self, current_max_trips_per_train):
-    #     self.execute_candidate_combinations()
-
-    #     # if not self.improved_sol and not self.time_limit_reached:
-    #     #     # create subsets from all candidates combinations
-    #     #     # print("\nCreating subsets from all candidates combinations...")
-    #     #     # if self.create_subsets_from_all_combinations():
-    #     #     #     self.execute_candidate_combinations()
-                
-    #     # if not self.improved_sol and not self.time_limit_reached:
-    #     #     # update set of valid routes
-    #     #     print("\nUpdating set of valid routes...")
-    #     #     if self.try_new_set_of_routes(current_max_trips_per_train):
-    #     #         self.execute_candidate_combinations()
-
-    #     #     if not self.improved_sol and not self.time_limit_reached:
-    #     #         # allow model to choose the last trips completed by the trains
-    #     #         print("\nUnfixing trips from all combinations...")
-    #     #         self.unfix_trips_from_all_combinations()
-    #     #         self.execute_candidate_combinations()
-
-    #     #     if not self.improved_sol and not self.time_limit_reached:
-    #     #         # fix one train not completing any trip
-    #     #         print("\nFixing one train not completing any trip...")
-    #     #         self.fix_one_train_not_completing_any_trip()
-    #     #         print(f"Candidate combinations: {self.candidate_combinations}")
-    #     #         self.execute_candidate_combinations()
-    #     #         print(f"Combinacoes executadas!")
 
     def solve_combination_task(self, candidate_combination):
 
@@ -411,7 +265,7 @@ class Heuristic:
 
         model_thread = self.thread_local.model
             
-        print(f"Solving combination: {candidate_combination}")
+        # print(f"Solving combination: {candidate_combination}")
         model_thread.reset()
         model_thread.create_model_for_combination(candidate_combination)
         
@@ -476,42 +330,3 @@ class Heuristic:
             
             # wait for the tasks to finish
             executor.shutdown(wait=True)
-
-    def execute_heuristic(self):
-
-        self.start_time = time.time()
-        self.time_limit_reached = False
-
-        self.iter = 0
-        self.create_initial_candidates(self.data.max_trips_per_train)
-        self.solve_initial_candidates()
-        
-        # print(f"found feasible solution? {self.improved_sol}")
-        while self.improved_sol and not self.time_limit_reached:
-            self.iter += 1
-
-            # verify time limit
-            if time.time() - self.start_time >= self.time_limit_complete:
-                with self.time_limit_lock:
-                    self.time_limit_reached = True
-                print(f"\n-> Time limit reached ({self.time_limit_complete:.2f}s). Stopping algorithm.")
-                break
-
-            # create subsets of candidate combinations
-            if not self.create_subsets_from_best_combination():
-                break
-
-            self.execute_candidate_combinations()
-
-        end_time = time.time()
-        total_time = end_time - self.start_time
-        
-        if self.time_limit_reached:
-            print("\n-> Time limit reached. Displaying best solution found so far...\n")
-        else:
-            print("\nFinished heuristic!\n")
-        
-        print(f"-> Total time = {total_time:.2f}", end="")
-        self.overall_best_sol.display_solution(self.data, "heuristic", self.time_limit_reached)
-        self.overall_best_sol.save_solution(self.data, total_time, "heuristic", self.time_limit_reached, self.nb_threads)
-        self.overall_best_sol.create_graph(self.data, "heuristic", self.nb_threads)
