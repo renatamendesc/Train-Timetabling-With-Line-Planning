@@ -862,7 +862,7 @@ int main(int argc, char *argv[])
             bool not_feasible = true;
             while (not_feasible)
             {
-                int p = 10, t = 6;
+                int p = 22, t = 6;
                 generate_instance(p, t);
                 Data data("ex-instance.txt");
                 // Data data(argv[1]);
