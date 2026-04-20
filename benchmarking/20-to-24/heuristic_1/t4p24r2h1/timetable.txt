@@ -1,4 +1,4 @@
--> Total time = 845.16
+-> Total time = 794.18
 -> Solution value = 16181
 
 =============
