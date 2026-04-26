@@ -73,8 +73,8 @@ def main():
         enumeration.execute_enumeration()
 
     elif method == "heuristic":
-        # heuristic = Heuristic(data, threads, 10800, 3600, solver)
-        heuristic = Heuristic(data, threads, 14400, 3600, solver)
+        # heuristic = Heuristic(data, threads, 14400, 3600, solver)
+        heuristic = Heuristic(data, threads, 21600, 3600, solver)
         heuristic.execute_heuristic()
     else:
         print("Did not provide a valid method!")

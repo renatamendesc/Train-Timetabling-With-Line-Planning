@@ -11,7 +11,7 @@ t2p7r8h1.txt:
     -> Total time = 161.70
 
 t2p8r2h2.txt:
-    -> Solution value = 20079
+    -> Solution value = 20078
     -> Total time = 1.37
 
 t2p9r2h3.txt:

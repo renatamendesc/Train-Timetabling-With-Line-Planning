@@ -14,7 +14,7 @@ t2p7r8h1.txt:
     -> Gap value = 0.00%
 
 t2p8r2h2.txt:
-    -> Solution value = 20079
+    -> Solution value = 20078
     -> Total time = 2.28
     -> Gap value = 0.00%
 

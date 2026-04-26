@@ -68,9 +68,6 @@ class Enumeration:
             self.comb.all_trips_combinations[k][indices[k]]
             for k in range(self.nb_trains)
         ]
-
-        # if (set(map(tuple, current_combination)) == {(6, 6, 6, 6), (1, 4, 4, 4), (1, 4, 4, 4), (2, 5, 5, 5), (2, 5, 5, 6)}):
-        #     print(f"Testando viável: {current_combination}!")
         
         # check feasibility
         if self.comb.is_valid_combination(current_combination):

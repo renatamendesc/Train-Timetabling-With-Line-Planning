@@ -66,13 +66,13 @@ t6p21r2h1.txt:
     -> Solution value = 8364
     -> Total time = 313.04
 
-t6p22r2h1.txt:
-    -> Solution value = 39404
-    -> Total time = 6083.25
+t6p22r11h2.txt:
+    -> Solution value = 49669
+    -> Total time = 11443.31
 
 t6p23r2h2.txt:
-    -> Solution value = 21444
-    -> Total time = 3606.93
+    -> Solution value = 23516
+    -> Total time = 3611.15
 
 t6p24r16h1.txt:
     -> Solution value = 43380

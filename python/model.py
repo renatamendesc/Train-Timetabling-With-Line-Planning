@@ -194,6 +194,7 @@ class ModelTrainTimetabling:
     def add_constraints(self):
 
         self.BIG_M = self.data.max_time * 2
+        # self.BIG_M = self.data.get_model_big_m() # testing a new value for big-M
 
         # constraints to get value of z (2)
         for t in range(self.data.nb_trains):
@@ -501,20 +502,10 @@ class ModelTrainTimetabling:
                                 q = inc_point[1]
                                 v = inc_point[2]
 
-                                # k = inc_point[0]
-                                # q = inc_point[1]
-                                # v = inc_point[2]
-                                # a = inc_point[3]["idx"]
-
                                 self.model += (
                                     self.y_[t][i][v] >= self.y_bar_[l][j][q] - self.BIG_M * (1 - self.w_[t][i][v][l][j][k]),
                                     f"collisions_diff_directions({t})({i})({v})({l})({j})({k})"
                                 )
-
-                                # self.model += (
-                                #     self.y_[t][i][v] >= self.y_[l][j][q] + self.data.distance[a] - self.BIG_M * (1 - self.w_[t][i][v][l][j][k]),
-                                #     f"collisions_diff_directions({t})({i})({v})({l})({j})({k})"
-                                # )
 
         # constraints to avoid collisions in the same direction (overtakings) (25)
         for t in range(self.data.nb_trains):

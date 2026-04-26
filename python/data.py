@@ -65,8 +65,23 @@ class Data:
     def get_nb_intervals(self):
         return len(self.time_intervals)
 
+    # def get_model_big_m(self):
+    #     # testing a new value for big-M
+    #     max_arc_time = 0
+    #     max_service_spread = 0
+    #     for a in range(len(self.distance)):
+    #         if self.distance[a] < 0:
+    #             continue
+    #         max_arc_time = max(max_arc_time, self.distance[a])
+    #         smin = self.distance_and_service_min[a]
+    #         smax = self.distance_and_service_max[a]
+    #         if smin >= 0 and smax >= 0:
+    #             max_service_spread = max(max_service_spread, smax - smin)
+    #     delta = max(self.alpha, max_arc_time, max_service_spread)
+    #     return self.max_time + delta
+
     # =====================================================================
-    #            Util methods to get relevant information
+    #            util methods to get relevant information
     # =====================================================================
     def is_reversal_arc(self, arc):
         return abs(arc["out"] - arc["inc"]) == self.nb_points
@@ -109,7 +124,7 @@ class Data:
         return self.vertex_inc_arcs[vertex]
     
     # =====================================================================
-    #            Methods to store data from arcs and inc points
+    #            methods to store data from arcs and inc points
     # =====================================================================
     def assign_arcs(self):
         self.arcs = []
@@ -192,14 +207,6 @@ class Data:
                 k = i
                 v = next_crossing
                 q = next_crossing - self.nb_points # - 1
-                # a = None
-                # for arc in self.arcs:
-                #     # find arc a = (q, q + 1)
-                #     if arc["out"] == q and arc["inc"] == q + 1:
-                #         a = arc
-                #         break
-
-                # self.inc_points.append((k, q, v, a))
                 self.inc_points.append((k, q, v))
 
 
@@ -207,18 +214,10 @@ class Data:
                 k = next_crossing
                 v = i
                 q = i + self.nb_points # + 1
-                # a = None
-                # for arc in self.arcs:
-                #     # find arc a = (q, q - 1)
-                #     if arc["out"] == q and arc["inc"] == q - 1:
-                #         a = arc
-                #         break
-
-                # self.inc_points.append((k, q, v, a))
                 self.inc_points.append((k, q, v))
     
     # =====================================================================
-    #            Methods to read and display data from the instance
+    #            methods to read and display data from the instance
     # =====================================================================
     def read_data(self):
 
@@ -247,19 +246,19 @@ class Data:
             if next_line:
                 file.seek(pos)
 
-        # --- nb_trains ---
+        # reading nb_trains
         print("   > Reading number of trains...")
         skip_hash_line()
         self.nb_trains = int(file.readline().strip())
 
-        # --- max_trips_per_train ---
+        # reading max_trips_per_train
         print("   > Reading maximum number of trips per train...")
         skip_hash_line()
         line = file.readline()
         self.max_trips_per_train = list(map(int, line.split()))
         self.max_nb_trips = max(self.max_trips_per_train)
 
-        # --- time_intervals ---
+        # reading time_intervals
         print("   > Reading time intervals...")
         skip_hash_line()
         line = file.readline()
@@ -271,7 +270,7 @@ class Data:
             a, b = map(int, line.split())
             self.time_intervals.append((a, b))
 
-        # --- nb_points ---
+        # reading nb_points
         print("   > Reading number of points...")
         skip_hash_line()
         self.nb_points = int(file.readline().strip())
@@ -290,7 +289,7 @@ class Data:
             self.vertex_to_point.append(i - self.nb_points)
             self.point_to_vertices[i - self.nb_points][1] = i
 
-        # --- stations ---
+        # reading stations
         print("   > Reading stations...")
         skip_hash_line()
         skip_hash_line()
@@ -300,7 +299,7 @@ class Data:
         for station in stations:
             self.is_station[station] = True
 
-        # --- crossings ---
+        # reading crossings
         print("   > Reading crossings...")
         skip_hash_line()
         skip_hash_line()
@@ -310,7 +309,7 @@ class Data:
         for crossing in crossings:
             self.is_crossing[crossing] = True
 
-        # --- depots ---
+        # reading depots
         print("   > Reading depots...")
         skip_hash_line()
         skip_hash_line()
@@ -320,12 +319,12 @@ class Data:
         for depot in depots:
             self.is_depot[depot] = True
 
-        # --- initial point ---
+        # reading initial point
         print("   > Reading initial point...")
         skip_hash_line()
         self.initial_point = int(file.readline().strip())
 
-        # --- Rotas ---
+        # reading routes
         print("   > Reading routes...")
         skip_hash_line()
         self.nb_routes = int(file.readline().strip())
@@ -338,15 +337,15 @@ class Data:
             self.route_vertices.append(row)
         self.assign_arcs()
 
-        # --- service time min ---
+        # reading service time min
         print("   > Reading distance and service...")
         skip_hash_line()
         aux_min = list(map(int, file.readline().split()))
-        # --- service time max ---
+        # reading service time max
         skip_hash_line()
         aux_max = list(map(int, file.readline().split()))
 
-        # --- cost matrix ---
+        # reading cost matrix
         skip_hash_line() # "#cost_matrix"
         file.readline()  # skip header line with indices
         # read matrix
@@ -384,7 +383,7 @@ class Data:
                     else:
                         self.distance_and_service_max[arc_idx] = dist
 
-        # --- demands ---
+        # reading demands
         print("   > Reading demands...")
         skip_hash_line()
         self.demands = []
@@ -398,12 +397,12 @@ class Data:
             for j in range(self.get_nb_intervals()):
                 self.demand_per_day[i] += self.demands[i][j]
 
-        # --- max_time ---
+        # reading max_time
         print("   > Reading maximum time...")
         skip_hash_line()
         self.max_time = int(file.readline().strip())
 
-        # --- alpha ---
+        # reading alpha
         print("   > Reading alpha...")
         skip_hash_line()
         self.alpha = int(file.readline().strip())

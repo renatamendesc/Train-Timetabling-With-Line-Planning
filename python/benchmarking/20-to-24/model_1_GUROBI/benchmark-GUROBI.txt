@@ -83,10 +83,10 @@ t6p21r2h1.txt:
     -> Total time = 178.25
     -> Gap value = 0.00%
 
-t6p22r2h1.txt:
-    -> Solution value = 32396
-    -> Total time = 21601.45
-    -> Gap value = 25.02%
+t6p22r11h2.txt:
+    -> Solution value = 49832
+    -> Total time = 21601.44
+    -> Gap value = 61.90%
 
 t6p23r2h2.txt:
     -> Solution value = 36146

@@ -39,10 +39,6 @@ cbtu.lp
 # Vscode settings
 .vscode/
 
-# File to generate graphs
-script-solution.txt
-script-latex-table.py
-
 # useful scripts
 latex-table.py
 rename-instances.py
@@ -56,12 +52,13 @@ venv/
 # python pycache
 python/__pycache__/
 
-not-feasible-instances.txt
-
-python/server-benchmarking/
-
-drafts.txt
-
+# becnhmarking for some old versions
 benchmarking-old/
 
+# files to generate graphs and tables
+script-solution.txt
+script-latex-table.py
+input.txt
+plot.tex
 results_table.tex
+script-latex-graph.py
