@@ -62,3 +62,10 @@ input.txt
 plot.tex
 results_table.tex
 script-latex-graph.py
+
+# ISA folder
+ISA/
+
+instances-generator/ex-instance.txt
+
+instances-generator/generator
