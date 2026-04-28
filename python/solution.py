@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 class Solution:
     def __init__(self):
@@ -94,11 +95,11 @@ class Solution:
                                 )
                             print(arrival)
 
-    def save_solution(self, data, total_time, method, time_limit_reached=False, threads=1):
+    def save_solution(self, data, total_time, method, solver, time_limit_reached=False, threads=1):
 
-        output_file = f"benchmarking/{data.instance_set}/{method}_{threads}/{data.instance_name}/timetable.txt"
+        output_file = f"solutions/{data.instance_set}/{method}_{threads}_{solver}/{data.instance_name}/timetable.txt"
         
-        # Criar diretórios se não existirem
+        # create directories if they don't exist
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
         with open(output_file, 'w') as f:
@@ -143,9 +144,13 @@ class Solution:
         
         print(f"\nSolution saved to {output_file}")
 
-    def create_graph(self, data, method, threads=1):
-        # auxiliate file to create the graph
-        with open("../script-solution.txt", "w") as solution_script:
+    def create_graph(self, data, method, solver, threads=1):
+        # keep paths independent of current working directory.
+        repo_root = Path(__file__).resolve().parent.parent
+
+        # auxiliary file to create the graph
+        solution_script_path = repo_root / "script-solution.txt"
+        with open(solution_script_path, "w") as solution_script:
             solution_script.write(f"num_points {data.nb_points}\n")
             solution_script.write("---\n")
 
@@ -171,8 +176,13 @@ class Solution:
         # call python script
         import subprocess
         import sys
-        file_name = "../script-graph.py"
-        instance = f"{data.instance_set}/{method}_{threads}/{data.instance_name}"
+        file_name = repo_root / "script-graph.py"
+        if not file_name.exists():
+            # fallback: try the same file without "../" (relative to cwd).
+            candidate = Path("script-graph.py")
+            if candidate.exists():
+                file_name = candidate.resolve()
+        instance = f"{data.instance_set}/{method}_{threads}_{solver}/{data.instance_name}"
 
-        command = [sys.executable, file_name, instance]
+        command = [sys.executable, str(file_name), instance]
         subprocess.run(command, check=True)

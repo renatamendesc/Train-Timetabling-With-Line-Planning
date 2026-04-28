@@ -134,8 +134,8 @@ class Heuristic:
         
         print(f"-> Total time = {total_time:.2f}", end="")
         self.overall_best_sol.display_solution(self.data, "heuristic", self.time_limit_reached)
-        self.overall_best_sol.save_solution(self.data, total_time, "heuristic", self.time_limit_reached, self.nb_threads)
-        self.overall_best_sol.create_graph(self.data, "heuristic", self.nb_threads)
+        self.overall_best_sol.save_solution(self.data, total_time, "heuristic", self.solver, self.time_limit_reached, self.nb_threads)
+        self.overall_best_sol.create_graph(self.data, "heuristic",self.solver, self.nb_threads)
 
     def create_cyclical_routes_set(self):
         have_full_cycles = False

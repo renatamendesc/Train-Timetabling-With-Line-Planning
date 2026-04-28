@@ -193,7 +193,8 @@ class ModelTrainTimetabling:
 
     def add_constraints(self):
 
-        self.BIG_M = self.data.max_time * 2
+        # self.BIG_M = self.data.max_time * 2
+        self.BIG_M = self.data.max_time
         # self.BIG_M = self.data.get_model_big_m() # testing a new value for big-M
 
         # constraints to get value of z (2)
