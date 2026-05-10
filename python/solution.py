@@ -56,11 +56,11 @@ class Solution:
             print("\n-> Could not find a feasible solution!\n")
             exit(1)
 
-        print("\n-> Solution value =", round(self.obj_value))
-        # print("\n-> Solution value =", round(self.obj_value*1000))
+        # print("\n-> Solution value =", round(self.obj_value))
+        print("\n-> Solution value =", round(self.obj_value*1000))
         if method == "model":
-            print("-> Lower bound =", round(self.lower_bound))
-            # print("-> Lower bound =", round(self.lower_bound*1000))
+            # print("-> Lower bound =", round(self.lower_bound))
+            print("-> Lower bound =", round(self.lower_bound*1000))
             print("-> Gap value =", f"{self.gap_value*100:.2f}%")
         elif method == "enum":
             if time_limit_reached or self.proven_optimal is False:
@@ -106,11 +106,11 @@ class Solution:
 
         with open(output_file, 'w') as f:
             f.write(f"-> Total time = {total_time:.2f}\n")
-            f.write(f"-> Solution value = {round(self.obj_value)}\n")
-            # f.write(f"-> Solution value = {round(self.obj_value*1000)}\n")
+            # f.write(f"-> Solution value = {round(self.obj_value)}\n")
+            f.write(f"-> Solution value = {round(self.obj_value*1000)}\n")
             if method == "model":
-                f.write(f"-> Lower bound = {round(self.lower_bound)}\n")
-                # f.write(f"-> Lower bound = {round(self.lower_bound*1000)}\n")
+                # f.write(f"-> Lower bound = {round(self.lower_bound)}\n")
+                f.write(f"-> Lower bound = {round(self.lower_bound*1000)}\n")
                 f.write(f"-> Gap value = {self.gap_value * 100:.2f}%\n")
             elif method == "enum":
                 if time_limit_reached or self.proven_optimal is False:

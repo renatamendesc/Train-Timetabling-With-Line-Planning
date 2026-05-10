@@ -1,30 +1,74 @@
-t3p16r10h1.txt:
-    
-    -> Total time = 21601.70
-        -> Could not prove optimality!
-
 t3p16r6h1.txt:
-    -> Solution value = 40360
-    -> Total time = 18102.37
-    -> Gap value = 0.00%
+    -> Solution value = 40620
+    -> Total time = 21601.88
+    -> Gap value = 0.79%
 
 t3p16r6h4.txt:
     -> Solution value = 47056
-    -> Total time = 14869.14
-    -> Gap value = 0.00%
+    -> Total time = 21601.89
+    -> Gap value = 4.54%
 
 t3p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 7876.70
+    -> Total time = 15116.97
     -> Gap value = 0.00%
 
 t3p16r8h1.txt:
     
-    -> Total time = 21601.81
+    -> Total time = 21601.97
+        -> Could not prove optimality!
+
+t3p16r10h1.txt:
+    
+    -> Total time = 21602.62
+        -> Could not prove optimality!
+
+t4p16r6h1.txt:
+    -> Solution value = 51320
+    -> Total time = 21603.26
+    -> Gap value = 96.18%
+
+t4p16r6h4.txt:
+    -> Solution value = 50716
+    -> Total time = 21603.13
+    -> Gap value = 85.71%
+
+t4p16r6h6.txt:
+    -> Solution value = 47031
+    -> Total time = 21603.45
+    -> Gap value = 86.30%
+
+t4p16r8h1.txt:
+    
+    -> Total time = 21602.91
         -> Could not prove optimality!
 
 t4p16r10h1.txt:
-    -> Solution value = 27520
-    -> Total time = 21602.41
-    -> Gap value = 26.38%
+    
+    -> Total time = 21602.64
+        -> Could not prove optimality!
 
+t5p16r6h1.txt:
+    
+    -> Total time = 21603.24
+        -> Could not prove optimality!
+
+t5p16r6h4.txt:
+    -> Solution value = 47116
+    -> Total time = 21603.58
+    -> Gap value = 83.59%
+
+t5p16r6h6.txt:
+    -> Solution value = 47031
+    -> Total time = 21602.72
+    -> Gap value = 81.87%
+
+t5p16r8h1.txt:
+    
+    -> Total time = 21603.92
+        -> Could not prove optimality!
+
+t5p16r10h1.txt:
+    
+    -> Total time = 21603.49
+        -> Could not prove optimality!
