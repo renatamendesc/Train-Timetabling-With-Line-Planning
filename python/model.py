@@ -193,8 +193,8 @@ class ModelTrainTimetabling:
 
     def add_constraints(self):
 
-        # self.BIG_M = self.data.max_time * 2
-        self.BIG_M = self.data.max_time
+        self.BIG_M = self.data.max_time * 10
+        # self.BIG_M = self.data.max_time
         # self.BIG_M = self.data.get_model_big_m() # testing a new value for big-M
 
         # constraints to get value of z (2)
@@ -532,6 +532,29 @@ class ModelTrainTimetabling:
                                     f"headway({t})({i})({l})({j})({v})"
                                 )
 
+        # =============================== fixing variables ===============================
+        # self.model.add_constr(self.lambda_[0][0][1] == 1)
+        # self.model.add_constr(self.lambda_[0][1][1] == 1)
+        # self.model.add_constr(self.lambda_[0][2][1] == 1)
+        # self.model.add_constr(self.lambda_[0][3][1] == 1)
+
+        # self.model.add_constr(self.lambda_[1][0][1] == 1)
+        # self.model.add_constr(self.lambda_[1][1][1] == 1)
+        # self.model.add_constr(self.lambda_[1][2][1] == 1)
+        # self.model.add_constr(self.lambda_[1][3][1] == 1)
+
+        # self.model.add_constr(self.lambda_[2][0][1] == 1)
+        # self.model.add_constr(self.lambda_[2][1][1] == 1)
+        # self.model.add_constr(self.lambda_[2][2][1] == 1)
+        # self.model.add_constr(self.lambda_[2][3][1] == 1)
+
+        # self.model.add_constr(self.lambda_[3][0][1] == 1)
+        # self.model.add_constr(self.lambda_[3][1][1] == 1)
+        # self.model.add_constr(self.lambda_[3][2][1] == 1)
+        # self.model.add_constr(self.lambda_[3][3][1] == 1)
+        # ===============================================================================
+
+
     def store_value_of_variables(self):
         self.current_solution.x_values = [
             [
@@ -610,6 +633,10 @@ class ModelTrainTimetabling:
     def execute_solver_for_full_model(self):
         # setting parameters
         self.model.threads = self.nb_threads
+
+        if self.solver == "HiGHS":
+            self.model.integer_tol = 1e-10
+        #     self.model.preprocess = 0
 
         status = self.model.optimize(max_seconds=self.time_limit)
         if status in [OptimizationStatus.INFEASIBLE, OptimizationStatus.NO_SOLUTION_FOUND]:

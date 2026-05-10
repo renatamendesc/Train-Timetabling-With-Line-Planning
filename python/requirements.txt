@@ -1,12 +1,8 @@
-# python dependencies for Train-Timetabling project
-# 
-# note: We use mip from GitHub (not PyPI) because it has HiGHS support
-# the version on PyPI (1.15.0) does not support HiGHS natively
+# MIP solver library
+mip==1.17
 
-# MIP solver library (from GitHub for HiGHS support)
-git+https://github.com/coin-or/python-mip.git
-
-highspy
+# highspy
+highsbox
 
 # gurobi solver (requires Gurobi Optimizer to be installed on the system)
 # note: You also need a valid Gurobi license. Install Gurobi Optimizer first,

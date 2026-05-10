@@ -267,7 +267,7 @@ class Data:
         self.time_intervals = []
         for _ in range(nb_intervals):
             line = file.readline()
-            a, b = map(int, line.split())
+            a, b = map(float, line.split())
             self.time_intervals.append((a, b))
 
         # reading nb_points
@@ -340,10 +340,10 @@ class Data:
         # reading service time min
         print("   > Reading distance and service...")
         skip_hash_line()
-        aux_min = list(map(int, file.readline().split()))
+        aux_min = list(map(float, file.readline().split()))
         # reading service time max
         skip_hash_line()
-        aux_max = list(map(int, file.readline().split()))
+        aux_max = list(map(float, file.readline().split()))
 
         # reading cost matrix
         skip_hash_line() # "#cost_matrix"
@@ -351,7 +351,7 @@ class Data:
         # read matrix
         distance_matrix = []
         for _ in range(nb_vertices):
-            vals = list(map(int, file.readline().split()))
+            vals = list(map(float, file.readline().split()))
             distance_matrix.append(vals[1:])  # remove index of line
         
         # create map of (out, inc) -> arc index
@@ -400,12 +400,12 @@ class Data:
         # reading max_time
         print("   > Reading maximum time...")
         skip_hash_line()
-        self.max_time = int(file.readline().strip())
+        self.max_time = float(file.readline().strip())
 
         # reading alpha
         print("   > Reading alpha...")
         skip_hash_line()
-        self.alpha = int(file.readline().strip())
+        self.alpha = float(file.readline().strip())
 
         self.assign_incompatible_points()
 
@@ -424,8 +424,7 @@ class Data:
         # display time intervals
         print(f"number of intervals = {self.get_nb_intervals()}")
         for i in range(self.get_nb_intervals()):
-            # formatação semelhante ao setw(6) → largura fixa
-            print(f"\t({self.time_intervals[i][0]}, {self.time_intervals[i][1]:6})", end="")
+            print(f"\t({self.time_intervals[i][0]}, {self.time_intervals[i][1]})", end="")
         print(end="\n\n")
 
         # display points, stations, crossings and depots
