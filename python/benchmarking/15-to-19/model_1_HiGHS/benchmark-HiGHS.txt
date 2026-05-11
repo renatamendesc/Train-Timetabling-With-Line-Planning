@@ -24,9 +24,9 @@ t3p19r2h5.txt:
     -> Gap value = 0.00%
 
 t4p15r2h1.txt:
-    
-    -> Total time = 21604.25
-        -> Could not prove optimality!
+    -> Solution value = 43584
+    -> Total time = 21603.62
+    -> Gap value = 5.08%
 
 t4p16r2h2.txt:
     -> Solution value = 31788

@@ -14,14 +14,14 @@ t3p16r6h6.txt:
     -> Gap value = 0.00%
 
 t3p16r8h1.txt:
-    -> Lower Bound = 181.62
+    
     -> Total time = 21601.97
         -> Could not prove optimality!
 
 t3p16r10h1.txt:
-    -> Solution value = 48220
-    -> Total time = 21602.35
-    -> Gap value = 83.91%
+    
+    -> Total time = 21602.62
+        -> Could not prove optimality!
 
 t4p16r6h1.txt:
     -> Solution value = 51320
@@ -39,19 +39,19 @@ t4p16r6h6.txt:
     -> Gap value = 86.30%
 
 t4p16r8h1.txt:
-    -> Lower Bound = 9.02
+    
     -> Total time = 21602.91
         -> Could not prove optimality!
 
 t4p16r10h1.txt:
-    -> Lower Bound = 17020
+    
     -> Total time = 21602.64
         -> Could not prove optimality!
 
 t5p16r6h1.txt:
-    -> Solution value = 46820
-    -> Total time = 21603.50
-    -> Gap value = 91.63%
+    
+    -> Total time = 21603.24
+        -> Could not prove optimality!
 
 t5p16r6h4.txt:
     -> Solution value = 47116
@@ -64,11 +64,11 @@ t5p16r6h6.txt:
     -> Gap value = 81.87%
 
 t5p16r8h1.txt:
-    -> Lower Bound = 40.61
+    
     -> Total time = 21603.92
         -> Could not prove optimality!
 
 t5p16r10h1.txt:
-    -> Lower Bound = 0.0
+    
     -> Total time = 21603.49
         -> Could not prove optimality!

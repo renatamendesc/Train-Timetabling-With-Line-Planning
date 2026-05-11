@@ -54,7 +54,7 @@ t4p5r7h2.txt:
     -> Gap value = 48.33%
 
 t4p6r7h1.txt:
-    -> Lower Bound = 11.17
+    
     -> Total time = 21603.07
         -> Could not prove optimality!
 
@@ -79,12 +79,12 @@ t5p5r2h5.txt:
     -> Gap value = 0.00%
 
 t5p6r6h1.txt:
-    -> Lower Bound = 13250
+    
     -> Total time = 21602.48
         -> Could not prove optimality!
 
 t5p7r2h2.txt:
-    -> Lower Bound = 16440
+    
     -> Total time = 21603.03
         -> Could not prove optimality!
 

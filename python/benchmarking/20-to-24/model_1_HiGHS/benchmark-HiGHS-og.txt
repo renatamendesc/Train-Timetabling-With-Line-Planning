@@ -34,7 +34,7 @@ t4p21r8h2.txt:
     -> Gap value = 0.01%
 
 t4p22r2h1.txt:
-    -> Lower Bound = 36860
+
     -> Total time = 21602.63
         -> Could not prove optimality!
 
@@ -84,9 +84,9 @@ t6p21r2h1.txt:
     -> Gap value = 0.00%
 
 t6p22r2h1.txt:
-    -> Solution value = 30913
-    -> Total time = 21601.99
-    -> Gap value = 8.72%
+    -> Solution value = 39404
+    -> Total time = 21601.47
+    -> Gap value = 50.36%
 
 t6p23r2h2.txt:
     -> Solution value = 36146
@@ -94,6 +94,6 @@ t6p23r2h2.txt:
     -> Gap value = 59.28%
 
 t6p24r16h1.txt:
-    -> Lower Bound = 17148
+    
     -> Total time = 21602.21
         -> Could not prove optimality!
