@@ -62,12 +62,22 @@ for f in "$INPUT_FOLDER"/*; do
         GAP_LINE="    -> Could not prove optimality!"
     fi
 
+    if [ "$METHOD" = "model" ]; then
+        # solution.py prints "Lower bound" (lowercase b); match case-insensitively
+        LB_LINE=$(echo "$OUTPUT" | grep -i "\-> Lower bound = " | head -n 1)
+    else
+        LB_LINE=""
+    fi
+
     # write result to output file
     {
         echo "$INSTANCE:"
         echo "    $SOL_LINE"
         echo "    $TIME_LINE"
         echo "    $GAP_LINE"
+        if [ "$METHOD" = "model" ] && [ -n "$LB_LINE" ]; then
+            echo "    $LB_LINE"
+        fi
         echo ""
     } >> "$OUTPUT_FILE"
 done

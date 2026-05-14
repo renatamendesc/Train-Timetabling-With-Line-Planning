@@ -1,15 +1,18 @@
 t2p5r2h1.txt:
     -> Solution value = 31922
-    -> Total time = 0.64
+    -> Total time = 1.68
     -> Gap value = 0.00%
+    -> Lower bound = 31922
 
 t2p6r7h3.txt:
     -> Solution value = 42078
-    -> Total time = 3.16
+    -> Total time = 5.82
     -> Gap value = 0.00%
+    -> Lower bound = 42078
 
 t2p7r8h1.txt:
     -> Solution value = 17570
-    -> Total time = 3.54
+    -> Total time = 6.95
     -> Gap value = 0.00%
+    -> Lower bound = 17570
 

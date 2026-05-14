@@ -410,8 +410,36 @@ class Data:
         self.assign_incompatible_points()
 
         file.close()
-
         print("   > Reading complete!")
+
+    def change_scale(self):
+
+        scale = 1000.0
+        # time intervals
+        self.time_intervals = [
+            (a / scale, b / scale)
+            for (a, b) in self.time_intervals
+        ]
+        # distance
+        self.distance = [
+            x / scale if x != -1 else x
+            for x in self.distance
+        ]
+        # distance and service min
+        self.distance_and_service_min = [
+            x / scale if x != -1 else x
+            for x in self.distance_and_service_min
+        ]
+        # distance and service max
+        self.distance_and_service_max = [
+            x / scale if x != -1 else x
+            for x in self.distance_and_service_max
+        ]
+
+        # max time
+        self.max_time /= scale
+        # alpha
+        self.alpha /= scale
 
     def print_data(self):
         print("\n\t======================================================================")

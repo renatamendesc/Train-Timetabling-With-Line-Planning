@@ -634,8 +634,8 @@ class ModelTrainTimetabling:
         # setting parameters
         self.model.threads = self.nb_threads
 
-        if self.solver == "HiGHS":
-            self.model.integer_tol = 1e-10
+        # if self.solver == "HiGHS":
+        #     self.model.integer_tol = 1e-10
         #     self.model.preprocess = 0
 
         status = self.model.optimize(max_seconds=self.time_limit)

@@ -57,6 +57,8 @@ def main():
 
     # execute selected method
     if method == "model":
+        data.change_scale()
+
         start_time = time.time()
         model = ModelTrainTimetabling(data, threads, 21600, 21600, solver)
         model.initialize()
@@ -64,6 +66,9 @@ def main():
         end_time = time.time()
         total_time = end_time - start_time
         print(f"\n-> Total time = {total_time:.2f}", end="")
+
+        model.current_solution.rescale_values("model")
+
         model.current_solution.display_solution(data, "model")
         model.current_solution.save_solution(data, total_time, "model", solver, False, threads)
         model.current_solution.create_graph(data, "model", solver, threads)
