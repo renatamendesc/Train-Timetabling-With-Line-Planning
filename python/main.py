@@ -74,11 +74,14 @@ def main():
         model.current_solution.create_graph(data, "model", solver, threads)
         
     elif method == "enum":
+        data.change_scale()
+
         enumeration = Enumeration(data, threads, 21600, 3600, solver)
         enumeration.execute_enumeration()
 
     elif method == "heuristic":
-        # heuristic = Heuristic(data, threads, 14400, 3600, solver)
+        data.change_scale()
+
         heuristic = Heuristic(data, threads, 21600, 3600, solver)
         heuristic.execute_heuristic()
     else:

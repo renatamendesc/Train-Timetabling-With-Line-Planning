@@ -55,6 +55,19 @@ class Solution:
         if method == "model":
             self.lower_bound = self.lower_bound * 1000
 
+        if self.y_values is not None:
+            for t in range(len(self.y_values)):
+                for i in range(len(self.y_values[t])):
+                    for v in range(len(self.y_values[t][i])):
+                        if self.y_values[t][i][v] != 0:
+                            self.y_values[t][i][v] *= 1000
+        if self.y_bar_values is not None:
+            for t in range(len(self.y_bar_values)):
+                for i in range(len(self.y_bar_values[t])):
+                    for v in range(len(self.y_bar_values[t][i])):
+                        if self.y_bar_values[t][i][v] != 0:
+                            self.y_bar_values[t][i][v] *= 1000
+
     def display_solution(self, data, method, time_limit_reached=False):
 
         if not self.feasible:

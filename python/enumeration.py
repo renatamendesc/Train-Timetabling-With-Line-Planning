@@ -188,6 +188,9 @@ class Enumeration:
             print("\nFinished enumeration!\n")
         
         print(f"-> Total time = {total_time:.2f}", end="")
+
+        self.overall_best_sol.rescale_values("enum")
+
         self.overall_best_sol.display_solution(self.data, "enum", self.time_limit_reached)
         self.overall_best_sol.save_solution(self.data, total_time, "enum", self.solver, self.time_limit_reached, self.nb_threads)
         self.overall_best_sol.create_graph(self.data, "enum", self.solver, self.nb_threads)
