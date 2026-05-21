@@ -1,75 +1,75 @@
 t3p16r10h1.txt:
-    -> Solution value = 40360
-    -> Total time = 5397.84
+    -> Solution value = 40420
+    -> Total time = 705.33
         -> Could not prove optimality!
 
 t3p16r6h1.txt:
     -> Solution value = 40360
-    -> Total time = 5277.42
+    -> Total time = 1277.88
         -> Could not prove optimality!
 
 t3p16r6h4.txt:
     -> Solution value = 47056
-    -> Total time = 1332.36
+    -> Total time = 1245.03
         -> Could not prove optimality!
 
 t3p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 381.78
+    -> Total time = 351.37
         -> Could not prove optimality!
 
 t3p16r8h1.txt:
-    -> Solution value = 41200
-    -> Total time = 21788.41
+    -> Solution value = 30860
+    -> Total time = 13650.15
         -> Could not prove optimality!
 
 t4p16r10h1.txt:
     -> Solution value = 26620
-    -> Total time = 6502.87
+    -> Total time = 1605.76
         -> Could not prove optimality!
 
 t4p16r6h1.txt:
-    -> Solution value = 42180
-    -> Total time = 21683.16
+    -> Solution value = 26620
+    -> Total time = 17729.58
         -> Could not prove optimality!
 
 t4p16r6h4.txt:
     -> Solution value = 46816
-    -> Total time = 21649.13
+    -> Total time = 21728.98
         -> Could not prove optimality!
 
 t4p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 22991.51
+    -> Total time = 21600.76
         -> Could not prove optimality!
 
 t4p16r8h1.txt:
-    -> Solution value = 41660
-    -> Total time = 21669.59
+    -> Solution value = 41420
+    -> Total time = 22021.03
         -> Could not prove optimality!
 
 t5p16r10h1.txt:
-    -> Solution value = 32540
-    -> Total time = 23855.96
+    -> Solution value = 26620
+    -> Total time = 7464.75
         -> Could not prove optimality!
 
 t5p16r6h1.txt:
-    -> Solution value = 32540
-    -> Total time = 23699.86
+    -> Solution value = 26620
+    -> Total time = 7617.04
         -> Could not prove optimality!
 
 t5p16r6h4.txt:
     -> Solution value = 46816
-    -> Total time = 8770.77
+    -> Total time = 7472.01
         -> Could not prove optimality!
 
 t5p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 4966.51
+    -> Total time = 16124.33
         -> Could not prove optimality!
 
 t5p16r8h1.txt:
     -> Solution value = 34820
-    -> Total time = 22889.95
+    -> Total time = 22157.72
         -> Could not prove optimality!
 
