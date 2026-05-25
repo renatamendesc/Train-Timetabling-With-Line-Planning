@@ -1,100 +1,105 @@
 t3p15r13h2.txt:
     -> Solution value = 31927
-    -> Total time = 26.45
+    -> Total time = 32.01
     -> Gap value = 0.00%
 
 t3p16r2h1.txt:
     -> Solution value = 13579
-    -> Total time = 39.40
+    -> Total time = 31.30
     -> Gap value = 0.00%
 
 t3p17r6h3.txt:
     -> Solution value = 25404
-    -> Total time = 39.49
+    -> Total time = 21.91
     -> Gap value = 0.00%
 
 t3p18r2h4.txt:
     -> Solution value = 31463
-    -> Total time = 348.16
+    -> Total time = 196.61
     -> Gap value = 0.00%
 
 t3p19r2h5.txt:
     -> Solution value = 41170
-    -> Total time = 324.19
+    -> Total time = 250.58
     -> Gap value = 0.00%
 
 t4p15r2h1.txt:
-    
-    -> Total time = 14422.03
-        -> Could not prove optimality!
+    -> Solution value = 42784
+    -> Total time = 14421.07
+    -> Gap value = 0.00%
+
+t4p16r2h2-test.txt:
+    -> Solution value = 31
+    -> Total time = 3617.24
+    -> Gap value = 0.00%
 
 t4p16r2h2.txt:
-    -> Solution value = 30626
-    -> Total time = 3615.43
+    -> Solution value = 30545
+    -> Total time = 3615.80
     -> Gap value = 0.00%
 
 t4p17r11h3.txt:
     -> Solution value = 38010
-    -> Total time = 443.72
+    -> Total time = 321.55
     -> Gap value = 0.00%
 
 t4p18r2h4.txt:
     -> Solution value = 39382
-    -> Total time = 1316.77
+    -> Total time = 1104.46
     -> Gap value = 0.00%
 
 t4p19r15h1.txt:
     -> Solution value = 5008
-    -> Total time = 104.94
+    -> Total time = 108.33
     -> Gap value = 0.00%
 
 t5p15r2h2.txt:
-    -> Solution value = 24939
-    -> Total time = 3606.17
+    -> Solution value = 25004
+    -> Total time = 3610.94
     -> Gap value = 0.00%
 
 t5p16r15h2.txt:
     -> Solution value = 18440
-    -> Total time = 3937.82
+    -> Total time = 4029.49
     -> Gap value = 0.00%
 
 t5p17r6h1.txt:
     -> Solution value = 22620
-    -> Total time = 3646.49
+    -> Total time = 3657.33
     -> Gap value = 0.00%
 
 t5p18r6h1.txt:
     -> Solution value = 17834
-    -> Total time = 3649.61
+    -> Total time = 3666.69
     -> Gap value = 0.00%
 
 t5p19r16h1.txt:
     -> Solution value = 26184
-    -> Total time = 11312.82
+    -> Total time = 6805.12
     -> Gap value = 0.00%
 
 t6p15r7h1.txt:
     -> Solution value = 29656
-    -> Total time = 15937.69
+    -> Total time = 14453.00
     -> Gap value = 0.00%
 
 t6p16r6h1.txt:
     -> Solution value = 43922
-    -> Total time = 18831.17
+    -> Total time = 19567.82
     -> Gap value = 0.00%
 
 t6p17r10h1.txt:
-    -> Solution value = 15186
-    -> Total time = 3747.59
+    -> Solution value = 15004
+    -> Total time = 3778.17
     -> Gap value = 0.00%
 
 t6p18r15h3.txt:
     -> Solution value = 58217
-    -> Total time = 9691.64
+    -> Total time = 8660.38
     -> Gap value = 0.00%
 
 t6p19r2h1.txt:
     -> Solution value = 44639
-    -> Total time = 14406.93
+    -> Total time = 15568.50
     -> Gap value = 0.00%
 
