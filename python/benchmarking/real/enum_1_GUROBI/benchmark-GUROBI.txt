@@ -1,68 +1,75 @@
 t3p16r10h1.txt:
     -> Solution value = 38080
-    -> Total time = 21609.22
+    -> Total time = 21602.96
+        -> Could not prove optimality!
 
 t3p16r6h1.txt:
     -> Solution value = 40360
-    -> Total time = 625.86
+    -> Total time = 653.07
+    -> Gap value = 0.00%
 
 t3p16r6h4.txt:
     -> Solution value = 47056
-    -> Total time = 701.86
+    -> Total time = 717.20
+    -> Gap value = 0.00%
 
 t3p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 714.26
+    -> Total time = 727.56
+    -> Gap value = 0.00%
 
 t3p16r8h1.txt:
     -> Solution value = 34480
-    -> Total time = 21600.98
+    -> Total time = 21600.69
+        -> Could not prove optimality!
 
 t4p16r10h1.txt:
     -> Solution value = 26180
     -> Total time = 21600.02
+        -> Could not prove optimality!
 
 t4p16r6h1.txt:
     -> Solution value = 30520
-    -> Total time = 21601.42
+    -> Total time = 21600.25
+        -> Could not prove optimality!
 
 t4p16r6h4.txt:
     -> Solution value = 46816
-    -> Total time = 21600.75
+    -> Total time = 21600.86
+        -> Could not prove optimality!
 
 t4p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 21601.54
+    -> Total time = 21601.57
+        -> Could not prove optimality!
 
 t4p16r8h1.txt:
+    
+    -> Total time = 21601.19
+        -> Could not prove optimality!
 
-    -> Total time = 21603.45
+t5p16r10h1.txt:
+    
+    -> Total time = 21614.55
         -> Could not prove optimality!
 
 t5p16r6h1.txt:
-
-    -> Total time = 21602.18
+    -> Solution value = 34340
+    -> Total time = 21601.90
         -> Could not prove optimality!
 
 t5p16r6h4.txt:
-
-    -> Total time = 21602.34
+    -> Solution value = 47056
+    -> Total time = 21600.05
         -> Could not prove optimality!
 
 t5p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 14548.33
+    -> Total time = 14683.39
+    -> Gap value = 0.00%
 
 t5p16r8h1.txt:
-
-    -> Total time = 21604.11
+    
+    -> Total time = 21601.27
         -> Could not prove optimality!
-
-t5p16r10h1.txt:
-
-    -> Total time = 21603.08
-        -> Could not prove optimality!
-
-
-
 
