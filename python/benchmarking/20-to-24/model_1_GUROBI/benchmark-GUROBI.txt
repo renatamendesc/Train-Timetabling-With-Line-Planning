@@ -46,12 +46,6 @@ t4p22r2h1.txt:
     -> Gap value = 8.52%
     -> Lower bound = 43306
 
-t4p23r10h2-test.txt:
-    -> Solution value = 26
-    -> Total time = 526.94
-    -> Gap value = 0.00%
-    -> Lower bound = 26
-
 t4p23r10h2.txt:
     -> Solution value = 26361
     -> Total time = 691.67
@@ -64,23 +58,11 @@ t4p24r2h1.txt:
     -> Gap value = 0.01%
     -> Lower bound = 16180
 
-t5p20r2h1-test.txt:
-    -> Solution value = 28
-    -> Total time = 21601.60
-    -> Gap value = 16.22%
-    -> Lower bound = 23
-
 t5p20r2h1.txt:
     -> Solution value = 27539
     -> Total time = 21601.54
     -> Gap value = 15.71%
     -> Lower bound = 23214
-
-t5p21r2h2-test.txt:
-    -> Solution value = 19
-    -> Total time = 3143.11
-    -> Gap value = 0.00%
-    -> Lower bound = 19
 
 t5p21r2h2.txt:
     -> Solution value = 19450

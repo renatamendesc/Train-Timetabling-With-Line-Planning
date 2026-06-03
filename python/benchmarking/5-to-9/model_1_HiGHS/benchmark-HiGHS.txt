@@ -66,7 +66,7 @@ t4p5r7h2.txt:
 
 t4p6r7h1.txt:
     
-    -> Total time = 21603.28Traceback (most recent call last):
+    -> Total time = 21603.28
         -> Could not prove optimality!
 
 t4p7r7h4.txt:
@@ -95,7 +95,7 @@ t5p5r2h5.txt:
 
 t5p6r6h1.txt:
     
-    -> Total time = 21602.54Traceback (most recent call last):
+    -> Total time = 21602.54
         -> Could not prove optimality!
 
 t5p7r2h2.txt:

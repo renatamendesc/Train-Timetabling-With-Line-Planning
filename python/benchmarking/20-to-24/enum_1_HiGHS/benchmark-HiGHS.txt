@@ -38,11 +38,6 @@ t4p22r2h1.txt:
     -> Total time = 3616.64
     -> Gap value = 0.00%
 
-t4p23r10h2-test.txt:
-    -> Solution value = 26
-    -> Total time = 946.23
-    -> Gap value = 0.00%
-
 t4p23r10h2.txt:
     -> Solution value = 26361
     -> Total time = 685.76
@@ -53,19 +48,9 @@ t4p24r2h1.txt:
     -> Total time = 465.76
     -> Gap value = 0.00%
 
-t5p20r2h1-test.txt:
-    -> Solution value = 37
-    -> Total time = 7207.07
-    -> Gap value = 0.00%
-
 t5p20r2h1.txt:
     -> Solution value = 30697
     -> Total time = 3607.35
-    -> Gap value = 0.00%
-
-t5p21r2h2-test.txt:
-    -> Solution value = 19
-    -> Total time = 3615.84
     -> Gap value = 0.00%
 
 t5p21r2h2.txt:

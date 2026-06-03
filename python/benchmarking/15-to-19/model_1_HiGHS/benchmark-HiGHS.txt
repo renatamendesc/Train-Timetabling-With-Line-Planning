@@ -34,12 +34,6 @@ t4p15r2h1.txt:
     -> Gap value = 21.39%
     -> Lower bound = 34301
 
-t4p16r2h2-test.txt:
-    -> Solution value = 45
-    -> Total time = 21603.02
-    -> Gap value = 40.04%
-    -> Lower bound = 27
-
 t4p16r2h2.txt:
     -> Solution value = 31788
     -> Total time = 21602.61

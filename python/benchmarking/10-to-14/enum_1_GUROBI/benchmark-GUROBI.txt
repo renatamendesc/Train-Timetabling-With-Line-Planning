@@ -78,19 +78,9 @@ t6p10r6h2.txt:
     -> Total time = 3633.14
     -> Gap value = 0.00%
 
-t6p11r15h2-test.txt:
-    -> Solution value = 19
-    -> Total time = 4807.33
-    -> Gap value = 0.00%
-
 t6p11r15h2.txt:
     -> Solution value = 17924
     -> Total time = 4212.28
-    -> Gap value = 0.00%
-
-t6p12r10h2-test.txt:
-    -> Solution value = 24
-    -> Total time = 3783.86
     -> Gap value = 0.00%
 
 t6p12r10h2.txt:

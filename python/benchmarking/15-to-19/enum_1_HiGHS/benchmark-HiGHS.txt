@@ -28,11 +28,6 @@ t4p15r2h1.txt:
     -> Total time = 14421.07
     -> Gap value = 0.00%
 
-t4p16r2h2-test.txt:
-    -> Solution value = 31
-    -> Total time = 3617.24
-    -> Gap value = 0.00%
-
 t4p16r2h2.txt:
     -> Solution value = 30545
     -> Total time = 3615.80

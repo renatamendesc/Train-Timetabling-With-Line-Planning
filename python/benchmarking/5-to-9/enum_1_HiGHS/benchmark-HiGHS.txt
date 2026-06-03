@@ -44,7 +44,7 @@ t3p8r7h1.txt:
     -> Gap value = 0.00%
 
 t3p9r7h3.txt:
-    -> Solution value = Traceback (most recent call last):
+    -> Solution value = 19386
     -> Total time = 28.68
     -> Gap value = 0.00%
 

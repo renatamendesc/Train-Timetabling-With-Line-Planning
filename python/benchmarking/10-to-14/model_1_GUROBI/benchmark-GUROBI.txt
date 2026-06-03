@@ -94,23 +94,11 @@ t6p10r6h2.txt:
     -> Gap value = 0.00%
     -> Lower bound = 21760
 
-t6p11r15h2-test.txt:
-    -> Solution value = 18
-    -> Total time = 21601.16
-    -> Gap value = 5.10%
-    -> Lower bound = 17
-
 t6p11r15h2.txt:
     -> Solution value = 17924
     -> Total time = 21601.10
     -> Gap value = 4.98%
     -> Lower bound = 17031
-
-t6p12r10h2-test.txt:
-    -> Solution value = 24
-    -> Total time = 21601.13
-    -> Gap value = 15.54%
-    -> Lower bound = 20
 
 t6p12r10h2.txt:
     -> Solution value = 23912

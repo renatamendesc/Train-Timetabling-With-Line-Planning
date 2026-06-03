@@ -38,11 +38,6 @@ t4p22r2h1.txt:
     -> Total time = 3610.37
         -> Could not prove optimality!
 
-t4p23r10h2-test.txt:
-    -> Solution value = 26
-    -> Total time = 992.75
-        -> Could not prove optimality!
-
 t4p23r10h2.txt:
     -> Solution value = 26361
     -> Total time = 719.82
@@ -53,19 +48,9 @@ t4p24r2h1.txt:
     -> Total time = 499.01
         -> Could not prove optimality!
 
-t5p20r2h1-test.txt:
-    -> Solution value = 36
-    -> Total time = 7207.91
-        -> Could not prove optimality!
-
 t5p20r2h1.txt:
     -> Solution value = 36774
     -> Total time = 3610.80
-        -> Could not prove optimality!
-
-t5p21r2h2-test.txt:
-    -> Solution value = 19
-    -> Total time = 3604.95
         -> Could not prove optimality!
 
 t5p21r2h2.txt:

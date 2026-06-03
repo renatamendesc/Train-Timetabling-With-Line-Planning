@@ -28,11 +28,6 @@ t4p15r2h1.txt:
     -> Total time = 3609.52
         -> Could not prove optimality!
 
-t4p16r2h2-test.txt:
-    -> Solution value = 31
-    -> Total time = 3604.79
-        -> Could not prove optimality!
-
 t4p16r2h2.txt:
     -> Solution value = 30443
     -> Total time = 3605.09
