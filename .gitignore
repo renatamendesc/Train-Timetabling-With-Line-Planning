@@ -62,6 +62,7 @@ input.txt
 plot.tex
 results_table.tex
 script-latex-graph.py
+script-calculate-sol.py
 # script-graph.py
 
 # ISA folder

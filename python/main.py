@@ -1,14 +1,40 @@
 import sys
 import psutil
 import time
+from pathlib import Path
 
 from data import Data
 from model import ModelTrainTimetabling
 from enumeration import Enumeration
 from heuristic import Heuristic
 
-# solver = "HiGHS"
-# solver = "GUROBI"
+class Tee:
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, data):
+        for stream in self.streams:
+            stream.write(data)
+            stream.flush()
+
+    def flush(self):
+        for stream in self.streams:
+            stream.flush()
+
+
+def log_file_path(data, method, threads, solver):
+    return Path(
+        f"solutions/{data.instance_set}/{method}_{threads}_{solver}/{data.instance_name}/output.log"
+    )
+
+
+def setup_log_file(log_path):
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_fp = open(log_path, "w", encoding="utf-8")
+    sys.stdout = Tee(sys.__stdout__, log_fp)
+    sys.stderr = Tee(sys.__stderr__, log_fp)
+    return log_fp
+
 
 def main():
     # read instance
@@ -18,7 +44,6 @@ def main():
     instance_path = sys.argv[1]
     data = Data(instance_path)
     data.read_data()
-    data.print_data()
 
     # read method
     if len(sys.argv) < 3:
@@ -38,7 +63,6 @@ def main():
             return 1
 
     # read solver ("HiGHS" or "GUROBI")
-    solver = 0
     if len(sys.argv) < 5:
         print("Solver not provided! - Using default solver: Gurobi")
         solver = "GUROBI"
@@ -48,47 +72,59 @@ def main():
             print("Error: Solver is not valid!")
             return 1
 
-    print("\n\t================================================================")
-    print(f"\tSolving instance {data.instance_name} with {method} and {threads} thread(s)...")
-    print("\t================================================================")
-    print(f"\t>> Instance: {data.instance_name}")
-    print(f"\t>> Method: {method}")
-    print(f"\t>> Number of threads: {threads}\n")
+    log_path = log_file_path(data, method, threads, solver)
+    log_fp = setup_log_file(log_path)
 
-    # execute selected method
-    if method == "model":
-        data.change_scale()
+    try:
+        data.print_data()
 
-        start_time = time.time()
-        model = ModelTrainTimetabling(data, threads, 21600, 21600, solver)
-        model.initialize()
-        model.execute_solver_for_full_model()
-        end_time = time.time()
-        total_time = end_time - start_time
-        print(f"\n-> Total time = {total_time:.2f}", end="")
+        print("\n\t================================================================")
+        print(f"\tSolving instance {data.instance_name} with {method} and {threads} thread(s)...")
+        print("\t================================================================")
+        print(f"\t>> Instance: {data.instance_name}")
+        print(f"\t>> Method: {method}")
+        print(f"\t>> Number of threads: {threads}\n")
 
-        model.current_solution.rescale_values("model")
+        # execute selected method
+        if method == "model":
+            data.change_scale()
 
-        model.current_solution.display_solution(data, "model")
-        model.current_solution.save_solution(data, total_time, "model", solver, False, threads)
-        model.current_solution.create_graph(data, "model", solver, threads)
-        
-    elif method == "enum":
-        data.change_scale()
+            start_time = time.time()
+            model = ModelTrainTimetabling(data, threads, 21600, 21600, solver)
+            model.initialize()
+            model.execute_solver_for_full_model()
+            end_time = time.time()
+            total_time = end_time - start_time
+            print(f"\n-> Total time = {total_time:.2f}", end="")
 
-        enumeration = Enumeration(data, threads, 21600, 3600, solver)
-        enumeration.execute_enumeration()
+            model.current_solution.rescale_values("model")
 
-    elif method == "heuristic":
-        data.change_scale()
+            model.current_solution.display_solution(data, "model")
+            model.current_solution.save_solution(data, total_time, "model", solver, False, threads)
+            model.current_solution.create_graph(data, "model", solver, threads)
 
-        heuristic = Heuristic(data, threads, 21600, 3600, solver)
-        heuristic.execute_heuristic()
-    else:
-        print("Did not provide a valid method!")
-        return 1
+        elif method == "enum":
+            data.change_scale()
 
-    return 0
+            enumeration = Enumeration(data, threads, 21600, 3600, solver)
+            enumeration.execute_enumeration()
+
+        elif method == "heuristic":
+            data.change_scale()
+
+            heuristic = Heuristic(data, threads, 21600, 3600, solver)
+            heuristic.execute_heuristic()
+        else:
+            print("Did not provide a valid method!")
+            return 1
+
+        return 0
+    finally:
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+        log_fp.close()
+        print(f"Log saved to {log_path}")
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

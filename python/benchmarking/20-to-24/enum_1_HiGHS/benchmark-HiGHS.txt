@@ -76,7 +76,6 @@ t5p24r2h2.txt:
 t6p20r2h2.txt:
     -> Solution value = 28609
     -> Total time = 3620.75
-    -> Gap value = 0.00%
 
 t6p21r2h1.txt:
     -> Solution value = 8364
@@ -86,10 +85,8 @@ t6p21r2h1.txt:
 t6p23r2h2.txt:
     -> Solution value = 21825
     -> Total time = 3626.55
-    -> Gap value = 0.00%
 
 t6p24r16h1.txt:
     -> Solution value = 28928
     -> Total time = 5259.29
-    -> Gap value = 0.00%
 

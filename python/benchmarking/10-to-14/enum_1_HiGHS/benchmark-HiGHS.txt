@@ -51,7 +51,6 @@ t4p14r2h4.txt:
 t5p10r2h4.txt:
     -> Solution value = 34119
     -> Total time = 4115.79
-    -> Gap value = 0.00%
 
 t5p11r8h3.txt:
     -> Solution value = 38459
