@@ -186,7 +186,7 @@ class Solution:
                                     )
                                     solution_script.write(
                                         f"{t},{i},{data.vertex_to_point[arrival]}: "
-                                        f"{self.y_values[t][i][departure] + data.distance[arc['idx']]} // "
+                                        f"{self.y_bar_values[t][i][arrival]} // "
                                     )
                     solution_script.write("\n")
                 solution_script.write("\n")

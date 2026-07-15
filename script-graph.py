@@ -1,125 +1,121 @@
-# python script to create graphs that represents the solution given by the model
+# python script to create graphs that represent the solution
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-import re
-import os
-import sys
 from pathlib import Path
+import sys
 
-# define values
-START_TIME = 18000
-color_train = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#800080', '#FFA500', '#008000', '#FFC0CB', '#FFD700', '#000000', '#FFFFFF', '#808080', '#FF4500']
+# colors
+COLOR_TRAIN = [
+    "#FF0000", "#00AA00", "#0000FF", "#FF9900",
+    "#AA00AA", "#00AAAA", "#880000", "#008800",
+    "#000088", "#666600", "#880088", "#008888",
+    "#444444", "#AA5500", "#5555AA"
+]
 
-# get name of the instance
-instance_set, type_execution, instance = sys.argv[1].split("/")
+# ---------------------------------------------------------------------
+
+instance_set, execution_type, instance = sys.argv[1].split("/")
 
 repo_root = Path(__file__).resolve().parent
 
-# prefer repo-root script-solution.txt (independent of cwd); fallback to cwd.
 solution_file = repo_root / "script-solution.txt"
+
 if not solution_file.exists():
-    candidate = Path("script-solution.txt")
-    if candidate.exists():
-        solution_file = candidate.resolve()
-    else:
-        raise FileNotFoundError("Could not find script-solution.txt")
+    raise FileNotFoundError(solution_file)
 
-# cleaning possible extra lines in the file
-with open(solution_file, "r") as file:
-    content = file.read()
-cleaned_content = re.sub(r"\n{3,}", "\n\n", content)
-with open(solution_file, "w") as file:
-    file.write(cleaned_content)
+# ---------------------------------------------------------------------
 
-# opening the file to get the solution 
-with open(solution_file, "r") as file:
-   data = file.read()
+with open(solution_file) as f:
+    lines = f.readlines()
 
-departure_times = []
-arrival_times = []
+num_points = int(lines[0].split()[1])
 
-info = data.split("---\n")
+fig, ax = plt.subplots(figsize=(16, 8))
 
-num_points = int((info[0].split(" "))[1])
-trains = info[1].split("\n\n")
+# ---------------------------------------------------------------------
 
-triple_re = re.compile(r"(\d+),(\d+),(\d+):\s*([0-9]+(?:\.[0-9]+)?)")
+for line in lines[2:]:
 
-# discover max (train, trip) indices used in the file.
-max_train_idx = -1
-max_trip_idx_by_train = {}
-for m in triple_re.finditer(info[1]):
-    t = int(m.group(1))
-    i = int(m.group(2))
-    max_train_idx = max(max_train_idx, t)
-    max_trip_idx_by_train[t] = max(max_trip_idx_by_train.get(t, -1), i)
+    line = line.strip()
 
-if max_train_idx < 0:
-    raise ValueError("No (train,trip,point) entries found in script-solution.txt")
+    if line == "":
+        continue
 
-# allocate arrays sized by discovered indices.
-departure_times = [
-    [
-        [None for _ in range(num_points)]
-        for _ in range(max_trip_idx_by_train.get(t, -1) + 1)
-    ]
-    for t in range(max_train_idx + 1)
-]
-arrival_times = [
-    [
-        [None for _ in range(num_points)]
-        for _ in range(max_trip_idx_by_train.get(t, -1) + 1)
-    ]
-    for t in range(max_train_idx + 1)
-]
+    # remove o último //
+    if line.endswith("//"):
+        line = line[:-2].strip()
 
-for t, train in enumerate(trains):
-    trips = train.split("\n")
+    arcs = [a.strip() for a in line.split("//") if a.strip()]
 
-    for i, trip in enumerate(trips):
-        arcs = trip.split(" // ")
-        arcs.pop()
+    if len(arcs) == 0:
+        continue
 
-        total_times = []
-        total_stations = []
-        
-        for arc in arcs:
-            vertices = arc.split(" -> ")
+    times = []
+    stations = []
 
-            departure = vertices[0]
-            arrival = vertices[1]
+    train = None
 
-            departure_indexes = departure.split(": ")[0]
-            departure_value = departure.split(": ")[1]
-            dt, di, dp = (int(x) for x in departure_indexes.split(","))
-            departure_times[dt][di][dp] = int(round(float(departure_value)))
+    for arc in arcs:
 
-            arrival_indexes = arrival.split(": ")[0]
-            arrival_value = arrival.split(": ")[1]
-            at, ai, ap = (int(x) for x in arrival_indexes.split(","))
-            arrival_times[at][ai][ap] = int(round(float(arrival_value)))
+        departure, arrival = arc.split("->")
 
-            total_times.append(departure_times[dt][di][dp])
-            total_times.append(arrival_times[at][ai][ap])
+        departure = departure.strip()
+        arrival = arrival.strip()
 
-            total_stations.append(dp)
-            total_stations.append(ap)
+        dep_info, dep_time = departure.split(":")
+        arr_info, arr_time = arrival.split(":")
 
-        plt.plot(total_times, total_stations, color=color_train[t]) 
+        dep_time = float(dep_time.strip())
+        arr_time = float(arr_time.strip())
 
-# plt.xlabel('Horário')
-plt.xlabel('Time')
-# plt.ylabel('Estação')
-plt.ylabel('Stopping Point')
+        t, trip, dep_station = map(int, dep_info.strip().split(","))
+        _, _, arr_station = map(int, arr_info.strip().split(","))
 
-ax = plt.gca()
+        train = t
+
+        times.extend([dep_time, arr_time])
+        stations.extend([dep_station, arr_station])
+
+    ax.plot(
+        times,
+        stations,
+        color=COLOR_TRAIN[train % len(COLOR_TRAIN)],
+        linewidth=2,
+        marker="o",
+        markersize=3
+    )
+
+# ---------------------------------------------------------------------
+
+ax.set_xlabel("Time")
+ax.set_ylabel("Stopping Point")
+
+ax.set_xlim(left=0)
+ax.set_ylim(-0.5, num_points - 0.5)
+
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
-file_graph = repo_root / "solutions" / instance_set / type_execution / instance / "graph.png"
-file_graph.parent.mkdir(parents=True, exist_ok=True)
+ax.grid(True, linestyle="--", alpha=0.4)
 
-print("Graph saved to", file_graph)
-plt.savefig(str(file_graph), dpi=300, bbox_inches='tight')
+plt.tight_layout()
+
+# ---------------------------------------------------------------------
+
+output = (
+    repo_root
+    / "solutions"
+    / instance_set
+    / execution_type
+    / instance
+    / "graph.png"
+)
+
+output.parent.mkdir(parents=True, exist_ok=True)
+
+plt.savefig(output, dpi=300)
 plt.close()
+
 solution_file.unlink(missing_ok=True)
+
+print(f"Graph saved to {output}")

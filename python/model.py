@@ -198,26 +198,46 @@ class ModelTrainTimetabling:
         # self.BIG_M = self.data.get_model_big_m() # testing a new value for big-M
 
         # constraints to get value of z (2)
+        # new value of 
+        # z >= y_bar[t][i][v]
         for t in range(self.data.nb_trains):
             for i in range(self.data.max_trips_per_train[t]):
-                for l in range(self.data.nb_trains):
-                    for j in range(self.data.max_trips_per_train[l]):
-                        for p in range(self.data.nb_points):
-                            if self.data.is_station[p]:
+                for p in range(self.data.nb_points):
+                    if self.data.is_depot[p]:
+                        # upper vertex
+                        v = self.data.point_to_vertices[p][0]
+                        self.model += (
+                            self.z_ >= self.y_bar_[t][i][v],
+                            f"makespan_upper({t})({i})({v})"
+                        )
 
-                                # upper vertex
-                                v = self.data.point_to_vertices[p][0]
-                                self.model += (
-                                    self.z_ >= self.y_[t][i][v] - self.y_[l][j][v],
-                                    f"max_gap_upper({t})({i})({l})({j})({v})"
-                                )
+                        # lower vertex
+                        v = self.data.point_to_vertices[p][1]
+                        self.model += (
+                            self.z_ >= self.y_bar_[t][i][v],
+                            f"makespan_lower({t})({i})({v})"
+                        )                    
 
-                                # lower vertex
-                                v = self.data.point_to_vertices[p][1]
-                                self.model += (
-                                    self.z_ >= self.y_[t][i][v] - self.y_[l][j][v],
-                                    f"max_gap_lower({t})({i})({l})({j})({v})"
-                                )
+        # for t in range(self.data.nb_trains):
+        #     for i in range(self.data.max_trips_per_train[t]):
+        #         for l in range(self.data.nb_trains):
+        #             for j in range(self.data.max_trips_per_train[l]):
+        #                 for p in range(self.data.nb_points):
+        #                     if self.data.is_station[p]:
+
+        #                         # upper vertex
+        #                         v = self.data.point_to_vertices[p][0]
+        #                         self.model += (
+        #                             self.z_ >= self.y_[t][i][v] - self.y_[l][j][v],
+        #                             f"max_gap_upper({t})({i})({l})({j})({v})"
+        #                         )
+
+        #                         # lower vertex
+        #                         v = self.data.point_to_vertices[p][1]
+        #                         self.model += (
+        #                             self.z_ >= self.y_[t][i][v] - self.y_[l][j][v],
+        #                             f"max_gap_lower({t})({i})({l})({j})({v})"
+        #                         )
 
         # associate x variable with x_bar variable (3)
         for t in range(self.data.nb_trains):
