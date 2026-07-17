@@ -58,3 +58,35 @@ t4p16r8h1.txt:
     -> Gap value = 68.17%
     -> Lower bound = 7640
 
+t5p16r10h1.txt:
+    -> Total time = 21602.42
+    -> Solution value = 19620
+    -> Lower bound = 4180
+    -> Gap value = 78.70%
+
+t5p16r6h1.txt:
+    -> Total time = 3769.71
+    -> Solution value = 26620
+    -> Lower bound = 26620
+    -> Gap value = 0.00%
+
+t5p16r6h4.txt:
+    -> Total time = 21602.25
+    -> Solution value = 46816
+    -> Lower bound = 46416
+    -> Gap value = 0.85%
+
+t5p16r6h6.txt:
+    -> Total time = 21602.00
+    -> Solution value = 47031
+    -> Lower bound = 46831
+    -> Gap value = 0.43%
+
+t5p16r8h1.txt:
+    -> Total time = 21602.34
+    -> Solution value = 19800
+    -> Lower bound = 7640
+    -> Gap value = 61.41%
+
+
+

@@ -92,6 +92,7 @@ def main():
             start_time = time.time()
             model = ModelTrainTimetabling(data, threads, 21600, 21600, solver)
             model.initialize()
+            # model.model.write(str(log_path.parent / "model.lp"))
             model.execute_solver_for_full_model()
             end_time = time.time()
             total_time = end_time - start_time

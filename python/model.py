@@ -1,4 +1,4 @@
-from mip import Model, xsum, BINARY, minimize, OptimizationStatus, GUROBI
+from mip import Model, xsum, BINARY, minimize, OptimizationStatus, GUROBI, SearchEmphasis
 from solution import Solution
 import os
 import copy
@@ -653,10 +653,6 @@ class ModelTrainTimetabling:
     def execute_solver_for_full_model(self):
         # setting parameters
         self.model.threads = self.nb_threads
-
-        # if self.solver == "HiGHS":
-        #     self.model.integer_tol = 1e-10
-        #     self.model.preprocess = 0
 
         status = self.model.optimize(max_seconds=self.time_limit)
         if status in [OptimizationStatus.INFEASIBLE, OptimizationStatus.NO_SOLUTION_FOUND]:
