@@ -14,11 +14,11 @@ COLOR_TRAIN = [
 
 # ---------------------------------------------------------------------
 
-instance_set, execution_type, instance = sys.argv[1].split("/")
+# receives the run output folder (where script-solution.txt lives
+# and where graph.png will be saved)
+out_dir = Path(sys.argv[1])
 
-repo_root = Path(__file__).resolve().parent
-
-solution_file = repo_root / "script-solution.txt"
+solution_file = out_dir / "script-solution.txt"
 
 if not solution_file.exists():
     raise FileNotFoundError(solution_file)
@@ -102,16 +102,7 @@ plt.tight_layout()
 
 # ---------------------------------------------------------------------
 
-output = (
-    repo_root
-    / "solutions"
-    / instance_set
-    / execution_type
-    / instance
-    / "graph.png"
-)
-
-output.parent.mkdir(parents=True, exist_ok=True)
+output = out_dir / "graph.png"
 
 plt.savefig(output, dpi=300)
 plt.close()

@@ -1,5 +1,4 @@
-import os
-from pathlib import Path
+from output import run_output_dir, REPO_ROOT
 
 class Solution:
     def __init__(self):
@@ -115,10 +114,7 @@ class Solution:
 
     def save_solution(self, data, total_time, method, solver, time_limit_reached=False, threads=1):
 
-        output_file = f"solutions/{data.instance_set}/{method}_{threads}_{solver}/{data.instance_name}/timetable.txt"
-        
-        # create directories if they don't exist
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        output_file = run_output_dir(data, method, threads, solver) / "timetable.txt"
 
         with open(output_file, 'w') as f:
             f.write(f"-> Total time = {total_time:.2f}\n")
@@ -163,11 +159,10 @@ class Solution:
         print(f"\nSolution saved to {output_file}")
 
     def create_graph(self, data, method, solver, threads=1):
-        # keep paths independent of current working directory.
-        repo_root = Path(__file__).resolve().parent.parent
+        out_dir = run_output_dir(data, method, threads, solver)
 
-        # auxiliary file to create the graph
-        solution_script_path = repo_root / "script-solution.txt"
+        # auxiliary file to create the graph (removed by script-graph.py)
+        solution_script_path = out_dir / "script-solution.txt"
         with open(solution_script_path, "w") as solution_script:
             solution_script.write(f"num_points {data.nb_points}\n")
             solution_script.write("---\n")
@@ -194,13 +189,7 @@ class Solution:
         # call python script
         import subprocess
         import sys
-        file_name = repo_root / "script-graph.py"
-        if not file_name.exists():
-            # fallback: try the same file without "../" (relative to cwd).
-            candidate = Path("script-graph.py")
-            if candidate.exists():
-                file_name = candidate.resolve()
-        instance = f"{data.instance_set}/{method}_{threads}_{solver}/{data.instance_name}"
+        file_name = REPO_ROOT / "script-graph.py"
 
-        command = [sys.executable, str(file_name), instance]
+        command = [sys.executable, str(file_name), str(out_dir)]
         subprocess.run(command, check=True)

@@ -98,16 +98,77 @@ class Heuristic:
 
         self.improved_sol_iter = False
         for current_max_trips_per_train in self.current_max_trips_per_train_list:
+            print(f"\nTesting combinations with {current_max_trips_per_train} trips:")
             self.candidate_combinations = self.remove_trips_from_combinations(current_max_trips_per_train)
             self.execute_candidate_combinations()
 
             if self.improved_sol:
                 self.improved_sol_iter = True
 
+    def create_short_turns(self):
+        incomplete_routes = [i for i in range(self.data.nb_routes) if not self.data.is_cyclic_route(i)]
+
+        new_routes = []
+        for a in incomplete_routes:
+            for b in incomplete_routes:
+                if a == b:
+                    continue
+
+                # a must end where b starts, and b must end where a starts (so the union is cyclic)
+                if self.data.are_incompatible_routes(a, b) or self.data.are_incompatible_routes(b, a):
+                    continue
+
+                a_vertices = self.data.route_vertices[a]
+                b_vertices = self.data.route_vertices[b]
+
+                # junction between a and b: same vertex, or a reversal at a depot
+                if a_vertices[-1] == b_vertices[0]:
+                    union = a_vertices + b_vertices[1:]
+                elif self.data.is_depot[self.data.vertex_to_point[a_vertices[-1]]]:
+                    union = a_vertices + b_vertices
+                else:
+                    continue
+
+                # close the cycle back to the first vertex of a
+                if union[-1] != a_vertices[0]:
+                    if not self.data.is_depot[self.data.vertex_to_point[union[-1]]]:
+                        continue
+                    union = union + [a_vertices[0]]
+
+                if union not in self.data.route_vertices and union not in new_routes:
+                    new_routes.append(union)
+
+        if not new_routes:
+            return False
+
+        # delete the incomplete routes, except the ones starting at the original depot
+        kept_routes = []
+        for i in range(self.data.nb_routes):
+            if i not in incomplete_routes or self.data.vertex_to_point[self.data.route_vertices[i][0]] == self.data.initial_point:
+                kept_routes.append(self.data.route_vertices[i])
+
+        nb_removed = self.data.nb_routes - len(kept_routes)
+        self.data.route_vertices = kept_routes + new_routes
+        self.data.nb_routes = len(self.data.route_vertices)
+        self.data.assign_arcs()
+
+        print(f"\nCreated {len(new_routes)} short turn route(s), removed {nb_removed} incomplete route(s) - total routes: {self.data.nb_routes}")
+        print(" - routes after modification...")
+        for i in range(self.data.nb_routes):
+            print(f"\troute #{i}: ", end="")
+            for vertex in self.data.route_vertices[i]:
+                print(f"{vertex}", end=" ")
+            print()
+
+        return True
+
     def execute_heuristic(self):
 
         self.start_time = time.time()
         self.time_limit_reached = False
+
+        # unite non-complete routes to transforme into short turns
+        self.create_short_turns()
 
         self.create_initial_candidates() # create baseline combinations
         for S in range(sum(self.data.max_trips_per_train), 0, -1):
@@ -116,13 +177,13 @@ class Heuristic:
             if self.overall_best_sol.feasible and not self.improved_sol_iter:
                 break
 
-        # if did not find any feasible solution, try again considering new routes 
-        if not self.overall_best_sol.feasible and self.try_new_set_of_routes():
-            for S in range(sum(self.data.max_trips_per_train), 0, -1):
-                self.current_max_trips_per_train_list = self.calculate_max_trips_per_train(S, self.data.max_trips_per_train)
-                self.try_combinations()
-                if self.overall_best_sol.feasible and not self.improved_sol_iter:
-                    break
+        # # if did not find any feasible solution, try again considering new routes 
+        # if not self.overall_best_sol.feasible and self.try_new_set_of_routes():
+        #     for S in range(sum(self.data.max_trips_per_train), 0, -1):
+        #         self.current_max_trips_per_train_list = self.calculate_max_trips_per_train(S, self.data.max_trips_per_train)
+        #         self.try_combinations()
+        #         if self.overall_best_sol.feasible and not self.improved_sol_iter:
+        #             break
         
         end_time = time.time()
         total_time = end_time - self.start_time
@@ -183,7 +244,7 @@ class Heuristic:
 
         # for each train, we can have:
         # - an initial route
-        # - a cyclic route (if there are more than 1 trip)
+        # - a cyclic route (if there is more than 1 trip)
         all_initial_choices = product(self.initial_valid_routes_set, repeat=nb_trains)
 
         # if there is only 1 trip for all trains
@@ -287,6 +348,7 @@ class Heuristic:
                 if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
                     self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
                     self.improved_sol = True
+                    print(f"-> New best combination: {self.overall_best_sol.routes_combination} - Objective value: {self.overall_best_sol.obj_value}")
                 elif model_thread.best_solution.obj_value == self.overall_best_sol.obj_value:
                     if model_thread.best_solution.max_nb_repeated_routes > self.overall_best_sol.max_nb_repeated_routes:
                         self.overall_best_sol = copy.deepcopy(model_thread.best_solution)
@@ -302,7 +364,7 @@ class Heuristic:
 
         with self.progress_lock:
             self.counter_solved += 1
-            print(f"{self.counter_solved}/{len(self.candidate_combinations)} candidate combination(s) tested! - Feasible: {feasible} - Objective value: {model_thread.best_solution.obj_value}")
+            print(f"{self.counter_solved}/{len(self.candidate_combinations)} candidate combination(s) tested! - Feasible: {feasible}")
 
     def execute_candidate_combinations(self):
 

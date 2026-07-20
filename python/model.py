@@ -1,7 +1,35 @@
 from mip import Model, xsum, BINARY, minimize, OptimizationStatus, GUROBI, SearchEmphasis
 from solution import Solution
 import os
+import sys
 import copy
+import threading
+from contextlib import contextmanager
+
+# the redirection below affects the whole process, so two threads
+# cannot be allowed to redirect/restore at the same time
+_silence_lock = threading.Lock()
+
+@contextmanager
+def silence_solver_output():
+    # the license banner is printed by the solver's C library directly to the
+    # process stdout/stderr, so it must be silenced at the file descriptor level
+    with _silence_lock:
+        sys.stdout.flush()
+        sys.stderr.flush()
+        stdout_fd = os.dup(1)
+        stderr_fd = os.dup(2)
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, 1)
+        os.dup2(devnull, 2)
+        try:
+            yield
+        finally:
+            os.dup2(stdout_fd, 1)
+            os.dup2(stderr_fd, 2)
+            os.close(devnull)
+            os.close(stdout_fd)
+            os.close(stderr_fd)
 
 class ModelTrainTimetabling:
 
@@ -38,7 +66,8 @@ class ModelTrainTimetabling:
         self.solver = solver
 
     def initialize(self, find_feasible=False):
-        self.model = Model(solver_name=self.solver)
+        with silence_solver_output():
+            self.model = Model(solver_name=self.solver)
         # create variables
         self.add_variables()
         # create objective function
@@ -49,7 +78,8 @@ class ModelTrainTimetabling:
 
     def reset(self, find_feasible=False):
         # recreates the model
-        self.model = Model(solver_name=self.solver)
+        with silence_solver_output():
+            self.model = Model(solver_name=self.solver)
         self.add_variables()
         if not find_feasible:
             self.model.objective = minimize(self.z_)
@@ -671,9 +701,9 @@ class ModelTrainTimetabling:
 
     def execute_solver_for_combination(self, method, best_bound):
         # setting parameters
+        self.model.verbose = 0
         self.model.threads = 1
         self.model.cutoff = best_bound
-        self.model.verbose = 0
         self.model.mip_gap = 0.01 # 1% tolerance for the objective value
 
         status = self.model.optimize(max_seconds=self.time_limit_per_combination)

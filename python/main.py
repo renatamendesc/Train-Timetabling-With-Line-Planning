@@ -1,39 +1,12 @@
 import sys
 import psutil
 import time
-from pathlib import Path
 
+from output import log_file_path, setup_log_file, close_log_file
 from data import Data
 from model import ModelTrainTimetabling
 from enumeration import Enumeration
 from heuristic import Heuristic
-
-class Tee:
-    def __init__(self, *streams):
-        self.streams = streams
-
-    def write(self, data):
-        for stream in self.streams:
-            stream.write(data)
-            stream.flush()
-
-    def flush(self):
-        for stream in self.streams:
-            stream.flush()
-
-
-def log_file_path(data, method, threads, solver):
-    return Path(
-        f"solutions/{data.instance_set}/{method}_{threads}_{solver}/{data.instance_name}/output.log"
-    )
-
-
-def setup_log_file(log_path):
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    log_fp = open(log_path, "w", encoding="utf-8")
-    sys.stdout = Tee(sys.__stdout__, log_fp)
-    sys.stderr = Tee(sys.__stderr__, log_fp)
-    return log_fp
 
 
 def main():
@@ -121,10 +94,7 @@ def main():
 
         return 0
     finally:
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
-        log_fp.close()
-        print(f"Log saved to {log_path}")
+        close_log_file(log_fp, log_path)
 
 
 if __name__ == "__main__":
