@@ -33,8 +33,6 @@ def silence_solver_output():
 
 class ModelTrainTimetabling:
 
-    # BIG_M = 100000
-
     def __init__(self, data, threads, time_limit, time_limit_per_combination, solver):
         self.data = data
         self.nb_threads = threads
@@ -64,6 +62,11 @@ class ModelTrainTimetabling:
         self.routes_constraints = []
 
         self.solver = solver
+
+        # y_bar_[k] >= y_[v] + distance[a] - M*(1-lambda)   # linha 383
+        # y_bar_[k] <= y_[v] + distance[a] + M*(1-lambda)   # linha 388
+        # Lado >=: pior caso é y_[v] máximo + distance[a] máximo − y_bar_[k] mínimo → precisa de M ≥ max_time + max(distance).
+        # Lado <=: pior caso é y_bar_[k] máximo − y_[v] mínimo − distance[a] mínimo → precisa de M ≥ max_time − min(distance). Como distance[a] ≥ 0 para arcos válidos (e pode chegar a 0), isso dá no máximo M ≥ max_time.
 
     def initialize(self, find_feasible=False):
         with silence_solver_output():
@@ -221,9 +224,21 @@ class ModelTrainTimetabling:
 
         self.z_ = self.model.add_var(lb=0, ub=float("inf"), name="z")
 
+    def calculate_big_m(self, lhs, rhs, is_leq):
+        # lhs = (min, max) do lado esquerdo
+        # rhs = (min, max) do lado direito
+        # is_leq = True para "lhs <= rhs + M*(...)"
+        #          False para "lhs >= rhs - M*(...)"
+        lhs_min, lhs_max = lhs
+        rhs_min, rhs_max = rhs
+        if is_leq:
+            return max(0, lhs_max - rhs_min)
+        else:
+            return max(0, rhs_max - lhs_min)
+
     def add_constraints(self):
 
-        self.BIG_M = self.data.max_time * 10
+        # self.BIG_M = self.data.max_time * 10
         # self.BIG_M = self.data.max_time
         # self.BIG_M = self.data.get_model_big_m() # testing a new value for big-M
 
@@ -247,27 +262,6 @@ class ModelTrainTimetabling:
                             self.z_ >= self.y_bar_[t][i][v],
                             f"makespan_lower({t})({i})({v})"
                         )                    
-
-        # for t in range(self.data.nb_trains):
-        #     for i in range(self.data.max_trips_per_train[t]):
-        #         for l in range(self.data.nb_trains):
-        #             for j in range(self.data.max_trips_per_train[l]):
-        #                 for p in range(self.data.nb_points):
-        #                     if self.data.is_station[p]:
-
-        #                         # upper vertex
-        #                         v = self.data.point_to_vertices[p][0]
-        #                         self.model += (
-        #                             self.z_ >= self.y_[t][i][v] - self.y_[l][j][v],
-        #                             f"max_gap_upper({t})({i})({l})({j})({v})"
-        #                         )
-
-        #                         # lower vertex
-        #                         v = self.data.point_to_vertices[p][1]
-        #                         self.model += (
-        #                             self.z_ >= self.y_[t][i][v] - self.y_[l][j][v],
-        #                             f"max_gap_lower({t})({i})({l})({j})({v})"
-        #                         )
 
         # associate x variable with x_bar variable (3)
         for t in range(self.data.nb_trains):
@@ -365,9 +359,9 @@ class ModelTrainTimetabling:
                                 and self.data.is_valid_route(t, i, r)
                             )
 
+                            BIG_M = self.calculate_big_m((0, self.data.max_time), (0, self.data.max_time), False)
                             self.model += (
-                                self.y_[t][i][k] >= self.y_bar_[t][i - 1][v] - self.BIG_M * (2 - expr1 - expr2),
-                                f"connect_trips({t})({i})({v})({k})"
+                                self.y_[t][i][k] >= self.y_bar_[t][i - 1][v] - BIG_M * (2 - expr1 - expr2), f"connect_trips({t})({i})({v})({k})"
                             )
 
         # constraints to establish arrival times, considering the traveling times (9) and (10)
@@ -380,12 +374,14 @@ class ModelTrainTimetabling:
                             k = arc["inc"]
                             a = arc["idx"]
 
+                            BIG_M = self.calculate_big_m((0, self.data.max_time), (0, self.data.max_time + self.data.distance[a]), False)
                             self.model += (
-                                self.y_bar_[t][i][k] >= self.y_[t][i][v] + self.data.distance[a] - self.BIG_M * (1 - self.lambda_[t][i][r]),
+                                self.y_bar_[t][i][k] >= self.y_[t][i][v] + self.data.distance[a] - BIG_M * (1 - self.lambda_[t][i][r]),
                                 f"traveling_time1({t})({i})({r})"
                             )
+                            BIG_M = self.calculate_big_m((0, self.data.max_time), (self.data.distance[a], self.data.max_time + self.data.distance[a]), True)
                             self.model += (
-                                self.y_bar_[t][i][k] <= self.y_[t][i][v] + self.data.distance[a] + self.BIG_M * (1 - self.lambda_[t][i][r]),
+                                self.y_bar_[t][i][k] <= self.y_[t][i][v] + self.data.distance[a] + BIG_M * (1 - self.lambda_[t][i][r]),
                                 f"traveling_time2({t})({i})({r})"
                             )
 
@@ -402,13 +398,15 @@ class ModelTrainTimetabling:
                             a = arc["idx"]
 
                             # minimum service time
+                            BIG_M = self.calculate_big_m((0, self.data.max_time), (0, self.data.max_time + self.data.distance_and_service_min[a]), False)
                             self.model += (
-                                self.y_[t][i][k] >= self.y_[t][i][v] + self.data.distance_and_service_min[a] - self.BIG_M * (1 - self.lambda_[t][i][r]),
+                                self.y_[t][i][k] >= self.y_[t][i][v] + self.data.distance_and_service_min[a] - BIG_M * (1 - self.lambda_[t][i][r]),
                                 f"service_time_min({t})({i})({r})"
                             )
                             # maximum service time
+                            BIG_M = self.calculate_big_m((0, self.data.max_time), (self.data.distance_and_service_max[a], self.data.max_time + self.data.distance_and_service_max[a]), True)
                             self.model += (
-                                self.y_[t][i][k] <= self.y_[t][i][v] + self.data.distance_and_service_max[a] + self.BIG_M * (1 - self.lambda_[t][i][r]),
+                                self.y_[t][i][k] <= self.y_[t][i][v] + self.data.distance_and_service_max[a] + BIG_M * (1 - self.lambda_[t][i][r]),
                                 f"service_time_max({t})({i})({r})"
                             )
 
@@ -446,13 +444,15 @@ class ModelTrainTimetabling:
                             a = arc["idx"]
 
                             # start of interval
+                            BIG_M = self.calculate_big_m((0, self.data.max_time), (h_start, h_start), False)
                             self.model += (
-                                self.y_[t][i][v] >= h_start - self.BIG_M * (1 - self.x_bar_[t][i][a][h]),
+                                self.y_[t][i][v] >= h_start - BIG_M * (1 - self.x_bar_[t][i][a][h]),
                                 f"intervals_start({t})({i})({v})({h})"
                             )
                             # end of interval
+                            BIG_M = self.calculate_big_m((0, self.data.max_time), (h_final, h_final), True)
                             self.model += (
-                                self.y_[t][i][v] <= h_final + self.BIG_M * (1 - self.x_bar_[t][i][a][h]),
+                                self.y_[t][i][v] <= h_final + BIG_M * (1 - self.x_bar_[t][i][a][h]),
                                 f"intervals_final({t})({i})({v})({h})"
                             )
 
@@ -553,8 +553,9 @@ class ModelTrainTimetabling:
                                 q = inc_point[1]
                                 v = inc_point[2]
 
+                                BIG_M = self.calculate_big_m((0, self.data.max_time), (0, self.data.max_time), False)
                                 self.model += (
-                                    self.y_[t][i][v] >= self.y_bar_[l][j][q] - self.BIG_M * (1 - self.w_[t][i][v][l][j][k]),
+                                    self.y_[t][i][v] >= self.y_bar_[l][j][q] - BIG_M * (1 - self.w_[t][i][v][l][j][k]),
                                     f"collisions_diff_directions({t})({i})({v})({l})({j})({k})"
                                 )
 
@@ -565,8 +566,9 @@ class ModelTrainTimetabling:
                     for i in range(self.data.max_trips_per_train[t]):
                         for j in range(self.data.max_trips_per_train[l]):
                             for v in range(self.data.get_nb_vertices()):
+                                BIG_M = self.calculate_big_m((0, self.data.max_time), (0, self.data.max_time), False)
                                 self.model += (
-                                    self.y_bar_[t][i][v] >= self.y_[l][j][v] - self.BIG_M * (1 - self.u_[t][i][l][j][v]),
+                                    self.y_bar_[t][i][v] >= self.y_[l][j][v] - BIG_M * (1 - self.u_[t][i][l][j][v]),
                                     f"collisions_same_direction({t})({i})({l})({j})({v})"
                                 )
 
@@ -577,8 +579,9 @@ class ModelTrainTimetabling:
                     for i in range(self.data.max_trips_per_train[t]):
                         for j in range(self.data.max_trips_per_train[l]):
                             for v in range(self.data.get_nb_vertices()):
+                                BIG_M = self.calculate_big_m((0, self.data.max_time), (0, self.data.max_time + self.data.alpha), False)
                                 self.model += (
-                                    self.y_[t][i][v] >= self.y_[l][j][v] + self.data.alpha - self.BIG_M * (1 - self.u_[t][i][l][j][v]),
+                                    self.y_[t][i][v] >= self.y_[l][j][v] + self.data.alpha - BIG_M * (1 - self.u_[t][i][l][j][v]),
                                     f"headway({t})({i})({l})({j})({v})"
                                 )
 
@@ -603,7 +606,6 @@ class ModelTrainTimetabling:
         # self.model.add_constr(self.lambda_[3][2][1] == 1)
         # self.model.add_constr(self.lambda_[3][3][1] == 1)
         # ===============================================================================
-
 
     def store_value_of_variables(self):
         self.current_solution.x_values = [
@@ -709,6 +711,12 @@ class ModelTrainTimetabling:
         status = self.model.optimize(max_seconds=self.time_limit_per_combination)
 
         if status in [OptimizationStatus.INFEASIBLE, OptimizationStatus.NO_SOLUTION_FOUND]:
+            return False
+
+        # no incumbent solution available: happens when the solver proves that no
+        # solution better than the cutoff exists (OptimizationStatus.CUTOFF) or is
+        # interrupted before finding any solution
+        if self.model.objective_value is None:
             return False
 
         # a feasible solution was found

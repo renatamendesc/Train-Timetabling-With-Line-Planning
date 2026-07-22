@@ -8,7 +8,6 @@ from model import ModelTrainTimetabling
 from enumeration import Enumeration
 from heuristic import Heuristic
 
-
 def main():
     # read instance
     if len(sys.argv) < 2:
