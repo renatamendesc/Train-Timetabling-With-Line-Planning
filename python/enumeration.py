@@ -32,13 +32,17 @@ class Enumeration:
         self.progress_lock = threading.Lock()
         self.best_lock = threading.Lock()
         self.time_limit_lock = threading.Lock()
-        
+        self.optimality_lock = threading.Lock()
+
         # counter for solved combinations
         self.counter_solved = 0
         self.aux_progress = None
-        
+
         # flag to tell if the time limit was reached
         self.time_limit_reached = False
+
+        # flag to tell if every solved combination had its optimum proven
+        self.all_combinations_proven = True
 
     def solve_combination_task(self, count):
 
@@ -76,6 +80,12 @@ class Enumeration:
             model_thread.reset()
             model_thread.create_model_for_combination(current_combination)
             feasible = model_thread.execute_solver_for_combination("enum", self.overall_best_sol.obj_value)
+
+            # if this combination was not solved to a proven state, global optimality can no longer be proven
+            if not model_thread.last_combination_proven:
+                with self.optimality_lock:
+                    self.all_combinations_proven = False
+
             if feasible:
                 with self.best_lock:
                     if model_thread.best_solution.obj_value < self.overall_best_sol.obj_value:
@@ -186,7 +196,15 @@ class Enumeration:
             print("\n-> Time limit reached. Displaying best solution found so far...\n")
         else:
             print("\nFinished enumeration!\n")
-        
+
+        # global optimality is proven only if all combinations were tested and each of them was solved to a proven state 
+        proven_optimal = (not self.time_limit_reached) and self.all_combinations_proven
+        self.overall_best_sol.proven_optimal = proven_optimal
+        if proven_optimal:
+            print("-> The best solution found is OPTIMAL (optimality proven).")
+        else:
+            print("-> Optimality could NOT be proven for the best solution found.")
+
         print(f"-> Total time = {total_time:.2f}", end="")
 
         self.overall_best_sol.rescale_values("enum")

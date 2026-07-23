@@ -77,11 +77,6 @@ class Solution:
         if method == "model":
             print("-> Lower bound =", round(self.lower_bound))
             print("-> Gap value =", f"{self.gap_value*100:.2f}%")
-        elif method == "enum":
-            if time_limit_reached or self.proven_optimal is False:
-                print("Cannot prove optimality!")
-            else:
-                print("-> Gap value =", f"{self.gap_value*100:.2f}%")
         print()
 
         def convert_time(seconds):

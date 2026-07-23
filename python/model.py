@@ -12,8 +12,6 @@ _silence_lock = threading.Lock()
 
 @contextmanager
 def silence_solver_output():
-    # the license banner is printed by the solver's C library directly to the
-    # process stdout/stderr, so it must be silenced at the file descriptor level
     with _silence_lock:
         sys.stdout.flush()
         sys.stderr.flush()
@@ -44,6 +42,9 @@ class ModelTrainTimetabling:
         # solution object
         self.best_solution = Solution()
         self.current_solution = Solution()
+
+        # tells if the last solved combination had its optimum proven by the solver
+        self.last_combination_proven = True
         
         # contador para gerar arquivos .lp únicos
         self.lp_file_counter = 0
@@ -63,11 +64,6 @@ class ModelTrainTimetabling:
 
         self.solver = solver
 
-        # y_bar_[k] >= y_[v] + distance[a] - M*(1-lambda)   # linha 383
-        # y_bar_[k] <= y_[v] + distance[a] + M*(1-lambda)   # linha 388
-        # Lado >=: pior caso é y_[v] máximo + distance[a] máximo − y_bar_[k] mínimo → precisa de M ≥ max_time + max(distance).
-        # Lado <=: pior caso é y_bar_[k] máximo − y_[v] mínimo − distance[a] mínimo → precisa de M ≥ max_time − min(distance). Como distance[a] ≥ 0 para arcos válidos (e pode chegar a 0), isso dá no máximo M ≥ max_time.
-
     def initialize(self, find_feasible=False):
         with silence_solver_output():
             self.model = Model(solver_name=self.solver)
@@ -77,7 +73,7 @@ class ModelTrainTimetabling:
         if not find_feasible:
             self.model.objective = minimize(self.z_)
         # add general constraints
-        self.add_constraints()
+        self.add_constraints_silently()
 
     def reset(self, find_feasible=False):
         # recreates the model
@@ -86,8 +82,22 @@ class ModelTrainTimetabling:
         self.add_variables()
         if not find_feasible:
             self.model.objective = minimize(self.z_)
-        self.add_constraints()
+        self.add_constraints_silently()
         self.routes_constraints.clear()
+
+    def add_constraints_silently(self):
+        # while building the constraints, the solver's C library may print
+        # warnings directly to stdout (e.g. "zero or small (< 1e-13)
+        # coefficients, ignored" when a Big-M evaluates to 0). These are
+        # harmless, so we turn the solver output off during construction and
+        # restore it afterwards, keeping the actual solve log intact.
+        previous_verbose = self.model.verbose
+        self.model.verbose = 0
+        self.add_constraints()
+        # restoring the output flag makes the solver announce the parameter
+        # change ("Set parameter OutputFlag to value 1"); silence that one line
+        with silence_solver_output():
+            self.model.verbose = previous_verbose
 
     def create_model_for_combination(self, routes_of_trains):
         self.add_routes_constraints(routes_of_trains)
@@ -710,6 +720,14 @@ class ModelTrainTimetabling:
 
         status = self.model.optimize(max_seconds=self.time_limit_per_combination)
 
+        # a combination is fully solved  only when the solver returns a definitive status
+        # if it was truncated by the per-combination time limit it returns FEASIBLE or NO_SOLUTION_FOUND instead, and we cannot prove the global optimum.
+        self.last_combination_proven = status in (
+            OptimizationStatus.OPTIMAL,
+            OptimizationStatus.INFEASIBLE,
+            OptimizationStatus.CUTOFF,
+        )
+
         if status in [OptimizationStatus.INFEASIBLE, OptimizationStatus.NO_SOLUTION_FOUND]:
             return False
 
@@ -725,11 +743,6 @@ class ModelTrainTimetabling:
                 self.current_solution.obj_value = self.model.objective_value
                 self.store_value_of_variables()
                 self.current_solution.feasible = True
-
-                if status != OptimizationStatus.OPTIMAL:
-                    # if any solution for combination is not proven optimal, 
-                    # we cannot prove global optimality of the best solution
-                    self.best_solution.proven_optimal = False
 
                 self.best_solution = copy.deepcopy(self.current_solution)
             return True

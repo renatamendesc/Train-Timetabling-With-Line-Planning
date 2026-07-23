@@ -56,10 +56,19 @@ for f in "$INPUT_FOLDER"/*; do
     TIME_LINE=$(echo "$OUTPUT" | grep "\-> Total time")
     SOL_LINE=$(echo "$OUTPUT" | grep "\-> Solution value")
 
-    if echo "$OUTPUT" | grep -q "\-> Gap value"; then
-        GAP_LINE=$(echo "$OUTPUT" | grep "\-> Gap value")
+    # build the optimality/gap line according to the method
+    if [ "$METHOD" = "enum" ]; then
+        # enumeration prints one of the two optimality messages
+        GAP_LINE=$(echo "$OUTPUT" | grep -E "OPTIMAL \(optimality proven\)|Optimality could NOT be proven")
+    elif [ "$METHOD" = "heuristic" ]; then
+        # heuristic: optimality is never proven, so nothing is printed
+        GAP_LINE=""
     else
-        GAP_LINE="    -> Could not prove optimality!"
+        if echo "$OUTPUT" | grep -q "\-> Gap value"; then
+            GAP_LINE=$(echo "$OUTPUT" | grep "\-> Gap value")
+        else
+            GAP_LINE="-> Could not prove optimality!"
+        fi
     fi
 
     if [ "$METHOD" = "model" ]; then
@@ -74,7 +83,9 @@ for f in "$INPUT_FOLDER"/*; do
         echo "$INSTANCE:"
         echo "    $SOL_LINE"
         echo "    $TIME_LINE"
-        echo "    $GAP_LINE"
+        if [ -n "$GAP_LINE" ]; then
+            echo "    $GAP_LINE"
+        fi
         if [ "$METHOD" = "model" ] && [ -n "$LB_LINE" ]; then
             echo "    $LB_LINE"
         fi
