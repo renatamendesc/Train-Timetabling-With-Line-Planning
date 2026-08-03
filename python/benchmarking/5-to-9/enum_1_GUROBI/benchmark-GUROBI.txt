@@ -1,30 +1,100 @@
 t2p5r2h1.txt:
     -> Solution value = 38136
-    -> Total time = 1.20
+    -> Total time = 1.28
     -> The best solution found is OPTIMAL (optimality proven).
 
 t2p6r7h3.txt:
     -> Solution value = 42078
-    -> Total time = 3.10
+    -> Total time = 4.47
     -> The best solution found is OPTIMAL (optimality proven).
 
 t2p7r8h1.txt:
     -> Solution value = 20342
-    -> Total time = 145.33
+    -> Total time = 181.05
     -> The best solution found is OPTIMAL (optimality proven).
 
 t2p8r2h2.txt:
     -> Solution value = 31633
-    -> Total time = 0.79
+    -> Total time = 1.46
     -> The best solution found is OPTIMAL (optimality proven).
 
 t2p9r2h3.txt:
     -> Solution value = 40780
-    -> Total time = 3.12
+    -> Total time = 3.89
     -> The best solution found is OPTIMAL (optimality proven).
 
 t3p5r7h1.txt:
     -> Solution value = 7731
-    -> Total time = 12.75
+    -> Total time = 15.28
+    -> The best solution found is OPTIMAL (optimality proven).
+
+t3p6r2h1.txt:
+    -> Solution value = 23268
+    -> Total time = 4705.44
+    -> Optimality could NOT be proven for the best solution found.
+
+t3p7r6h3.txt:
+    -> Solution value = 31411
+    -> Total time = 6.01
+    -> The best solution found is OPTIMAL (optimality proven).
+
+t3p8r7h1.txt:
+    -> Solution value = 8474
+    -> Total time = 67.46
+    -> The best solution found is OPTIMAL (optimality proven).
+
+t3p9r7h3.txt:
+    -> Solution value = 28718
+    -> Total time = 4.54
+    -> The best solution found is OPTIMAL (optimality proven).
+
+t4p5r7h2.txt:
+    -> Solution value = 31903
+    -> Total time = 21602.94
+    -> Optimality could NOT be proven for the best solution found.
+
+t4p6r7h1.txt:
+    -> Solution value = 33776
+    -> Total time = 21600.00
+    -> Optimality could NOT be proven for the best solution found.
+
+t4p7r7h4.txt:
+    -> Solution value = 36082
+    -> Total time = 1200.81
+    -> The best solution found is OPTIMAL (optimality proven).
+
+t4p8r2h1.txt:
+    -> Solution value = 17313
+    -> Total time = 16670.86
+    -> Optimality could NOT be proven for the best solution found.
+
+t4p9r2h1.txt:
+    -> Solution value = 9037
+    -> Total time = 70.30
+    -> The best solution found is OPTIMAL (optimality proven).
+
+t5p5r2h5.txt:
+    -> Solution value = 48217
+    -> Total time = 147.37
+    -> The best solution found is OPTIMAL (optimality proven).
+
+t5p6r6h1.txt:
+    -> Solution value = 17946
+    -> Total time = 21686.60
+    -> Optimality could NOT be proven for the best solution found.
+
+t5p7r2h2.txt:
+    -> Solution value = 29875
+    -> Total time = 14409.47
+    -> Optimality could NOT be proven for the best solution found.
+
+t5p8r8h3.txt:
+    -> Solution value = 26325
+    -> Total time = 887.07
+    -> The best solution found is OPTIMAL (optimality proven).
+
+t5p9r2h3.txt:
+    -> Solution value = 24849
+    -> Total time = 113.99
     -> The best solution found is OPTIMAL (optimality proven).
 

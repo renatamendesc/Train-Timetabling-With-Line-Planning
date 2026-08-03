@@ -1,95 +1,64 @@
 t3p20r16h2.txt:
-    -> Solution value = 29646
-    -> Total time = 44.24
-        -> Could not prove optimality!
+    
+    -> Total time = 0.99
 
 t3p21r13h5.txt:
-    -> Solution value = 46690
-    -> Total time = 106.31
-        -> Could not prove optimality!
+    
+    -> Total time = 3.50
 
 t3p22r6h1.txt:
-    -> Solution value = 17668
-    -> Total time = 253.71
-        -> Could not prove optimality!
+    
+    -> Total time = 1.49
 
 t3p23r12h4.txt:
-    -> Solution value = 39934
-    -> Total time = 226.41
-        -> Could not prove optimality!
+    
+    -> Total time = 48.48
 
 t3p24r7h5.txt:
-    -> Solution value = 49320
-    -> Total time = 85.74
-        -> Could not prove optimality!
+    
+    -> Total time = 9.39
 
 t4p20r8h1.txt:
-    -> Solution value = 22496
-    -> Total time = 198.95
-        -> Could not prove optimality!
+    
+    -> Total time = 1.95
 
 t4p21r8h2.txt:
-    -> Solution value = 25770
-    -> Total time = 252.13
-        -> Could not prove optimality!
+    
+    -> Total time = 2.23
 
 t4p22r2h1.txt:
-    -> Solution value = 48148
-    -> Total time = 3610.37
-        -> Could not prove optimality!
+    
+    -> Total time = 2.56
 
 t4p23r10h2.txt:
-    -> Solution value = 26361
-    -> Total time = 719.82
-        -> Could not prove optimality!
+    
+    -> Total time = 3.34
 
 t4p24r2h1.txt:
-    -> Solution value = 16181
-    -> Total time = 499.01
-        -> Could not prove optimality!
+    
+    -> Total time = 0.94
 
 t5p20r2h1.txt:
-    -> Solution value = 36774
-    -> Total time = 3610.80
-        -> Could not prove optimality!
+    
+    -> Total time = 1.22
 
 t5p21r2h2.txt:
-    -> Solution value = 19450
-    -> Total time = 3605.09
-        -> Could not prove optimality!
+    
+    -> Total time = 2.98
 
 t5p22r13h2.txt:
-    -> Solution value = 29059
-    -> Total time = 3962.67
-        -> Could not prove optimality!
+    
+    -> Total time = 43.29
 
 t5p23r2h1.txt:
-    -> Solution value = 34691
-    -> Total time = 1265.36
-        -> Could not prove optimality!
+    
+    -> Total time = 2.71
 
 t5p24r2h2.txt:
-    -> Solution value = 33006
-    -> Total time = 3605.56
-        -> Could not prove optimality!
+    
+    -> Total time = 3.09
 
 t6p20r2h2.txt:
-    -> Solution value = 28609
-    -> Total time = 3606.65
-        -> Could not prove optimality!
-
-t6p21r2h1.txt:
-    -> Solution value = 8364
-    -> Total time = 445.91
-        -> Could not prove optimality!
-
-t6p23r2h2.txt:
-    -> Solution value = 21825
-    -> Total time = 3608.14
-        -> Could not prove optimality!
-
-t6p24r16h1.txt:
-    -> Solution value = 28928
-    -> Total time = 3607.95
-        -> Could not prove optimality!
+    
+    -> Total time = 3.58
 

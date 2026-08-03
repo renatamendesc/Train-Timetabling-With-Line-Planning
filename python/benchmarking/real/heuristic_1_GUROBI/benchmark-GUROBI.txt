@@ -1,8 +1,60 @@
 t3p16r10h1.txt:
-    -> Solution value = 40420
-    -> Total time = 5.77
+    -> Solution value = 40360
+    -> Total time = 10.23
 
 t3p16r6h1.txt:
-    -> Solution value = 40420
-    -> Total time = 5.19
+    -> Solution value = 40360
+    -> Total time = 9.53
+
+t3p16r6h4.txt:
+    -> Solution value = 47056
+    -> Total time = 44.41
+
+t3p16r6h6.txt:
+    -> Solution value = 47031
+    -> Total time = 35.28
+
+t3p16r8h1.txt:
+    -> Solution value = 31220
+    -> Total time = 112.06
+
+t4p16r10h1.txt:
+    -> Solution value = 26860
+    -> Total time = 24.60
+
+t4p16r6h1.txt:
+    -> Solution value = 26620
+    -> Total time = 90.90
+
+t4p16r6h4.txt:
+    -> Solution value = 46816
+    -> Total time = 2625.87
+
+t4p16r6h6.txt:
+    -> Solution value = 47031
+    -> Total time = 3199.05
+
+t4p16r8h1.txt:
+    -> Solution value = 23720
+    -> Total time = 2934.62
+
+t5p16r10h1.txt:
+    -> Solution value = 19500
+    -> Total time = 942.07
+
+t5p16r6h1.txt:
+    -> Solution value = 26620
+    -> Total time = 473.72
+
+t5p16r6h4.txt:
+    -> Solution value = 46816
+    -> Total time = 5595.29
+
+t5p16r6h6.txt:
+    -> Solution value = 47031
+    -> Total time = 554.09
+
+t5p16r8h1.txt:
+    -> Solution value = 19880
+    -> Total time = 3635.86
 

@@ -1,4 +1,4 @@
--> Total time = 0.90
+-> Total time = 1.30
 -> Solution value = 38136
 -> Lower bound = 38136
 -> Gap value = 0.00%

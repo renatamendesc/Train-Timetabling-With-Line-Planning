@@ -1,36 +1,120 @@
 t2p5r2h1.txt:
     -> Solution value = 38136
-    -> Total time = 0.90
+    -> Total time = 1.30
     -> Gap value = 0.00%
     -> Lower bound = 38136
 
 t2p6r7h3.txt:
     -> Solution value = 42078
-    -> Total time = 3.03
+    -> Total time = 2.94
     -> Gap value = 0.00%
     -> Lower bound = 42078
 
 t2p7r8h1.txt:
     -> Solution value = 20342
-    -> Total time = 1.84
+    -> Total time = 2.14
     -> Gap value = 0.00%
     -> Lower bound = 20342
 
 t2p8r2h2.txt:
     -> Solution value = 31633
-    -> Total time = 3.59
+    -> Total time = 3.36
     -> Gap value = 0.00%
     -> Lower bound = 31633
 
 t2p9r2h3.txt:
     -> Solution value = 40780
-    -> Total time = 23.13
+    -> Total time = 17.83
     -> Gap value = 0.00%
     -> Lower bound = 40780
 
 t3p5r7h1.txt:
     -> Solution value = 7731
-    -> Total time = 5.03
+    -> Total time = 4.68
     -> Gap value = 0.00%
     -> Lower bound = 7731
+
+t3p6r2h1.txt:
+    -> Solution value = 23268
+    -> Total time = 783.65
+    -> Gap value = 0.00%
+    -> Lower bound = 23268
+
+t3p7r6h3.txt:
+    -> Solution value = 31411
+    -> Total time = 10.76
+    -> Gap value = 0.00%
+    -> Lower bound = 31411
+
+t3p8r7h1.txt:
+    -> Solution value = 8474
+    -> Total time = 10.15
+    -> Gap value = 0.00%
+    -> Lower bound = 8474
+
+t3p9r7h3.txt:
+    -> Solution value = 28718
+    -> Total time = 5.60
+    -> Gap value = 0.00%
+    -> Lower bound = 28718
+
+t4p5r7h2.txt:
+    -> Solution value = 31903
+    -> Total time = 21601.24
+    -> Gap value = 0.87%
+    -> Lower bound = 31627
+
+t4p6r7h1.txt:
+    -> Solution value = 31305
+    -> Total time = 21602.09
+    -> Gap value = 1.38%
+    -> Lower bound = 30872
+
+t4p7r7h4.txt:
+    -> Solution value = 36082
+    -> Total time = 79.41
+    -> Gap value = 0.00%
+    -> Lower bound = 36082
+
+t4p8r2h1.txt:
+    -> Solution value = 17313
+    -> Total time = 926.65
+    -> Gap value = 0.01%
+    -> Lower bound = 17312
+
+t4p9r2h1.txt:
+    -> Solution value = 9037
+    -> Total time = 25.54
+    -> Gap value = 0.00%
+    -> Lower bound = 9037
+
+t5p5r2h5.txt:
+    -> Solution value = 48217
+    -> Total time = 3459.91
+    -> Gap value = 0.00%
+    -> Lower bound = 48217
+
+t5p6r6h1.txt:
+    -> Solution value = 17266
+    -> Total time = 21601.79
+    -> Gap value = 7.91%
+    -> Lower bound = 15900
+
+t5p7r2h2.txt:
+    -> Solution value = 29875
+    -> Total time = 21601.96
+    -> Gap value = 6.17%
+    -> Lower bound = 28032
+
+t5p8r8h3.txt:
+    -> Solution value = 26325
+    -> Total time = 1181.72
+    -> Gap value = 0.00%
+    -> Lower bound = 26325
+
+t5p9r2h3.txt:
+    -> Solution value = 24849
+    -> Total time = 21601.13
+    -> Gap value = 2.29%
+    -> Lower bound = 24279
 

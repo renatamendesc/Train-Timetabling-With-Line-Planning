@@ -1,95 +1,95 @@
 t3p20r16h2.txt:
     -> Solution value = 29646
-    -> Total time = 84.53
-    -> Gap value = 0.00%
+    -> Total time = 76.77
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p21r13h5.txt:
     -> Solution value = 46690
-    -> Total time = 60.37
-    -> Gap value = 0.00%
+    -> Total time = 57.04
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p22r6h1.txt:
-    -> Solution value = 17668
-    -> Total time = 86.10
-    -> Gap value = 0.00%
+    -> Solution value = 25362
+    -> Total time = 36.44
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p23r12h4.txt:
-    -> Solution value = 39934
-    -> Total time = 993.55
-    -> Gap value = 0.00%
+    -> Solution value = 49537
+    -> Total time = 970.97
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p24r7h5.txt:
-    -> Solution value = 49320
-    -> Total time = 122.99
-    -> Gap value = 0.00%
+    -> Solution value = 56874
+    -> Total time = 93.22
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t4p20r8h1.txt:
     -> Solution value = 22496
-    -> Total time = 35.84
-    -> Gap value = 0.00%
+    -> Total time = 31.57
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t4p21r8h2.txt:
     -> Solution value = 25530
-    -> Total time = 88.14
-    -> Gap value = 0.00%
+    -> Total time = 44.88
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t4p22r2h1.txt:
-    -> Solution value = 47337
-    -> Total time = 3608.80
-    -> Gap value = 0.00%
+    -> Solution value = 49827
+    -> Total time = 5305.04
+    -> Optimality could NOT be proven for the best solution found.
 
 t4p23r10h2.txt:
-    -> Solution value = 26361
-    -> Total time = 387.38
-    -> Gap value = 0.00%
+    -> Solution value = 45763
+    -> Total time = 49.78
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t4p24r2h1.txt:
-    -> Solution value = 16181
-    -> Total time = 277.70
-    -> Gap value = 0.00%
+    -> Solution value = 29145
+    -> Total time = 39.70
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t5p20r2h1.txt:
-    -> Solution value = 27760
-    -> Total time = 3604.59
-    -> Gap value = 0.00%
+    -> Solution value = 36081
+    -> Total time = 7204.17
+    -> Optimality could NOT be proven for the best solution found.
 
 t5p21r2h2.txt:
-    -> Solution value = 19450
-    -> Total time = 3607.85
-    -> Gap value = 0.00%
+    -> Solution value = 41250
+    -> Total time = 100.01
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t5p22r13h2.txt:
     -> Solution value = 29059
-    -> Total time = 4778.96
-    -> Gap value = 0.00%
+    -> Total time = 1245.06
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t5p23r2h1.txt:
     -> Solution value = 34691
-    -> Total time = 235.97
-    -> Gap value = 0.00%
+    -> Total time = 327.73
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t5p24r2h2.txt:
-    -> Solution value = 33006
-    -> Total time = 3607.81
-    -> Gap value = 0.00%
+    -> Solution value = 47086
+    -> Total time = 2383.44
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t6p20r2h2.txt:
-    -> Solution value = 32617
-    -> Total time = 3609.77
-    -> Gap value = 0.00%
+    -> Solution value = 45893
+    -> Total time = 6034.64
+    -> Optimality could NOT be proven for the best solution found.
 
 t6p21r2h1.txt:
     -> Solution value = 8364
-    -> Total time = 199.03
-    -> Gap value = 0.00%
+    -> Total time = 219.64
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t6p23r2h2.txt:
-    -> Solution value = 23804
-    -> Total time = 3611.45
-    -> Gap value = 0.00%
+    -> Solution value = 36146
+    -> Total time = 3612.67
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t6p24r16h1.txt:
-    -> Solution value = 27034
-    -> Total time = 5146.79
-    -> Gap value = 0.00%
+    -> Solution value = 43380
+    -> Total time = 21901.33
+    -> Optimality could NOT be proven for the best solution found.
 
