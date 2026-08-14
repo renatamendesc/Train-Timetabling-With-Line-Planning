@@ -1,64 +1,80 @@
 t3p10r6h3.txt:
-    
-    -> Total time = 0.95
+    -> Solution value = 37612
+    -> Total time = 45.40
 
 t3p11r2h1.txt:
-    
-    -> Total time = 2.11
+    -> Solution value = 41804
+    -> Total time = 1728.33
 
 t3p12r2h3.txt:
-    
-    -> Total time = 0.51
+    -> Solution value = 57425
+    -> Total time = 16.99
 
 t3p13r12h2.txt:
-    
-    -> Total time = 3.54
+    -> Solution value = 26315
+    -> Total time = 121.11
 
 t3p14r8h5.txt:
-    
-    -> Total time = 26.86
+    -> Solution value = 40057
+    -> Total time = 1911.71
 
 t4p10r6h3.txt:
-    
-    -> Total time = 9.25
+    -> Solution value = 27620
+    -> Total time = 271.24
 
 t4p11r2h2.txt:
-    
-    -> Total time = 2.92
+    -> Solution value = 46277
+    -> Total time = 14416.61
 
 t4p12r2h2.txt:
-    
-    -> Total time = 1.86
+    -> Solution value = 51433
+    -> Total time = 861.61
 
 t4p13r8h1.txt:
-    
-    -> Total time = 2.33
+    -> Solution value = 36780
+    -> Total time = 941.65
 
 t4p14r2h4.txt:
-    
-    -> Total time = 6.41
+    -> Solution value = 58596
+    -> Total time = 5861.99
 
 t5p10r2h4.txt:
-    
-    -> Total time = 16.67
+    -> Solution value = 39193
+    -> Total time = 21916.46
 
 t5p11r8h3.txt:
-    
-    -> Total time = 11.99
+    -> Solution value = 38459
+    -> Total time = 313.35
 
 t5p12r2h2.txt:
-    
-    -> Total time = 0.93
+    -> Solution value = 37818
+    -> Total time = 7205.16
 
 t5p13r15h2.txt:
-    
-    -> Total time = 56.07
+    -> Solution value = 35793
+    -> Total time = 1252.58
 
 t5p14r2h1.txt:
-    
-    -> Total time = 1.88
+    -> Solution value = 17306
+    -> Total time = 52.59
 
 t6p10r6h2.txt:
-    
-    -> Total time = 9.12
+    -> Solution value = 36229
+    -> Total time = 5360.67
+
+t6p11r15h2.txt:
+    -> Solution value = 36050
+    -> Total time = 5448.01
+
+t6p12r10h2.txt:
+    -> Solution value = 43027
+    -> Total time = 7381.72
+
+t6p13r2h2.txt:
+    -> Solution value = 42315
+    -> Total time = 9623.21
+
+t6p14r2h1.txt:
+    -> Solution value = 34879
+    -> Total time = 8749.86
 

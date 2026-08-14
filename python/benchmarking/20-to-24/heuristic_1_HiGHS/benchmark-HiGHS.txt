@@ -1,64 +1,76 @@
 t3p20r16h2.txt:
-    
-    -> Total time = 0.99
+    -> Solution value = 29646
+    -> Total time = 46.74
 
 t3p21r13h5.txt:
-    
-    -> Total time = 3.50
+    -> Solution value = 46690
+    -> Total time = 94.46
 
 t3p22r6h1.txt:
-    
-    -> Total time = 1.49
+    -> Solution value = 25362
+    -> Total time = 51.62
 
 t3p23r12h4.txt:
-    
-    -> Total time = 48.48
+    -> Solution value = 50656
+    -> Total time = 732.31
 
 t3p24r7h5.txt:
-    
-    -> Total time = 9.39
+    -> Solution value = 61482
+    -> Total time = 387.30
 
 t4p20r8h1.txt:
-    
-    -> Total time = 1.95
+    -> Solution value = 22496
+    -> Total time = 71.65
 
 t4p21r8h2.txt:
-    
-    -> Total time = 2.23
+    -> Solution value = 25530
+    -> Total time = 216.95
 
 t4p22r2h1.txt:
-    
-    -> Total time = 2.56
+    -> Solution value = 49827
+    -> Total time = 4081.82
 
 t4p23r10h2.txt:
-    
-    -> Total time = 3.34
+    -> Solution value = 45763
+    -> Total time = 190.07
 
 t4p24r2h1.txt:
-    
-    -> Total time = 0.94
+    -> Solution value = 29145
+    -> Total time = 67.57
 
 t5p20r2h1.txt:
-    
-    -> Total time = 1.22
+    -> Solution value = 36114
+    -> Total time = 3609.80
 
 t5p21r2h2.txt:
-    
-    -> Total time = 2.98
+    -> Solution value = 41250
+    -> Total time = 1359.40
 
 t5p22r13h2.txt:
-    
-    -> Total time = 43.29
+    -> Solution value = 29059
+    -> Total time = 4712.98
 
 t5p23r2h1.txt:
-    
-    -> Total time = 2.71
+    -> Solution value = 34691
+    -> Total time = 523.45
 
 t5p24r2h2.txt:
-    
-    -> Total time = 3.09
+    -> Solution value = 47086
+    -> Total time = 1620.93
 
 t6p20r2h2.txt:
-    
-    -> Total time = 3.58
+    -> Solution value = 45893
+    -> Total time = 5125.16
+
+t6p21r2h1.txt:
+    -> Solution value = 8364
+    -> Total time = 315.60
+
+t6p23r2h2.txt:
+    -> Solution value = 36146
+    -> Total time = 5847.11
+
+t6p24r16h1.txt:
+    -> Solution value = 34852
+    -> Total time = 1637.34
 

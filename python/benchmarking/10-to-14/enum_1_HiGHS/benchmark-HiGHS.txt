@@ -1,99 +1,100 @@
 t3p10r6h3.txt:
     -> Solution value = 37612
-    -> Total time = 44.59
-    -> Gap value = 0.00%
+    -> Total time = 46.99
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p11r2h1.txt:
-    -> Solution value = 38040
-    -> Total time = 3611.54
-    -> Gap value = 0.00%
+    -> Solution value = 41804
+    -> Total time = 1811.75
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p12r2h3.txt:
-    -> Solution value = 36985
-    -> Total time = 10.42
-    -> Gap value = 0.00%
+    -> Solution value = 57425
+    -> Total time = 11.22
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p13r12h2.txt:
-    -> Solution value = 17968
-    -> Total time = 174.87
-    -> Gap value = 0.00%
+    -> Solution value = 26315
+    -> Total time = 235.83
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p14r8h5.txt:
-    -> Solution value = 31596
-    -> Total time = 21600.96
-        -> Could not prove optimality!
+    -> Solution value = 39947
+    -> Total time = 21600.32
+    -> Optimality could NOT be proven for the best solution found.
 
 t4p10r6h3.txt:
     -> Solution value = 27620
-    -> Total time = 496.48
-    -> Gap value = 0.00%
+    -> Total time = 448.72
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t4p11r2h2.txt:
-    -> Solution value = 40927
-    -> Total time = 3638.40
-    -> Gap value = 0.00%
+    -> Solution value = 46277
+    -> Total time = 14413.26
+    -> Optimality could NOT be proven for the best solution found.
 
 t4p12r2h2.txt:
-    -> Solution value = 34230
-    -> Total time = 3612.17
-    -> Gap value = 0.00%
+    -> Solution value = 51433
+    -> Total time = 1606.67
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t4p13r8h1.txt:
-    -> Solution value = 31568
-    -> Total time = 5753.12
-    -> Gap value = 0.00%
+    -> Solution value = 36780
+    -> Total time = 4268.16
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t4p14r2h4.txt:
-    -> Solution value = 42728
-    -> Total time = 2411.99
-    -> Gap value = 0.00%
+    -> Solution value = 58596
+    -> Total time = 6234.01
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t5p10r2h4.txt:
-    -> Solution value = 34119
-    -> Total time = 4115.79
+    -> Solution value = 39193
+    -> Total time = 21646.00
+    -> Optimality could NOT be proven for the best solution found.
 
 t5p11r8h3.txt:
     -> Solution value = 38459
-    -> Total time = 339.08
-    -> Gap value = 0.00%
+    -> Total time = 382.15
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t5p12r2h2.txt:
-    -> Solution value = 25990
-    -> Total time = 3606.51
-    -> Gap value = 0.00%
+    -> Solution value = 37818
+    -> Total time = 7204.53
+    -> Optimality could NOT be proven for the best solution found.
 
 t5p13r15h2.txt:
-    -> Solution value = 16698
-    -> Total time = 3951.29
-    -> Gap value = 0.00%
+    -> Solution value = 35793
+    -> Total time = 2102.44
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t5p14r2h1.txt:
     -> Solution value = 17306
-    -> Total time = 468.66
-    -> Gap value = 0.00%
+    -> Total time = 307.85
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t6p10r6h2.txt:
-    -> Solution value = 21760
-    -> Total time = 3666.95
-    -> Gap value = 0.00%
+    -> Solution value = 36229
+    -> Total time = 9593.49
+    -> Optimality could NOT be proven for the best solution found.
 
 t6p11r15h2.txt:
-    -> Solution value = 18908
-    -> Total time = 5006.74
-    -> Gap value = 0.00%
+    -> Solution value = 36050
+    -> Total time = 9875.49
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t6p12r10h2.txt:
-    -> Solution value = 23912
-    -> Total time = 3922.98
-    -> Gap value = 0.00%
+    -> Solution value = 43027
+    -> Total time = 11910.51
+    -> Optimality could NOT be proven for the best solution found.
 
 t6p13r2h2.txt:
-    -> Solution value = 25932
-    -> Total time = 3615.49
-    -> Gap value = 0.00%
+    -> Solution value = 42315
+    -> Total time = 9330.26
+    -> Optimality could NOT be proven for the best solution found.
 
 t6p14r2h1.txt:
-    -> Solution value = 23633
-    -> Total time = 3609.01
-    -> Gap value = 0.00%
+    -> Solution value = 34879
+    -> Total time = 18755.01
+    -> Optimality could NOT be proven for the best solution found.
 

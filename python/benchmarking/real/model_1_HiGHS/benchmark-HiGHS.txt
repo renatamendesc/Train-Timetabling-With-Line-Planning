@@ -1,85 +1,87 @@
 t3p16r10h1.txt:
-    -> Solution value = 49640
-    -> Total time = 21602.43
-    -> Gap value = 84.37%
-    -> Lower bound = 7760
+    -> Solution value = 39440
+    -> Total time = 21602.10
+    -> Gap value = 74.90%
+    -> Lower bound = 9900
 
 t3p16r6h1.txt:
-    -> Solution value = 40420
-    -> Total time = 21602.05
-    -> Gap value = 0.30%
-    -> Lower bound = 40300
+    -> Solution value = 40360
+    -> Total time = 9917.17
+    -> Gap value = 0.00%
+    -> Lower bound = 40360
 
 t3p16r6h4.txt:
     -> Solution value = 47056
-    -> Total time = 16336.13
+    -> Total time = 10542.72
     -> Gap value = 0.00%
-    -> Lower bound = 47054
+    -> Lower bound = 47056
 
 t3p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 17242.25
+    -> Total time = 6743.47
     -> Gap value = 0.00%
-    -> Lower bound = 47029
+    -> Lower bound = 47031
 
 t3p16r8h1.txt:
-    -> Solution value = 42580
-    -> Total time = 21601.94
-    -> Gap value = 99.63%
-    -> Lower bound = 157
+    -> Solution value = 45900
+    -> Total time = 21601.84
+    -> Gap value = 96.92%
+    -> Lower bound = 1415
 
 t4p16r10h1.txt:
-    -> Solution value = 33760
-    -> Total time = 21602.28
-    -> Gap value = 49.59%
-    -> Lower bound = 17020
+    -> Solution value = 42940
+    -> Total time = 21602.51
+    -> Gap value = 42.29%
+    -> Lower bound = 24780
 
 t4p16r6h1.txt:
-    
-    -> Total time = 21603.02Traceback (most recent call last):
-        -> Could not prove optimality!
+    -> Solution value = 49580
+    -> Total time = 21602.98
+    -> Gap value = 91.37%
+    -> Lower bound = 4280
 
 t4p16r6h4.txt:
-    -> Solution value = 46816
-    -> Total time = 21603.33
-    -> Gap value = 25.79%
-    -> Lower bound = 34740
+    -> Solution value = 47056
+    -> Total time = 21603.00
+    -> Gap value = 95.92%
+    -> Lower bound = 1922
 
 t4p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 21603.39
-    -> Gap value = 35.22%
-    -> Lower bound = 30468
+    -> Total time = 21603.11
+    -> Gap value = 93.62%
+    -> Lower bound = 3000
 
 t4p16r8h1.txt:
-    
-    -> Total time = 21603.16Traceback (most recent call last):
-        -> Could not prove optimality!
+    -> Solution value = 43800
+    -> Total time = 21603.18
+    -> Gap value = 99.59%
+    -> Lower bound = 179
 
 t5p16r10h1.txt:
     
-    -> Total time = 21604.63Traceback (most recent call last):
-        -> Could not prove optimality!
+    -> Total time = 21603.49Log saved to /home/renata/Train-Timetabling/python/benchmarking/real/model_1_HiGHS/t5p16r10h1/output.log
+    -> Could not prove optimality!
 
 t5p16r6h1.txt:
     
-    -> Total time = 21603.32Traceback (most recent call last):
-        -> Could not prove optimality!
+    -> Total time = 21603.51Log saved to /home/renata/Train-Timetabling/python/benchmarking/real/model_1_HiGHS/t5p16r6h1/output.log
+    -> Could not prove optimality!
 
 t5p16r6h4.txt:
-    -> Solution value = 46816
-    -> Total time = 21603.80
-    -> Gap value = 31.75%
-    -> Lower bound = 31950
+    -> Solution value = 49051
+    -> Total time = 21603.57
+    -> Gap value = 96.02%
+    -> Lower bound = 1955
 
 t5p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 21602.84
-    -> Gap value = 37.04%
-    -> Lower bound = 29611
+    -> Total time = 21602.72
+    -> Gap value = 83.45%
+    -> Lower bound = 7783
 
 t5p16r8h1.txt:
     
-    -> Total time = 21603.44Traceback (most recent call last):
-        -> Could not prove optimality!
+    -> Total time = 21603.56Log saved to /home/renata/Train-Timetabling/python/benchmarking/real/model_1_HiGHS/t5p16r8h1/output.log
+    -> Could not prove optimality!
 

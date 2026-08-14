@@ -1,75 +1,75 @@
 t3p16r10h1.txt:
     -> Solution value = 38080
-    -> Total time = 21601.20
-        -> Could not prove optimality!
+    -> Total time = 21614.68
+    -> Optimality could NOT be proven for the best solution found.
 
 t3p16r6h1.txt:
     -> Solution value = 40360
-    -> Total time = 1625.39
-    -> Gap value = 0.00%
+    -> Total time = 1491.37
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p16r6h4.txt:
     -> Solution value = 47056
-    -> Total time = 2747.42
-    -> Gap value = 0.00%
+    -> Total time = 3256.16
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 1650.58
-    -> Gap value = 0.00%
+    -> Total time = 1812.46
+    -> The best solution found is OPTIMAL (optimality proven).
 
 t3p16r8h1.txt:
-    -> Solution value = 34480
-    -> Total time = 21602.37
-        -> Could not prove optimality!
+    -> Solution value = 34840
+    -> Total time = 21600.59
+    -> Optimality could NOT be proven for the best solution found.
 
 t4p16r10h1.txt:
     -> Solution value = 26180
-    -> Total time = 21600.01
-        -> Could not prove optimality!
+    -> Total time = 21601.14
+    -> Optimality could NOT be proven for the best solution found.
 
 t4p16r6h1.txt:
     -> Solution value = 30520
-    -> Total time = 21600.85
-        -> Could not prove optimality!
+    -> Total time = 21601.14
+    -> Optimality could NOT be proven for the best solution found.
 
 t4p16r6h4.txt:
     -> Solution value = 46816
-    -> Total time = 21602.92
-        -> Could not prove optimality!
+    -> Total time = 21602.44
+    -> Optimality could NOT be proven for the best solution found.
 
 t4p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 21600.82
-        -> Could not prove optimality!
+    -> Total time = 21602.56
+    -> Optimality could NOT be proven for the best solution found.
 
 t4p16r8h1.txt:
     
-    -> Total time = 21602.78
-        -> Could not prove optimality!
+    -> Total time = 21600.68
+    -> Optimality could NOT be proven for the best solution found.
 
 t5p16r10h1.txt:
     
-    -> Total time = 21607.13
-        -> Could not prove optimality!
+    -> Total time = 21601.73
+    -> Optimality could NOT be proven for the best solution found.
 
 t5p16r6h1.txt:
-    -> Solution value = 36500
-    -> Total time = 21603.65
-        -> Could not prove optimality!
+    -> Solution value = 35920
+    -> Total time = 21602.06
+    -> Optimality could NOT be proven for the best solution found.
 
 t5p16r6h4.txt:
     -> Solution value = 47056
-    -> Total time = 21601.18
-        -> Could not prove optimality!
+    -> Total time = 21600.51
+    -> Optimality could NOT be proven for the best solution found.
 
 t5p16r6h6.txt:
     -> Solution value = 47031
-    -> Total time = 21600.36
-        -> Could not prove optimality!
+    -> Total time = 21602.64
+    -> Optimality could NOT be proven for the best solution found.
 
 t5p16r8h1.txt:
     
-    -> Total time = 21602.23
-        -> Could not prove optimality!
+    -> Total time = 21601.40
+    -> Optimality could NOT be proven for the best solution found.
 
